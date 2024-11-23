@@ -1,17 +1,15 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Text
-from ..database import Base
+from database import AbstractBase
 
 if TYPE_CHECKING:
-    from .form import Form
-    
+    from .role import Role
 
-class User(Base):
+
+class User(AbstractBase):
     __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    telegram_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    telegram_id: Mapped[int] = mapped_column(Integer, unique=False, nullable=False)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     middlename: Mapped[str] = mapped_column(String(50), nullable=True)
     surname: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -24,6 +22,6 @@ class User(Base):
     resume: Mapped[str] = mapped_column(String(255), nullable=True)
     avatar: Mapped[str] = mapped_column(String(255), nullable=True)
 
-
-    forms: Mapped[list["Form"]] = relationship("Form", secondary="users_forms", back_populates="users")
-
+    roles: Mapped[list["Role"]] = relationship(
+        "Role", secondary="users_roles", back_populates="users"
+    )
