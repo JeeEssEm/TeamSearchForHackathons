@@ -11,6 +11,6 @@ if TYPE_CHECKING:
 class Role(AbstractBase):
     __tablename__ = "roles"
 
-    title: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
 
     users: Mapped[list["User"]] = relationship("User", secondary="users_roles")
