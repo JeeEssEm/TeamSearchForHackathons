@@ -6,6 +6,8 @@ from datetime import datetime
 
 if TYPE_CHECKING:
     from .role import Role
+    from .technology import Technology
+    from .hackathon import Hackathon
 
 
 class User(AbstractBase):
@@ -26,6 +28,15 @@ class User(AbstractBase):
     form_status: Mapped[bool] = mapped_column(Boolean, default=False)
     is_form_private: Mapped[bool]= mapped_column(Boolean,default=False)
 
+
     roles: Mapped[list["Role"]] = relationship(
         "Role", secondary="users_roles", back_populates="users"
+    )
+    
+    technologies: Mapped[list["Technology"]] = relationship(
+        "Technology", secondary="users_technologies", back_populates="users"
+    )
+    
+    hackathons: Mapped[list["Hackathon"]] = relationship(
+        "Hackathon", secondary="users_hackathons", back_populates="users"
     )
