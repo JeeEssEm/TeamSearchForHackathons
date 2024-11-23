@@ -1,4 +1,13 @@
-__all__ = ("User", "Role", "UsersRoles", "Technology", "UsersTechnologies","UsersHackathons", "Hackathon", "Feedback")
+__all__ = (
+    "User",
+    "Role",
+    "UsersRoles",
+    "Technology",
+    "UsersTechnologies",
+    "UsersHackathons",
+    "Hackathon",
+    "Feedback",
+)
 from .user import User
 from .role import Role
 from .users_roles import UsersRoles
