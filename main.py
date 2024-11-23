@@ -33,4 +33,4 @@ def check_db_connection(db: Session = Depends(get_db)):
         return {"status": "Database connection failed"}
 
 
-Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)
