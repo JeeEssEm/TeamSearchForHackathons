@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .role import Role
     from .technology import Technology
     from .hackathon import Hackathon
+    from .feedback import Feedback
 
 
 class User(AbstractBase):
@@ -39,4 +40,11 @@ class User(AbstractBase):
     
     hackathons: Mapped[list["Hackathon"]] = relationship(
         "Hackathon", secondary="users_hackathons", back_populates="users"
+    )
+    
+    sent_feedbacks: Mapped[list["Feedback"]] = relationship(
+        "Feedback", back_populates="sender", foreign_keys="Feedback.sender_id"
+    )
+    received_feedbacks: Mapped[list["Feedback"]] = relationship(
+        "Feedback", back_populates="receiver", foreign_keys="Feedback.receiver_id"
     )
