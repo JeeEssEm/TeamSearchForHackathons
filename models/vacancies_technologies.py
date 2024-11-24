@@ -2,11 +2,14 @@ from sqlalchemy import Table, Column, Integer, ForeignKey
 from database import Base
 
 
-users_technologies = Table(
-    "users_technologies",
+vacancies_technologies = Table(
+    "vacancies_technologies",
     Base.metadata,
     Column(
-        "user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+        "vacancy",
+        Integer,
+        ForeignKey("vacancies.id", ondelete="CASCADE"),
+        primary_key=True,
     ),
     Column(
         "technology_id",

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class User(AbstractBase):
     __tablename__ = "users"
-    telegram_id: Mapped[int] = mapped_column(Integer, unique=False, nullable=False)
+    telegram_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     middlename: Mapped[str] = mapped_column(String(50), nullable=True)
     surname: Mapped[str] = mapped_column(String(50), nullable=False)
