@@ -6,6 +6,7 @@ from database import AbstractBase
 
 if TYPE_CHECKING:
     from .user import User
+    from .team import Team
 
 
 class Hackathon(AbstractBase):
@@ -15,4 +16,6 @@ class Hackathon(AbstractBase):
     year: Mapped[int] = mapped_column(Integer, nullable=False)
     on_going: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    users: Mapped[list["User"]] = relationship("User", secondary="users_roles")
+    users: Mapped[list["User"]] = relationship("User", secondary="users_hackathons")
+
+    teams: Mapped[list["Team"]] = relationship("Team", secondary="teams_hackathons")

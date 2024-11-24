@@ -1,14 +1,18 @@
-from sqlalchemy import ForeignKey, Integer, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
-from database import AbstractBase
+from sqlalchemy import Table, Column, Integer, Boolean, ForeignKey
+from database import Base
 
-
-class UsersHackathons(AbstractBase):
-    __tablename__ = "users_hackathons"
-
-    user_is: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    role_id: Mapped[int] = mapped_column(
-        ForeignKey("hackathons.id"), onupdate="CASCADE"
-    )
-    place: Mapped[int] = mapped_column(Integer, nullable=True)
-    is_wished: Mapped[bool] = mapped_column(Boolean, default=True)
+users_hackathons = Table(
+    "users_hackathons",
+    Base.metadata,
+    Column(
+        "user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column(
+        "hackathon_id",
+        Integer,
+        ForeignKey("hackathons.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("place", Integer, nullable=True),
+    Column("is_wished", Boolean, default=True),
+)
