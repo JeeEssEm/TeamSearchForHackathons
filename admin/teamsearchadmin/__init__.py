@@ -1,5 +1,5 @@
 from . import settings
-from core.dependencies.containers import ServiceContainer
+from core.dependencies.container import Container
 
-container = ServiceContainer()
+container = Container()
 container.config.from_dict(settings.__dict__)

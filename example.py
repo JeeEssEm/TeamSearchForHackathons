@@ -5,13 +5,13 @@ from dependency_injector.wiring import Provide, inject
 
 from core.config import settings
 from core.services import TechnologiesService
-from core.dependencies.containers import ServiceContainer
+from core.dependencies.container import Container
 
 
 @inject
 async def create_technology(
         tech_service: TechnologiesService =
-        Provide[ServiceContainer.technology_service]
+        Provide[Container.technology_service]
 ):
     # вот это уже пример инъекции зависимости сервиса, работающего с
     # технологиями. Это збс, потому что вам не нужно думать, как там
@@ -24,7 +24,7 @@ async def create_technology(
 
 
 async def main(
-        db=Provide[ServiceContainer.db]
+        db=Provide[Container.db]
 ):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
@@ -36,7 +36,7 @@ async def main(
 if __name__ == '__main__':
     # тут ниче не трогать. Почти все эти вещи уже прописаны в определённых
     # местах
-    container = ServiceContainer()
+    container = Container()
     container.wire(modules=[__name__])
 
     logging.disable(logging.INFO)
