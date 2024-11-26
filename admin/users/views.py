@@ -1,8 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render
 from django.conf import settings
-from django.views.generic import FormView, CreateView, View
-from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import FormView
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.http import HttpResponse
