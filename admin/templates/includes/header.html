@@ -1,0 +1,28 @@
+<header class="header flex-wrap d-flex container-fluid position-lg-absolute dark-bg">
+	<nav class="navbar navbar-expand-md d-flex justify-content-lg-between justify-content-sm-center align-items-center w-100">
+		<a href="{% url 'home:index' %}"
+		   class="text-decoration-none navbar-brand">
+			<h1 class="header">Dashboard</h1>
+		</a>
+
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">
+			<div class="ms-lg-auto ms-sm-2 navbar-btn lift text-decoration-none">
+				{% if request.user.is_authenticated %}
+				<div class="dropdown d-none d-lg-block d-md-block">
+					<p class="my-0 ms-1 profile__link">{{ request.user.nickname }}</p>
+				</div>
+			</div>
+			<div>
+				<form action="{% url 'users:logout' %}" method="post">
+					{% csrf_token %}
+				  <button type="submit" class="btn btn-primary">Выйти</button>
+				</form>
+				{% else %}
+				<div class="d-flex gap-2">
+					<a href="{% url 'users:login' %}" class="btn btn-primary px-3">Войти</a>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</nav>
+</header>

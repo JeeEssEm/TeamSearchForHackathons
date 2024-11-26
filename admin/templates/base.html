@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru" data-bs-theme="dark">
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}"/>
+	<link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
+</head>
+<body>
+<div class="wrapper d-flex flex-column dark-bg">
+	{% include "includes/header.html" %}
+	<section class="d-flex flex-lg-grow-1 flex-lg-row flex-sm-column">
+		{% with request.resolver_match.view_name as view_name %}
+		{% if view_name != 'users:login' and view_name != 'users:signup' %}
+			{% include "includes/sidebar.html" %}
+		{% endif %}
+		{% endwith %}
+		<main class="main col-lg-8 col-sm-12">
+			{% block content %}
+			{% endblock content %}
+		</main>
+	</section>
+	{% include "includes/footer.html" %}
+</div>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% block scripts %}
+{% endblock scripts %}
+</body>
+</html>

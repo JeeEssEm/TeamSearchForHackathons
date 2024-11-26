@@ -9,9 +9,8 @@ from core.dependencies.container import Container
 
 
 @inject
-async def create_technology(
-        tech_service: TechnologiesService =
-        Provide[Container.technology_service]
+async def handler(
+        tech_service=Provide[Container.technology_service]
 ):
     # вот это уже пример инъекции зависимости сервиса, работающего с
     # технологиями. Это збс, потому что вам не нужно думать, как там
@@ -30,7 +29,7 @@ async def main(
         await db.init_models()  # об этом думать не надо
 
     for _ in range(23):
-        await create_technology()
+        await handler()
 
 
 if __name__ == '__main__':
