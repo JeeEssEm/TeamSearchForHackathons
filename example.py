@@ -10,7 +10,8 @@ from core.dependencies.container import Container
 
 @inject
 async def handler(
-        tech_service=Provide[Container.technology_service]
+        tech_service:
+        TechnologiesService = Provide[Container.technology_service]
 ):
     # вот это уже пример инъекции зависимости сервиса, работающего с
     # технологиями. Это збс, потому что вам не нужно думать, как там
