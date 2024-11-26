@@ -47,6 +47,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'users.auth.EmailLoginAuth',
+]
+
 ROOT_URLCONF = 'teamsearchadmin.urls'
 
 TEMPLATES = [

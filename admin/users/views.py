@@ -7,13 +7,14 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 
 from .models import Invite
+from .forms import SignUpForm
 
 
 class SignUpView(FormView):
     template_name = 'users/signup.html'
     model = User
     success_url = reverse_lazy('users:login')
-    form_class = UserCreationForm
+    form_class = SignUpForm
 
     def dispatch(self, request, *args, **kwargs):
         token = request.GET.get('invite')
