@@ -26,3 +26,15 @@
     {{ error|escape }}
   </div>
 {% endfor %}
+{% if messages %}
+	{% for msg in messages %}
+	  <div class="alert alert-info">
+	  {% if 'safe' in msg.tags %}
+	    {{ msg|safe }}
+	  {% else %}
+	    {{ msg }}
+	  {% endif %}
+	  </div>
+	{% endfor %}
+{% endif %}
+

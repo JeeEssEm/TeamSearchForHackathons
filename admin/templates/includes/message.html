@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+{% block content %}
+  <div class="my-auto d-flex flex-column align-items-center">
+    <h2 class="text-center">
+      {{ text }}
+    </h2>
+    <a href="{% url 'users:login' %}" class="btn btn-primary">К входу</a>
+  </div>
+{% endblock content %}

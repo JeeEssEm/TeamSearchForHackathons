@@ -21,10 +21,12 @@ sys.path.append(PROJECT_ROOT)
 SECRET_KEY = 'django-insecure-0rdm^6^0mi=@sbmsx-q=yg&yr#&my^krp^u17isdn0r=nnx$@'
 
 DEBUG = True
-DEFAULT_USER_ACTIVITY = True
+DEFAULT_USER_ACTIVITY = False
 
 ALLOWED_HOSTS = []
 
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_DELTA_DAYS = 3
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
@@ -115,3 +117,9 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / 'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+else:
+    ...
