@@ -7,8 +7,8 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
-    path('signup/<str:token>', views.SignUpView.as_view(), name='signup'),
-    # path('activate/<str:token>', views., name='index'),
+    path('signup/', views.SignUpView.as_view(), name='signup'),
+    # path('activate/', views., name='index'),
     path('login/', LoginView.as_view(
         template_name='users/login.html',
         next_page=reverse_lazy('home:index'),

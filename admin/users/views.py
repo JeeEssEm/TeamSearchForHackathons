@@ -16,7 +16,7 @@ class SignUpView(FormView):
     form_class = UserCreationForm
 
     def dispatch(self, request, *args, **kwargs):
-        token = kwargs.get('token')
+        token = request.GET.get('invite')
         self.token = get_object_or_404(Invite, token=token)
         if self.token.is_used:
             return HttpResponse('Токен уже использован', status=400)
