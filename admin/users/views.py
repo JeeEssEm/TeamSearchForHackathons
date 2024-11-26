@@ -1,4 +1,5 @@
 import jwt
+
 from django.conf import settings
 from django.contrib import messages
 from django.views.generic import FormView, View
@@ -7,11 +8,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from django.core.mail import send_mail
 
 from .models import Invite
 from .forms import SignUpForm, ResendActivationForm
-from .utils import decode_jwt_token, generate_jwt_token
+from .utils import send_activation_email, decode_jwt_token
 
 
 class SignUpView(FormView):
@@ -40,18 +40,10 @@ class SignUpView(FormView):
         self.token.save()
 
         if not settings.DEFAULT_USER_ACTIVITY:
-            token = generate_jwt_token(user.id)
-            link = self.request.build_absolute_uri(
-                reverse_lazy('users:activate')
-            )[:-1] + f'?token={token}'
-
-            link = f'<a href="{link}">ссылке</a>'
-            send_mail(
-                'Активация аккаунта',
-                # settings.DEFAULT_FROM_EMAIL,
-                f'Для активации аккаунта перейдите по {link}',
-                'test',
-                [form.cleaned_data.get('email')],
+            send_activation_email(
+                user.id,
+                form.cleaned_data.get('email'),
+                self.request
             )
             messages.success(
                 self.request,
@@ -120,7 +112,12 @@ class ResendActivationEmailView(FormView):
         except User.DoesNotExist:
             form.add_error('email', 'Пользователя с таким email не существует!')
             return super().form_invalid(form)
-        ...  # отправка письма :))
+
+        send_activation_email(
+            user.id,
+            form.cleaned_data.get('email'),
+            self.request
+        )
         messages.success(self.request, 'Письмо с кодом активации '
                                        'отправлено на вашу почту')
         return super().form_valid(form)
