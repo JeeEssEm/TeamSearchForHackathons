@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class Technology(AbstractBase):
-    __tablename__ = "technologies"
+    __tablename__ = 'technologies'
 
     title: Mapped[str] = mapped_column(String, nullable=False)
 
-    users: Mapped[list["User"]] = relationship("User", secondary="users_technologies")
+    users: Mapped[list['User']] = relationship('User', secondary='users_technologies')

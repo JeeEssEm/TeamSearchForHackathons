@@ -10,9 +10,9 @@ from database import Base, engine
 app = FastAPI()
 
 
-@app.get("/")
+@app.get('/')
 def read_root():
-    return {"Hello": "World"}
+    return {'Hello': 'World'}
 
 
 def get_db():
@@ -24,16 +24,16 @@ def get_db():
 
 
 # ДЛЯ ПРОВЕРКИ ПОДКЛЮЧЕНИЯ К БД
-@app.get("/check_db_connection")
+@app.get('/check_db_connection')
 def check_db_connection(db: Session = Depends(get_db)):
     try:
-        db.execute(text("SELECT 1"))
-        return {"status": "Database connection is successful"}
+        db.execute(text('SELECT 1'))
+        return {'status': 'Database connection is successful'}
     except OperationalError:
-        return {"status": "Database connection failed"}
+        return {'status': 'Database connection failed'}
 
 
-Base.metadata.create_all(engine)
+Base.metadata.drop_all(engine)
 
 
 # from sqlalchemy.orm import Session
@@ -43,19 +43,19 @@ Base.metadata.create_all(engine)
 # session = Session()
 
 # # Добавляем двух пользователей
-# user1 = User(name="Alice")
-# user2 = User(name="Bob")
+# user1 = User(name='Alice')
+# user2 = User(name='Bob')
 # session.add_all([user1, user2])
 # session.commit()
 
 # # Добавляем отзыв от Alice к Bob
-# feedback = Feedback(sender_id=user1.id, receiver_id=user2.id, feedback="Great work!")
+# feedback = Feedback(sender_id=user1.id, receiver_id=user2.id, feedback='Great work!')
 # session.add(feedback)
 # session.commit()
 
 # # Проверяем данные
-# sent = session.query(User).filter_by(name="Alice").first()
-# print(f"Sent Feedbacks: {sent.sent_feedbacks}")
+# sent = session.query(User).filter_by(name='Alice').first()
+# print(f'Sent Feedbacks: {sent.sent_feedbacks}')
 
-# received = session.query(User).filter_by(name="Bob").first()
-# print(f"Received Feedbacks: {received.received_feedbacks}")
+# received = session.query(User).filter_by(name='Bob').first()
+# print(f'Received Feedbacks: {received.received_feedbacks}')
