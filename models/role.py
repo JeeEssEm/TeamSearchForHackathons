@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
+# for test
 class Role(AbstractBase):
     __tablename__ = 'roles'
 
