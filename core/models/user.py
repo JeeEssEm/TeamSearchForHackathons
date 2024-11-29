@@ -12,8 +12,10 @@ if TYPE_CHECKING:
 
 
 class User(AbstractBase):
-    __tablename__ = 'users'
-    telegram_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    __tablename__ = "users"
+    telegram_id: Mapped[int] = mapped_column(
+        Integer, unique=True, nullable=False
+    )
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     middlename: Mapped[str] = mapped_column(String(50), nullable=True)
     surname: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -31,21 +33,23 @@ class User(AbstractBase):
     form_status: Mapped[bool] = mapped_column(Boolean, default=False)
     is_form_private: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    roles: Mapped[list['Role']] = relationship(
-        'Role', secondary='users_roles', back_populates='users'
+    roles: Mapped[list["Role"]] = relationship(
+        "Role", secondary="users_roles", back_populates="users"
     )
 
-    technologies: Mapped[list['Technology']] = relationship(
-        'Technology', secondary='users_technologies', back_populates='users'
+    technologies: Mapped[list["Technology"]] = relationship(
+        "Technology", secondary="users_technologies", back_populates="users"
     )
 
-    hackathons: Mapped[list['Hackathon']] = relationship(
-        'Hackathon', secondary='users_hackathons', back_populates='users'
+    hackathons: Mapped[list["Hackathon"]] = relationship(
+        "Hackathon", secondary="users_hackathons", back_populates="users"
     )
 
-    sent_feedbacks: Mapped[list['Feedback']] = relationship(
-        'Feedback', back_populates='sender', foreign_keys='Feedback.sender_id'
+    sent_feedbacks: Mapped[list["Feedback"]] = relationship(
+        "Feedback", back_populates="sender", foreign_keys="Feedback.sender_id"
     )
-    received_feedbacks: Mapped[list['Feedback']] = relationship(
-        'Feedback', back_populates='receiver', foreign_keys='Feedback.receiver_id'
+    received_feedbacks: Mapped[list["Feedback"]] = relationship(
+        "Feedback",
+        back_populates="receiver",
+        foreign_keys="Feedback.receiver_id",
     )

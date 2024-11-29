@@ -9,20 +9,20 @@ if TYPE_CHECKING:
 
 
 class Feedback(AbstractBase):
-    __tablename__ = 'feedbacks'
+    __tablename__ = "feedbacks"
 
     sender_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('users.id'), nullable=False
+        Integer, ForeignKey("users.id"), nullable=False
     )
-    sender: Mapped['User'] = relationship(
-        'User', foreign_keys=[sender_id], back_populates='sent_feedbacks'
+    sender: Mapped["User"] = relationship(
+        "User", foreign_keys=[sender_id], back_populates="sent_feedbacks"
     )
 
     receiver_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('users.id'), nullable=False
+        Integer, ForeignKey("users.id"), nullable=False
     )
-    receiver: Mapped['User'] = relationship(
-        'User', foreign_keys=[receiver_id], back_populates='received_feedbacks'
+    receiver: Mapped["User"] = relationship(
+        "User", foreign_keys=[receiver_id], back_populates="received_feedbacks"
     )
 
     feedback: Mapped[str] = mapped_column(String(300), nullable=False)

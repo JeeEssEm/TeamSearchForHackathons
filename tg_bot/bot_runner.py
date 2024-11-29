@@ -18,11 +18,11 @@ async def run_bot():
     """
     logging.basicConfig(
         level=logging.INFO,
-        format='%(filename)s:%(lineno)d #%(levelname)-8s '
-        '[%(asctime)s] - %(name)s - %(message)s',
+        format="%(filename)s:%(lineno)d #%(levelname)-8s "
+        "[%(asctime)s] - %(name)s - %(message)s",
     )
 
-    logger.info('Запуск Telegram-бота')
+    logger.info("Запуск Telegram-бота")
 
     # Загружаем конфигурацию
     config: Config = load_config()

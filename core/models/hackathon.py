@@ -10,12 +10,16 @@ if TYPE_CHECKING:
 
 
 class Hackathon(AbstractBase):
-    __tablename__ = 'hackathons'
+    __tablename__ = "hackathons"
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     year: Mapped[int] = mapped_column(Integer, nullable=False)
     on_going: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    users: Mapped[list['User']] = relationship('User', secondary='users_hackathons')
+    users: Mapped[list["User"]] = relationship(
+        "User", secondary="users_hackathons"
+    )
 
-    teams: Mapped[list['Team']] = relationship('Team', secondary='teams_hackathons')
+    teams: Mapped[list["Team"]] = relationship(
+        "Team", secondary="teams_hackathons"
+    )

@@ -4,12 +4,12 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from lexicon.lexicon_ru import LEXICON_RU
 
 
-button_yes = KeyboardButton(text=LEXICON_RU['yes_button'])
-button_no = KeyboardButton(text=LEXICON_RU['no_button'])
+button_yes = KeyboardButton(text=LEXICON_RU["yes_button"])
+button_no = KeyboardButton(text=LEXICON_RU["no_button"])
 
-my_teams_button = KeyboardButton(text=LEXICON_RU['my_teams'])
-my_form_button = KeyboardButton(text=LEXICON_RU['my_form'])
-edit_my_form_button = KeyboardButton(text=LEXICON_RU['edit_my_form'])
+my_teams_button = KeyboardButton(text=LEXICON_RU["my_teams"])
+my_form_button = KeyboardButton(text=LEXICON_RU["my_form"])
+edit_my_form_button = KeyboardButton(text=LEXICON_RU["edit_my_form"])
 
 
 yes_no_kb_builder = ReplyKeyboardBuilder()

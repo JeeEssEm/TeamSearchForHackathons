@@ -3,7 +3,7 @@ from dependency_injector import containers, providers
 
 class Service:
     def test(self):
-        return 'tested'
+        return "tested"
 
 
 class Container(containers.DeclarativeContainer):

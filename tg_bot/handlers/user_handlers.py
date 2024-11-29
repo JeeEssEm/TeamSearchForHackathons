@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 
-@router.message(Command(commands='help'))
+@router.message(Command(commands="help"))
 async def process_help_command(message: Message):
-    await message.answer(text=LEXICON_RU['/help'], reply_markup=yes_no_kb)
+    await message.answer(text=LEXICON_RU["/help"], reply_markup=yes_no_kb)
 
 
 @router.message(CommandStart())
@@ -72,7 +72,7 @@ async def process_course(message: Message, state: FSMContext):
         await message.reply("Введи свою группу:")
         await state.set_state(UserForm.group)
         return
-    await message.reply('❗️ Введите натуральное число')
+    await message.reply("❗️ Введите натуральное число")
 
 
 @router.message(F.text, UserForm.group)
@@ -87,17 +87,20 @@ async def process_group(message: Message, state: FSMContext, bot: Bot):
         is_anonymous=False,
     )
     await state.update_data(
-        role_poll_id=poll_message.poll.id, role_message_id=poll_message.message_id
+        role_poll_id=poll_message.poll.id,
+        role_message_id=poll_message.message_id,
     )
     logger.info("Poll for roles sent")
     await state.set_state(UserForm.roles)
 
 
 @router.poll_answer(UserForm.roles)
-async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot):
+async def process_role_poll(
+    poll_answer: PollAnswer, state: FSMContext, bot: Bot
+):
     user_data = await state.get_data()
-    role_poll_id = user_data.get('role_poll_id')
-    role_message_id = user_data.get('role_message_id')
+    role_poll_id = user_data.get("role_poll_id")
+    role_message_id = user_data.get("role_message_id")
     if role_poll_id and role_message_id:
         poll = await bot.stop_poll(
             chat_id=poll_answer.user.id, message_id=role_message_id
@@ -108,15 +111,15 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
     user_data = await state.get_data()
 
     user = BaseUser(
-        user_id=user_data['user_id'],
-        email=user_data['email'],
-        last_name=user_data['last_name'],
-        first_name=user_data['first_name'],
-        middle_name=user_data['middle_name'],
-        university=user_data['university'],
-        course=user_data['course'],
-        group=user_data['group'],
-        roles=user_data['roles'],
+        user_id=user_data["user_id"],
+        email=user_data["email"],
+        last_name=user_data["last_name"],
+        first_name=user_data["first_name"],
+        middle_name=user_data["middle_name"],
+        university=user_data["university"],
+        course=user_data["course"],
+        group=user_data["group"],
+        roles=user_data["roles"],
     )
     await bot.send_message(
         chat_id=poll_answer.user.id, text=f"Данные пользователя:\n{user}"
@@ -126,15 +129,17 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
     await state.update_data(selected_technologies=[])
     await bot.send_message(
         chat_id=poll_answer.user.id,
-        text='Тепери выбери свой стек технологий:',
+        text="Тепери выбери свой стек технологий:",
         reply_markup=alphabet_kb(),
     )
 
 
-@router.callback_query(F.data.startswith('technologies_'))
+@router.callback_query(F.data.startswith("technologies_"))
 async def _(cb: CallbackQuery, state: FSMContext):
     letter = cb.data[-1]
     data = await state.get_data()
     await cb.message.edit_reply_markup(
-        reply_markup=choose_technologies(letter, data.get('selected_technologies'))
+        reply_markup=choose_technologies(
+            letter, data.get("selected_technologies")
+        )
     )

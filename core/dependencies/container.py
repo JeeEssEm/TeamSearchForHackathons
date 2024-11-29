@@ -15,10 +15,8 @@ class Container(containers.DeclarativeContainer):
     )
 
     technology_service = providers.Factory(
-        TechnologiesService.constructor,
-        factory=db.provided.session
+        TechnologiesService.constructor, factory=db.provided.session
     )
     technology_repository = providers.Factory(
-        TechnologiesRepository.constructor,
-        factory=db.provided.session
+        TechnologiesRepository.constructor, factory=db.provided.session
     )

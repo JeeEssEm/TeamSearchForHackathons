@@ -15,16 +15,16 @@ from .utils import send_activation_email, decode_jwt_token
 
 
 class SignUpView(FormView):
-    template_name = 'users/signup.html'
+    template_name = "users/signup.html"
     model = User
-    success_url = reverse_lazy('users:login')
+    success_url = reverse_lazy("users:login")
     form_class = SignUpForm
 
     def dispatch(self, request, *args, **kwargs):
-        token = request.GET.get('invite')
+        token = request.GET.get("invite")
         self.token = get_object_or_404(Invite, token=token)
         if self.token.is_used:
-            return HttpResponse('Токен уже использован', status=400)
+            return HttpResponse("Токен уже использован", status=400)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -41,83 +41,80 @@ class SignUpView(FormView):
 
         if not settings.DEFAULT_USER_ACTIVITY:
             send_activation_email(
-                user.id,
-                form.cleaned_data.get('email'),
-                self.request
+                user.id, form.cleaned_data.get("email"), self.request
             )
             messages.success(
                 self.request,
-                'Письмо с кодом активации отправлено на вашу почту'
+                "Письмо с кодом активации отправлено на вашу почту",
             )
 
         return super().form_valid(form)
 
 
 class ActivateUserView(View):
-    template_name = 'users/activate.html'
+    template_name = "users/activate.html"
 
     def get(self, request, *args, **kwargs):
-        token = request.GET.get('token')
+        token = request.GET.get("token")
         try:
-            user_id = decode_jwt_token(token).get('user_id')
+            user_id = decode_jwt_token(token).get("user_id")
             user = get_object_or_404(User, id=user_id)
             if user.is_active:
-                messages.success(request, 'Аккаунт уже активирован')
+                messages.success(request, "Аккаунт уже активирован")
             else:
                 user.is_active = True
                 user.save()
-                messages.success(request, 'Аккаунт успешно активирован')
+                messages.success(request, "Аккаунт успешно активирован")
             return render(request, self.template_name)
         except jwt.ExpiredSignatureError:
-            messages.error(request, 'Токен устарел')
+            messages.error(request, "Токен устарел")
         except jwt.InvalidTokenError:
-            messages.error(request, 'Токен недействителен')
+            messages.error(request, "Токен недействителен")
 
 
 class CustomLoginView(LoginView):
-    template_name = 'users/login.html'
+    template_name = "users/login.html"
 
     def form_invalid(self, form):
-        username = form.data.get('username')
+        username = form.data.get("username")
         kwargs = {
-            'email' if '@' in username else 'username': username,
+            "email" if "@" in username else "username": username,
         }
         try:
             user = User.objects.get(**kwargs)
             if not user.is_active:
-                link = reverse_lazy('users:resend_activation_email')
+                link = reverse_lazy("users:resend_activation_email")
                 messages.error(
                     self.request,
-                    f'Вы можете отправить письмо с кодом активации '
+                    f"Вы можете отправить письмо с кодом активации "
                     f'повторно, перейдя по этой <a href="{link}">ссылке</a>',
-                    extra_tags='safe'
+                    extra_tags="safe",
                 )
         finally:
             return super().form_invalid(form)
 
 
 class ResendActivationEmailView(FormView):
-    template_name = 'users/email_interact.html'
+    template_name = "users/email_interact.html"
     form_class = ResendActivationForm
-    success_url = reverse_lazy('users:login')
+    success_url = reverse_lazy("users:login")
 
     def form_valid(self, form):
-        email = form.cleaned_data.get('email')
+        email = form.cleaned_data.get("email")
         try:
             user = User.objects.get(email=email)
             if user.is_active:
-                form.add_error('email', 'Этот аккаунт уже активирован')
+                form.add_error("email", "Этот аккаунт уже активирован")
                 return super().form_invalid(form)
 
         except User.DoesNotExist:
-            form.add_error('email', 'Пользователя с таким email не существует!')
+            form.add_error("email", "Пользователя с таким email не существует!")
             return super().form_invalid(form)
 
         send_activation_email(
-            user.id,
-            form.cleaned_data.get('email'),
-            self.request
+            user.id, form.cleaned_data.get("email"), self.request
         )
-        messages.success(self.request, 'Письмо с кодом активации '
-                                       'отправлено на вашу почту')
+        messages.success(
+            self.request, "Письмо с кодом активации " "отправлено на вашу почту"
+        )
         return super().form_valid(form)

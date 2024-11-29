@@ -20,7 +20,7 @@ from django.shortcuts import render
 
 
 class IndexView(View):
-    template_name = 'home/index.html'
+    template_name = "home/index.html"
 
     def get(self, request):
         return render(request, self.template_name)

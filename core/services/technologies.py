@@ -15,7 +15,7 @@ class TechnologiesService(Service):
             return TechnologyResponse(
                 status=ResponseStatus.already_exists,
                 technology=await self.repository.get_same_technologies(title),
-                message='Технологии с похожим названием уже существуют',
+                message="Технологии с похожим названием уже существуют",
             )
         # какая-нибудь проверка на уровень доверия к пользователю
         status = ResponseStatus.object_created
@@ -24,5 +24,5 @@ class TechnologiesService(Service):
         return TechnologyResponse(
             status=status,
             technology=await self.repository.create(title),
-            message=None
+            message=None,
         )

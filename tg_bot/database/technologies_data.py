@@ -1,1 +1,1 @@
-tech_data = ['Python', 'C++', 'React', 'Flusk', 'PyTorch', 'Assembler']
+tech_data = ["Python", "C++", "React", "Flusk", "PyTorch", "Assembler"]

@@ -10,7 +10,7 @@ class SignUpForm(UserCreationForm):
             User.username.field.name,
             User.email.field.name,
             User.first_name.field.name,
-            User.last_name.field.name
+            User.last_name.field.name,
         )
 
 
@@ -20,7 +20,7 @@ class LoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.fields['username'].label = 'Имя пользователя/email'
+        self.fields["username"].label = "Имя пользователя/email"
 
 
 class ResendActivationForm(Form):

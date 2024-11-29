@@ -18,7 +18,7 @@ async def handler(
 
     # зачастую вам понадобится получать сервисы и работать с ними именно таким
     # образом
-    res = await tech_service.create_technology('test technology')
+    res = await tech_service.create_technology("test technology")
     print(res)
 
 
@@ -30,7 +30,7 @@ async def main(db=Provide[Container.db]):
         await handler()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # тут ниче не трогать. Почти все эти вещи уже прописаны в определённых
     # местах
     container = Container()
