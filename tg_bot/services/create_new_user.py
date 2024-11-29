@@ -8,7 +8,3 @@ from dataclasses import dataclass
 # dictionary =  {1:'123'}
 
 # print(type(list(dictionary.items())[0]))
-
-
-    
-    

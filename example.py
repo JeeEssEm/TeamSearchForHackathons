@@ -10,8 +10,7 @@ from core.dependencies.container import Container
 
 @inject
 async def handler(
-        tech_service:
-        TechnologiesService = Provide[Container.technology_service]
+    tech_service: TechnologiesService = Provide[Container.technology_service],
 ):
     # вот это уже пример инъекции зависимости сервиса, работающего с
     # технологиями. Это збс, потому что вам не нужно думать, как там
@@ -23,9 +22,7 @@ async def handler(
     print(res)
 
 
-async def main(
-        db=Provide[Container.db]
-):
+async def main(db=Provide[Container.db]):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
 
