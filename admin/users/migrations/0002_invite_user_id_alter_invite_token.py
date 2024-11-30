@@ -26,6 +26,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="invite",
             name="token",
-            field=models.CharField(max_length=256, verbose_name="Activation key"),
+            field=models.CharField(
+                max_length=256, verbose_name="Activation key"
+            ),
         ),
     ]

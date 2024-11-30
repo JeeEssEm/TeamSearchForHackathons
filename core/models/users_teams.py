@@ -20,5 +20,5 @@ users_teams = Table(
         "role_id",
         Integer,
         ForeignKey("roles.id", ondelete="CASCADE"),
-    )
+    ),
 )

@@ -13,9 +13,7 @@ class Technology(Base):
 
     title: Mapped[str] = mapped_column(String, nullable=False)
 
-    users: Mapped[list["User"]] = relationship(
-        secondary="users_technologies"
-    )
+    users: Mapped[list["User"]] = relationship(secondary="users_technologies")
 
     def convert_to_dto(self):
         return dtos.Technology(

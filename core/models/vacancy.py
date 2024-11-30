@@ -26,8 +26,10 @@ class Vacancy(Base):
     )
 
     async def convert_to_dto_view(self):
-        techs = [tech.convert_to_dto()
-                 for tech in await self.awaitable_attrs.technologies]
+        techs = [
+            tech.convert_to_dto()
+            for tech in await self.awaitable_attrs.technologies
+        ]
         return dtos.VacancyView(
             id=self.id,
             team_id=self.team_id,

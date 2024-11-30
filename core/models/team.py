@@ -24,11 +24,13 @@ class Team(Base):
         Integer, ForeignKey("users.id"), nullable=False
     )
     # поле для получения капитана
-    captain: Mapped['User'] = relationship()
+    captain: Mapped["User"] = relationship()
 
     async def convert_to_dto(self) -> dtos.Team:
-        members = [user.convert_to_dto_baseuser() for user in
-                   await self.awaitable_attrs.users]
+        members = [
+            user.convert_to_dto_baseuser()
+            for user in await self.awaitable_attrs.users
+        ]
         members.append(
             (await self.awaitable_attrs.captain).convert_to_dto_baseuser()
         )

@@ -14,7 +14,9 @@ class VacanciesService(Service):
     async def get_vacancy(self, vac_id: int) -> VacancyView:
         return await self.repository.get_by_id(vac_id)
 
-    async def edit_vacancy(self, vac_id: int, data: CreateVacancy) -> VacancyView:
+    async def edit_vacancy(
+        self, vac_id: int, data: CreateVacancy
+    ) -> VacancyView:
         if data.technologies:
             await self.repository.remove_all_technologies(vac_id)
             await self.repository.add_technologies(vac_id, data.technologies)

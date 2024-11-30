@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from datetime import date
 
-from sqlalchemy import String, Integer, Boolean
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from core.database import Base
@@ -24,8 +24,7 @@ class Hackathon(Base):
     )
 
     teams: Mapped[list["Team"]] = relationship(
-        "Team", secondary="teams_hackathons",
-        back_populates="hackathons"
+        "Team", secondary="teams_hackathons", back_populates="hackathons"
     )
 
     def convert_to_dto_basehack(self) -> dtos.BaseHackathon:

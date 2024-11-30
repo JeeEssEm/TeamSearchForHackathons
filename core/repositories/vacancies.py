@@ -10,16 +10,19 @@ class VacanciesRepository(Repository):
     async def _get_by_id(self, vacancy_id: int) -> models.Vacancy:
         vac = await self.session.get(models.Vacancy, vacancy_id)
         if not vac:
-            raise NotFound('Такой вакансии не существует')
+            raise NotFound("Такой вакансии не существует")
         return vac
 
     async def add_technologies(self, vacancy_id: int, techs: list[int]):
-        stmt = insert(models.vacancies_technologies).values([
-            {
-                'technology_id': tech,
-                'vacancy_id': vacancy_id,
-            } for tech in techs
-        ])
+        stmt = insert(models.vacancies_technologies).values(
+            [
+                {
+                    "technology_id": tech,
+                    "vacancy_id": vacancy_id,
+                }
+                for tech in techs
+            ]
+        )
         await self.session.execute(stmt)
         await self.session.commit()
 
@@ -35,7 +38,7 @@ class VacanciesRepository(Repository):
             role_id=data.role_id,
             team_id=data.team_id,
             description=data.description,
-            is_private=False
+            is_private=False,
         )
         self.session.add(vacancy)
         await self.session.commit()

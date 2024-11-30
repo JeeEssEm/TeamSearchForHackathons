@@ -5,17 +5,16 @@ from datetime import date
 from dependency_injector.wiring import Provide, inject
 
 from core.config import settings
-from core.services import TechnologiesService
 from core import models
 from core import dtos
-from core.repositories import TeamsRepository, TechnologiesRepository
+from core.repositories import TeamsRepository
 from core.dependencies.container import Container
 
 
 @inject
 async def create_entity(
-        model,
-        db=Provide[Container.db],
+    model,
+    db=Provide[Container.db],
 ):
     async with db.session() as session:
         session.add(model)
@@ -23,17 +22,10 @@ async def create_entity(
 
 
 @inject
-async def create_team(
-        db=Provide[Container.db]
-):
+async def create_team(db=Provide[Container.db]):
     async with db.session() as session:
         team_repo = TeamsRepository(session)
-        dto = dtos.CreateTeam(
-            1,
-            'team 1',
-            'some desc',
-            [1]
-        )
+        dto = dtos.CreateTeam(1, "team 1", "some desc", [1])
         team = await team_repo.create(dto)
         print(team)
         await team_repo.add_hacks_to_team(team.id, [2])
@@ -45,19 +37,29 @@ async def main(db=Provide[Container.db]):
         await db.init_models()  # об этом думать не надо
 
     today = date.today()
-    await create_entity(models.User(
-        name='name',
-        middlename='middle name',
-        surname='surname',
-        email='email@em.ail',
-        uni='miem', year_of_study=-1, group='biv248',
-        about_me='it feels so empty without me',
-        telegram_id=123123
-    ))
-    await create_entity(models.Hackathon(title='test hack 1', start_date=today,
-                                         end_date=today, id=1))
-    await create_entity(models.Hackathon(title='test hack 2', start_date=today,
-                                         end_date=today, id=2))
+    await create_entity(
+        models.User(
+            name="name",
+            middlename="middle name",
+            surname="surname",
+            email="email@em.ail",
+            uni="miem",
+            year_of_study=-1,
+            group="biv248",
+            about_me="it feels so empty without me",
+            telegram_id=123123,
+        )
+    )
+    await create_entity(
+        models.Hackathon(
+            title="test hack 1", start_date=today, end_date=today, id=1
+        )
+    )
+    await create_entity(
+        models.Hackathon(
+            title="test hack 2", start_date=today, end_date=today, id=2
+        )
+    )
 
     await create_team()
 
