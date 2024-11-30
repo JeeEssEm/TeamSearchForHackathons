@@ -73,3 +73,16 @@ class TeamsRepository(Repository):
     async def get_base_team(self, team_id: int) -> BaseTeam:
         team = await self._get_team_by_id(team_id)
         return await team.convert_to_dto()
+
+    async def remove_hacks(self, team_id: int, hacks: list[int]):
+        stmt = delete(models.teams_hackathons).where(
+            models.teams_hackathons.c.hackathon_id.in_(hacks),
+            models.teams_hackathons.c.team_id == team_id
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def delete_team(self, team_id: int):
+        stmt = delete(models.Team).where(models.Team.id == team_id)
+        await self.session.execute(stmt)
+        await self.session.commit()

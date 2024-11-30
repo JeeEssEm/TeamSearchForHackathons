@@ -47,6 +47,10 @@ class Database:
             await session.run_sync(Base.metadata.drop_all)
             await session.run_sync(Base.metadata.create_all)
 
+    async def drop_models(self):
+        async with self._engine.begin() as session:
+            await session.run_sync(Base.metadata.drop_all)
+
     @asynccontextmanager
     async def session(self):
         async with self._session_factory() as session:
