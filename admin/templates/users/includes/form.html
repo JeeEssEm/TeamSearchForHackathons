@@ -1,0 +1,29 @@
+{% with request.resolver_match.view_name as view_name %}
+  <div class="container my-auto">
+    <div class="row d-flex justify-content-center">
+      <div class="col-lg-5">
+        <h1 class="text-center mb-3">{{ text }}</h1>
+
+        <form method="post" enctype="multipart/form-data" class="d-flex flex-column justify-content-center">
+          {% csrf_token %}
+          {% with form=form %}
+            {% include "users/includes/auth.html" %}
+          {% endwith %}
+
+	        <button type="submit" class="btn btn-primary w-75 mx-auto mt-3">
+              {{ button_name }}
+	        </button>
+          {% if view_name == 'users:signup' %}
+            <div class="d-flex justify-content-center mx-auto mt-3">
+              <a href="{% url 'users:login' %}" class="text-decoration-none">Уже зарегистрированы?</a>
+            </div>
+          {% elif view_name == 'users:login' %}
+	          <div class="d-flex justify-content-center mx-auto mt-3">
+              <a href="{% url 'users:password_reset' %}" class="text-decoration-none">Забыли пароль?</a>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+{% endwith %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Login
+{% endblock title %}
+
+{% block content %}
+  {% with text="Вход" %}
+	  {% with button_name="Войти" %}
+      {% with form=form %}
+	      <input type="hidden" name="next" value="{% url 'home:index' %}">
+        {% include "users/includes/form.html" %}
+      {% endwith %}
+	  {% endwith %}
+  {% endwith %}
+{% endblock content %}

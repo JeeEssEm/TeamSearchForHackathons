@@ -1,0 +1,34 @@
+body,
+html {
+  height: 100%;
+  color: #FFF;
+}
+
+.main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrapper {
+  min-height: 100%;
+}
+
+.dark-bg {
+  background-color: #17191C;
+}
+
+.header {
+  color: #DBDDE1;
+}
+
+.sidebar__left {
+  /*background-color: #393E46;*/
+  width: fit-content;
+}
+
+.sidebar-button {
+  color: #818898;
+}
+
+

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Дом
+{% endblock %}
+
+
+{% block content %}
+<div class="container my-auto d-flex flex-column justify-content-center align-items-center">
+		{% if request.user.is_authenticated %}
+			<h1>Добро пожаловать, {{ request.user.username }}</h1>
+		{% else %}
+			<h1>Доступ запрещён. Необходимо <a href="{% url 'users:login' %}">войти в аккаунт</a>.</h1>
+		{% endif %}
+</div>
+	{% endblock %}

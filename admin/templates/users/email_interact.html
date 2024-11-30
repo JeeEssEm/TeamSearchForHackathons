@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Повторная активация
+{% endblock title %}
+
+{% block content %}
+	{% with button_name="Отправить" %}
+		{% with text="Повторная отправка кода активации на почту" %}
+		  {% with form=form %}
+		    {% include "users/includes/form.html" %}
+		  {% endwith %}
+		{% endwith %}
+	{% endwith %}
+{% endblock content %}
