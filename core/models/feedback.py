@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, ForeignKey, String
 
-from database import AbstractBase
+from core.database import Base
 
 if TYPE_CHECKING:
     from .user import User
 
 
-class Feedback(AbstractBase):
+class Feedback(Base):
     __tablename__ = "feedbacks"
 
     sender_id: Mapped[int] = mapped_column(

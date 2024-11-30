@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database import AbstractBase
+from core.database import Base
 
 
 if TYPE_CHECKING:
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from .team import Team
 
 
-class Hackathon(AbstractBase):
+class Hackathon(Base):
     __tablename__ = "hackathons"
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -21,5 +21,6 @@ class Hackathon(AbstractBase):
     )
 
     teams: Mapped[list["Team"]] = relationship(
-        "Team", secondary="teams_hackathons"
+        "Team", secondary="teams_hackathons",
+        back_populates="hackathons"
     )

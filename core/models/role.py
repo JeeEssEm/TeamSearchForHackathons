@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from database import AbstractBase
+from core.database import Base
 
 
 if TYPE_CHECKING:
     from .user import User
 
 
-class Role(AbstractBase):
+class Role(Base):
     __tablename__ = "roles"
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)

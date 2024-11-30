@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, Integer, Boolean, ForeignKey
-from database import Base
+from core.database import Base
 
 users_hackathons = Table(
     "users_hackathons",

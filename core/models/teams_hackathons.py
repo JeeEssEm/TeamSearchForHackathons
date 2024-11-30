@@ -1,5 +1,5 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey
-from database import Base
+from core.database import Base
 
 teams_hackathons = Table(
     "teams_hackathons",

@@ -23,8 +23,6 @@ class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
     id: Mapped[int_pk]
-    created_at: Mapped[created_at]
-    updated_at: Mapped[updated_at]
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.id!r})"

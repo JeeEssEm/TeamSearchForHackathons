@@ -27,6 +27,6 @@ from .teams_hackathons import teams_hackathons
 from .vacancies_technologies import vacancies_technologies
 from .vacancy import Vacancy
 from .wish import Wish
-from .technologies import Technology
+from .technology import Technology
 
 # from .technology import Technology

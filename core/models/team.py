@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from database import AbstractBase
+from core.database import Base
+
 
 if TYPE_CHECKING:
     from .user import User
     from .hackathon import Hackathon
 
 
-class Team(AbstractBase):
+class Team(Base):
     __tablename__ = "teams"
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(300), nullable=False)

@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Boolean, DateTime, func
-from database import AbstractBase
+from core.database import Base
+
 from datetime import datetime
 
 if TYPE_CHECKING:
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from .feedback import Feedback
 
 
-class User(AbstractBase):
+class User(Base):
     __tablename__ = "users"
     telegram_id: Mapped[int] = mapped_column(
         Integer, unique=True, nullable=False

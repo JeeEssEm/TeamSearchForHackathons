@@ -1,9 +1,9 @@
 from sqlalchemy import String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from database import AbstractBase
+from core.database import Base
 
 
-class Wish(AbstractBase):
+class Wish(Base):
     __tablename__ = "wishes"
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
