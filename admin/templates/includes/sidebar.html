@@ -1,59 +1,114 @@
-<div class="flex-shrink-0 p-3 sidebar__left col-lg-3 col-sm-12 d-flex justify-content-sm-center justify-content-md-start">
+<div
+	class="flex-shrink-0 p-3 sidebar__left col-lg-3 col-sm-12 d-flex justify-content-sm-center justify-content-md-start">
 	<ul class="list-unstyled ps-0 ">
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed sidebar-text" data-bs-toggle="collapse" data-bs-target="#forms-collapse" aria-expanded="false">
+			<button
+				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed sidebar-text"
+				data-bs-toggle="collapse" data-bs-target="#forms-collapse"
+				aria-expanded="false">
 				Анкеты
 			</button>
 			<div class="collapse" id="forms-collapse">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Проверить анкеты</a></li>
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Посмотреть все</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Проверить
+						анкеты</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Посмотреть
+						все</a></li>
 				</ul>
 			</div>
 		</li>
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#technologies-collapse" aria-expanded="false">
+			<button
+				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+				data-bs-toggle="collapse" data-bs-target="#technologies-collapse"
+				aria-expanded="false">
 				Технологии
 			</button>
 			<div class="collapse" id="technologies-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать технологию</a></li>
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать
+						технологию</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
+						все</a></li>
 				</ul>
 			</div>
 		</li>
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#hackathons-collapse" aria-expanded="false">
+			<button
+				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+				data-bs-toggle="collapse" data-bs-target="#hackathons-collapse"
+				aria-expanded="false">
 				Хакатоны
 			</button>
 			<div class="collapse" id="hackathons-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать хакатон</a></li>
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать
+						хакатон</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
+						все</a></li>
 				</ul>
 			</div>
 		</li>
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#roles-collapse" aria-expanded="false">
+			<button
+				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+				data-bs-toggle="collapse" data-bs-target="#roles-collapse"
+				aria-expanded="false">
 				Позиции
 			</button>
 			<div class="collapse" id="roles-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать позицию</a></li>
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать
+						позицию</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
+						все</a></li>
 				</ul>
 			</div>
 		</li>
 		<li class="mb-1">
-			<button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#feedbacks-collapse" aria-expanded="false">
+			<button
+				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+				data-bs-toggle="collapse" data-bs-target="#feedbacks-collapse"
+				aria-expanded="false">
 				Пожелания
 			</button>
 			<div class="collapse" id="feedbacks-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Архив</a></li>
-					<li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Архив</a>
+					</li>
+					<li><a href="#"
+					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
+						все</a></li>
 				</ul>
 			</div>
 		</li>
+		{% if request.user.is_superuser %}
+			<li class="mb-1">
+				<button
+					class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+					data-bs-toggle="collapse" data-bs-target="#moderators-collapse"
+					aria-expanded="false">
+					Модераторы
+				</button>
+				<div class="collapse" id="moderators-collapse" style="">
+					<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+						<li><a href="{% url 'users:invite-moderator' %}"
+						       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать приглашение</a>
+						</li>
+						<li><a href="#"
+						       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
+					</ul>
+				</div>
+			</li>
+		{% endif %}
 	</ul>
 </div>

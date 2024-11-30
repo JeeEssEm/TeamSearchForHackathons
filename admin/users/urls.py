@@ -14,7 +14,11 @@ from . import views
 app_name = "users"
 
 urlpatterns = [
-    path("signup/", views.SignUpView.as_view(), name="signup"),
+    path("invite-moderator/", views.InviteModeratorView.as_view(),
+         name="invite-moderator"),
+
+    path("signup/", views.SignUpView.as_view(),
+         name="signup"),
     path("activate/", views.ActivateUserView.as_view(), name="activate"),
     path(
         "login/",

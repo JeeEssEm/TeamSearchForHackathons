@@ -1,6 +1,10 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.forms import Form, EmailField
+from django.forms import Form, EmailField, BooleanField
+
+
+class InviteForm(Form):
+    is_superuser = BooleanField(required=False, label="Супер пользователь?")
 
 
 class SignUpForm(UserCreationForm):
