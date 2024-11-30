@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Boolean, DateTime, func
-from core.database import Base
 
-from datetime import datetime
+from core.database import Base
+from core import dtos
 
 if TYPE_CHECKING:
     from .role import Role
@@ -25,9 +27,9 @@ class User(Base):
     year_of_study: Mapped[int] = mapped_column(Integer, nullable=True)
     group: Mapped[str] = mapped_column(String(50), nullable=True)
     about_me: Mapped[str] = mapped_column(String(300), nullable=True)
-    resume: Mapped[str] = mapped_column(String(255), nullable=True)
-    avatar: Mapped[str] = mapped_column(String(255), nullable=True)
-    moderator_id: Mapped[int] = mapped_column(Integer)
+    resume: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    avatar: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    moderator_id: Mapped[int | None]
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
     )
@@ -54,3 +56,11 @@ class User(Base):
         back_populates="receiver",
         foreign_keys="Feedback.receiver_id",
     )
+
+    def convert_to_dto_baseuser(self) -> dtos.BaseUser:
+        return dtos.BaseUser(
+            id=self.id,
+            name=self.name,
+            middle_name=self.middlename,
+            surname=self.surname,
+        )

@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
+
 from sqlalchemy import String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from core.database import Base
 
+from core.database import Base
+from core import dtos
 
 if TYPE_CHECKING:
     from .user import User
@@ -22,4 +24,22 @@ class Team(Base):
         Integer, ForeignKey("users.id"), nullable=False
     )
     # поле для получения капитана
-    # captain: Mapped['User'] = relationship('User', foreign_keys=[captain_id])
+    captain: Mapped['User'] = relationship()
+
+    async def convert_to_dto(self) -> dtos.Team:
+        members = [user.convert_to_dto_baseuser() for user in
+                   await self.awaitable_attrs.users]
+        members.append(
+            (await self.awaitable_attrs.captain).convert_to_dto_baseuser()
+        )
+        return dtos.Team(
+            id=self.id,
+            title=self.title,
+            description=self.description,
+            members=members,
+            captain_id=self.captain_id,
+            hacks=[
+                hack.convert_to_dto_basehack()
+                for hack in await self.awaitable_attrs.hackathons
+            ],
+        )
