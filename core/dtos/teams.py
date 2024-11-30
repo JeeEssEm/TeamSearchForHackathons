@@ -17,11 +17,6 @@ class CreateTeam(BaseTeam):
 
 
 @dataclass
-class EditTeam(BaseTeam):
-    id: int
-
-
-@dataclass
 class Team(CreateTeam):
     id: int
     members: list[BaseUser]

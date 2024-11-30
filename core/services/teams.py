@@ -1,6 +1,6 @@
 from .base import Service
 from core.repositories import TeamsRepository
-from core.dtos import Team, CreateTeam, EditTeam
+from core.dtos import Team, CreateTeam
 
 
 class TeamsService(Service):
@@ -21,7 +21,7 @@ class TeamsService(Service):
     async def get_team_by_id(self, team_id: int) -> Team:
         return await self.repository.get_by_id(team_id)
 
-    async def edit_team_by_id(self, team_id: int, team: EditTeam) -> Team:
+    async def edit_team_by_id(self, team_id: int, team: CreateTeam) -> Team:
         return await self.repository.edit(team_id, team)
 
     async def kick(self, team_id: int, user_id: int):

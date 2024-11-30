@@ -2,14 +2,15 @@ from sqlalchemy import insert, delete, update
 
 from .base import Repository
 from core import models
-from core.dtos import CreateTeam, Team, EditTeam
+from core.dtos import CreateTeam, Team, BaseTeam
+from core.exceptions import NotFound
 
 
 class TeamsRepository(Repository):
     async def _get_team_by_id(self, team_id: int) -> models.Team:
         team = await self.session.get(models.Team, team_id)
         if not team:
-            raise IndexError(f'Команда id={team_id} не существует')
+            raise NotFound(f'Команда id={team_id} не существует')
         return team
 
     async def add_hacks_to_team(self, team_id: int, hacks: list[int]):
@@ -35,7 +36,7 @@ class TeamsRepository(Repository):
         team = await self._get_team_by_id(team_id)
         return await team.convert_to_dto()
 
-    async def edit(self, team_id: int, data: EditTeam) -> Team:
+    async def edit(self, team_id: int, data: BaseTeam) -> Team:
         team = await self._get_team_by_id(team_id)
         team.title = data.title or team.title
         team.description = data.description or team.description
@@ -68,3 +69,7 @@ class TeamsRepository(Repository):
         ).values(role_id=role_id)
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def get_base_team(self, team_id: int) -> BaseTeam:
+        team = await self._get_team_by_id(team_id)
+        return await team.convert_to_dto()
