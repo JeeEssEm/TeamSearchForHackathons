@@ -37,7 +37,7 @@ async def create_team(
         team = await team_repo.create(dto)
         print(team)
         await team_repo.add_hacks_to_team(team.id, [2])
-        print(await team_repo.get_team_by_id(team.id))
+        print(await team_repo.get_by_id(team.id))
 
 
 async def main(db=Provide[Container.db]):

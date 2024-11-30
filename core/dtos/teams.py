@@ -5,11 +5,20 @@ from .hackathons import BaseHackathon
 
 
 @dataclass
-class CreateTeam:
+class BaseTeam:
     captain_id: int
     title: str
     description: str
+
+
+@dataclass
+class CreateTeam(BaseTeam):
     hacks: list[int]
+
+
+@dataclass
+class EditTeam(BaseTeam):
+    id: int
 
 
 @dataclass

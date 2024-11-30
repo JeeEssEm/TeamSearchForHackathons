@@ -1,8 +1,8 @@
-from sqlalchemy import insert
+from sqlalchemy import insert, delete, update
 
 from .base import Repository
 from core import models
-from core.dtos import CreateTeam, Team, Hackathon
+from core.dtos import CreateTeam, Team, EditTeam
 
 
 class TeamsRepository(Repository):
@@ -31,6 +31,40 @@ class TeamsRepository(Repository):
         await self.session.refresh(team)
         return await team.convert_to_dto()
 
-    async def get_team_by_id(self, team_id: int) -> Team:
+    async def get_by_id(self, team_id: int) -> Team:
         team = await self._get_team_by_id(team_id)
         return await team.convert_to_dto()
+
+    async def edit(self, team_id: int, data: EditTeam) -> Team:
+        team = await self._get_team_by_id(team_id)
+        team.title = data.title or team.title
+        team.description = data.description or team.description
+        return await team.convert_to_dto()
+
+    async def add_user_to_team(self, team_id: int, user_id: int, role_id: int):
+        stmt = insert(models.users_teams).values(
+            team_id=team_id, user_id=user_id, role_id=role_id
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def change_capitan(self, team_id: int, captain_id: int):
+        team = await self._get_team_by_id(team_id)
+        team.captain_id = captain_id
+        await self.session.commit()
+
+    async def remove_user(self, team_id: int, user_id: int):
+        stmt = delete(models.users_teams).where(
+            models.users_teams.c.team_id == team_id,
+            models.users_teams.c.user_id == user_id
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def edit_user_role(self, team_id: int, user_id: int, role_id: int):
+        stmt = update(models.users_teams).where(
+            models.users_teams.c.team_id == team_id,
+            models.users_teams.c.user_id == user_id,
+        ).values(role_id=role_id)
+        await self.session.execute(stmt)
+        await self.session.commit()

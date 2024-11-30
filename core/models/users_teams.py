@@ -16,4 +16,9 @@ users_teams = Table(
         ForeignKey("teams.id", ondelete="CASCADE"),
         primary_key=True,
     ),
+    Column(
+        "role_id",
+        Integer,
+        ForeignKey("roles.id", ondelete="CASCADE"),
+    )
 )
