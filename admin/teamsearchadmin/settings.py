@@ -32,6 +32,7 @@ JWT_EXPIRATION_DELTA_DAYS = 3
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "home.apps.HomeConfig",
+    "technologies.apps.TechnologiesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
