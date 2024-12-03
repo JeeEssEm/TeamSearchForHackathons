@@ -7,7 +7,7 @@ from dependency_injector.wiring import Provide, inject
 from core.config import settings
 from core import models
 from core import dtos
-from core.repositories import TeamsRepository
+from core.repositories import TeamsRepository, TechnologiesRepository
 from core.dependencies.container import Container
 
 
@@ -32,6 +32,13 @@ async def create_team(db=Provide[Container.db]):
         print(await team_repo.get_by_id(team.id))
 
 
+@inject
+async def test(db=Provide[Container.db]):
+    async with db.session() as session:
+        team_repo = TechnologiesRepository(session)
+        print(await team_repo.get_technologies(10, 1))
+
+
 async def main(db=Provide[Container.db]):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
@@ -50,18 +57,28 @@ async def main(db=Provide[Container.db]):
             telegram_id=123123,
         )
     )
+    # await create_entity(
+    #     models.Hackathon(
+    #         title="test hack 1", start_date=today, end_date=today, id=1
+    #     )
+    # )
+    # await create_entity(
+    #     models.Hackathon(
+    #         title="test hack 2", start_date=today, end_date=today, id=2
+    #     )
+    # )
     await create_entity(
-        models.Hackathon(
-            title="test hack 1", start_date=today, end_date=today, id=1
+        models.Technology(
+            title="test hack 1"
         )
     )
     await create_entity(
-        models.Hackathon(
-            title="test hack 2", start_date=today, end_date=today, id=2
+        models.Technology(
+            title="test hack 2"
         )
     )
-
-    await create_team()
+    await test()
+    # await create_team()
 
 
 if __name__ == "__main__":

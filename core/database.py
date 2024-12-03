@@ -28,13 +28,6 @@ class Base(AsyncAttrs, DeclarativeBase):
         return f"{self.__class__.__name__}({self.id!r})"
 
 
-def load_models():
-    from .models import Technology  # noqa
-
-
-load_models()
-
-
 class Database:
     def __init__(self, db_url: str) -> None:
         self._engine = create_async_engine(db_url, echo=True)
