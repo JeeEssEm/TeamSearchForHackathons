@@ -6,8 +6,8 @@
 
 {% block content %}
 <div class="m-auto col-lg-12">
-	<h1 class="text-center">Изменить технологию</h1>
-	<form method="post" class="mx-auto d-flex flex-column align-items-center">
+	<h1 class="text-center">Изменить технологию {{ tech_id }}</h1>
+	<form action="{% url 'technologies:edit' tech_id=tech.id %}" method="post" class="mx-auto d-flex flex-column align-items-center">
 		{% csrf_token %}
 		{% for field in form %}
 		<div class="form-floating col-lg-4 mx-3">
@@ -26,6 +26,7 @@
 		</div>
 		{% endfor %}
 		<button type="submit" class="btn btn-primary mt-3" value="save">Сохранить</button>
+		<button type="submit" class="btn btn-danger" onclick="confirm('Вы уверены, что хотите удалить эту технологию?')">Удалить</button>
 
 		{% if messages %}
 			{% for msg in messages %}

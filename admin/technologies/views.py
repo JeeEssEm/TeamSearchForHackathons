@@ -56,6 +56,23 @@ class CreateTechnologyView(View):
             })
 
 
+class DeleteTechnologyView(View):
+
+    @inject
+    async def post(request, tech_id, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+
+        async with db.session() as session:
+            tech_repo = TechnologiesRepository(session)
+            try:
+                await tech_repo.delete_technologies_by_id([tech_id])
+                messages.success(request, f"Технология {tech_id} успешно удалена")
+            except Exception as e:
+                messages.error(request, f"Что-то пошло не так: {e}")
+        return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
+
+
 class TechnologiesListView(View):
     template_name = 'technologies/list.html'
 
@@ -155,28 +172,29 @@ class TechnologiesEditView(View):
     async def get(self, request, tech_id, db=Provide[Container.db]):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
             return redirect(reverse_lazy('users:login'))
-        
+    
         async with db.session() as session:
             tech_repo = TechnologiesRepository(session)
             try:
                 tech = await tech_repo.get_by_id(tech_id)
                 form = CreateTechnologyForm(initial={'title': tech.title})
-
+                
                 return TemplateResponse(self.request, self.template_name, {
-                    'form': form
+                    'form': form,
+                    'tech': tech
                 })
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так: {e}')
-                return redirect(reverse_lazy('technologies:list'))
+                return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
 
     @inject
     async def post(self, request, tech_id, db=Provide[Container.db]):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
             return redirect(reverse_lazy('users:login'))
-        
+        print(request.POST)
         # action = request.POST.get('action')
         form = CreateTechnologyForm(request.POST)
-        print(form)
+
         async with db.session() as session:
             tech_repo = TechnologiesRepository(session)
             try:
@@ -184,10 +202,11 @@ class TechnologiesEditView(View):
                 #     await tech_repo.delete_technologies_by_id([tech_id])
                 #     messages.success(request, 'Технология успешно удалена')
                 # elif action == 'save':
+                form.is_valid()
                 title = form.cleaned_data.get('title')
                 await tech_repo.edit(tech_id, title)
                 messages.success(request, f'Технология успешно изменена: {title}')
 
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так: {e}')
-            return redirect(reverse_lazy('technologies:list'))
+            return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
