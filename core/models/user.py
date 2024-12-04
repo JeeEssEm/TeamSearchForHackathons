@@ -61,6 +61,36 @@ class User(Base):
         return dtos.BaseUser(
             id=self.id,
             name=self.name,
+            middle_name=self.middlename
+            or "",  # Обрабатываем None для middle_name
+            surname=self.surname,
+        )
+
+    def convert_to_dto_user(self) -> dtos.User:
+        return dtos.User(
+            id=self.id,
+            name=self.name,
             middle_name=self.middlename,
             surname=self.surname,
+            email=self.email,
+            uni=self.uni,
+            year_of_study=self.year_of_study,
+            group=self.group,
+            about_me=self.about_me,
+            resume=self.resume,
+            avatar=self.avatar,
+            form_status=self.form_status,
+            is_form_private=self.is_form_private,
+            technologies=[tech.convert_to_dto() for tech in self.technologies],
+            roles=[role.convert_to_dto() for role in self.roles],
+            hackathons=[
+                hackathon.convert_to_dto() for hackathon in self.hackathons
+            ],
+            sent_feedbacks=[
+                feedback.convert_to_dto() for feedback in self.sent_feedbacks
+            ],
+            received_feedbacks=[
+                feedback.convert_to_dto()
+                for feedback in self.received_feedbacks
+            ],
         )

@@ -50,7 +50,7 @@ class TeamMember(BaseUser):
 
 
 @dataclass
-class UserView:
+class User:
     id: int
     name: str
     surname: str
