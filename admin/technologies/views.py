@@ -3,7 +3,6 @@ from json import dumps, loads
 
 from asgiref.sync import sync_to_async
 
-from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import View
@@ -28,16 +27,17 @@ class CreateTechnologyView(View):
         form = CreateTechnologyForm(request.POST)
         if form.is_valid():
             async with db.session() as session:
-                tech_service = TechnologiesRepository(session)
+                tech_repo = TechnologiesRepository(session)
+                # какая-нибудь проверка на похожие названия
                 try:
                     title = form.cleaned_data.get("title")
-                    await tech_service.create(title)
+                    await tech_repo.create(title)
                     messages.success(
                         self.request,
                         f"Новая технология {title} создана!"
                     )
                 except Exception as e:
-                    await db.init_models()
+                    await db.init_models()  # пока что затычка...
                     messages.error(self.request, f"Что-то пошло не так: {e}")
 
         return TemplateResponse(self.request, self.template_name, {
@@ -56,28 +56,11 @@ class CreateTechnologyView(View):
             })
 
 
-class DeleteTechnologyView(View):
-
-    @inject
-    async def post(request, tech_id, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-
-        async with db.session() as session:
-            tech_repo = TechnologiesRepository(session)
-            try:
-                await tech_repo.delete_technologies_by_id([tech_id])
-                messages.success(request, f"Технология {tech_id} успешно удалена")
-            except Exception as e:
-                messages.error(request, f"Что-то пошло не так: {e}")
-        return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
-
-
 class TechnologiesListView(View):
     template_name = 'technologies/list.html'
 
     @inject
-    async def get(self, request, page, db=Provide[Container.db]):
+    async def get(self, request, page=1, db=Provide[Container.db]):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
             return redirect(reverse_lazy('users:login'))
 
@@ -93,10 +76,10 @@ class TechnologiesListView(View):
                 'current_page': page,
                 'prev_page': page - 1,
                 'next_page': page + 1 if last_page > page else 0,
-                'last_page': last_page 
+                'last_page': last_page or page
             })
 
-    async def post(self, request):
+    async def post(self, request, page):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
             return redirect(reverse_lazy('users:login'))
         
@@ -162,7 +145,7 @@ class TechnologiesDeleteView(View):
                 )
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так: {e}')
-        return redirect(reverse_lazy('technologies:list'))
+        return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
 
 
 class TechnologiesEditView(View):
@@ -191,21 +174,27 @@ class TechnologiesEditView(View):
     async def post(self, request, tech_id, db=Provide[Container.db]):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
             return redirect(reverse_lazy('users:login'))
-        print(request.POST)
-        # action = request.POST.get('action')
         form = CreateTechnologyForm(request.POST)
 
         async with db.session() as session:
             tech_repo = TechnologiesRepository(session)
             try:
-                # if action == 'delete':
-                #     await tech_repo.delete_technologies_by_id([tech_id])
-                #     messages.success(request, 'Технология успешно удалена')
-                # elif action == 'save':
                 form.is_valid()
                 title = form.cleaned_data.get('title')
-                await tech_repo.edit(tech_id, title)
-                messages.success(request, f'Технология успешно изменена: {title}')
+                if not title or not title.strip():
+                    raise ValueError("Поле не может состоять из пробелов!")
+                if 'delete' in request.POST:
+                    await tech_repo.delete_technologies_by_id([tech_id])
+                    messages.success(
+                        request,
+                        f'Технология <{title}> успешно удалена'
+                    )
+                elif 'save' in request.POST:
+                    await tech_repo.edit(tech_id, title)
+                    messages.success(
+                        request,
+                        f'Технология успешно изменена: <{title}>'
+                    )
 
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так: {e}')

@@ -25,9 +25,10 @@
 			</label>
 		</div>
 		{% endfor %}
-		<button type="submit" class="btn btn-primary mt-3" value="save">Сохранить</button>
-		<button type="submit" class="btn btn-danger" onclick="confirm('Вы уверены, что хотите удалить эту технологию?')">Удалить</button>
-
+		<div class="d-flex gap-2">
+			<button type="submit" class="btn btn-primary mt-3" name="save">Сохранить</button>
+			<button type="submit" class="btn btn-danger mt-3" name="delete" onclick="return confirm('Вы уверены, что хотите удалить эту технологию?')">Удалить</button>
+		</div>
 		{% if messages %}
 			{% for msg in messages %}
 				<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
