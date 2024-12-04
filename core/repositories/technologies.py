@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 
 from .base import Repository
 import core.models as models
@@ -21,6 +21,10 @@ class TechnologiesRepository(Repository):
 
     async def get_technologies(self, limit: int, page: int) -> list[Technology]:
         stmt = select(models.Technology)
+        q = select(models.Technology, func.count())
+
+        items = await self.session.execute(stmt.limit(limit).offset((page - 1) * limit))
+        count = await self.session.execute(q)
         #         # .order_by(models.Technology.created_at)
         #         )
         # total_stmt = select(func.count(models.Technology)).select_from(
@@ -29,8 +33,7 @@ class TechnologiesRepository(Repository):
         # total = await self.session.scalar(total_stmt)
         # techs = await self.session.scalars(stmt.limit(limit).offset((page - 1) * limit))
         # print(total, techs)
-        res = await self.session.execute(stmt)
-        return list(map(lambda t: t.convert_to_dto(), res.scalars()))
+        return count.first()[1], list(map(lambda t: t.convert_to_dto(), items.scalars()))
 
     async def get_technologies_by_id(self, ids: list[int]) -> list[Technology]:
         stmt = select(models.Technology).where(models.Technology.id.in_(ids))

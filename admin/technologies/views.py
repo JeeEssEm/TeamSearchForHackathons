@@ -1,3 +1,4 @@
+from math import ceil
 from json import dumps, loads
 
 from asgiref.sync import sync_to_async
@@ -21,6 +22,9 @@ class CreateTechnologyView(View):
 
     @inject
     async def post(self, request, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         form = CreateTechnologyForm(request.POST)
         if form.is_valid():
             async with db.session() as session:
@@ -33,7 +37,7 @@ class CreateTechnologyView(View):
                         f"Новая технология {title} создана!"
                     )
                 except Exception as e:
-                    # await db.init_models()
+                    await db.init_models()
                     messages.error(self.request, f"Что-то пошло не так: {e}")
 
         return TemplateResponse(self.request, self.template_name, {
@@ -41,6 +45,9 @@ class CreateTechnologyView(View):
         })
 
     async def get(self, request):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         form = CreateTechnologyForm()
         return TemplateResponse(
             request, self.template_name,
@@ -53,18 +60,29 @@ class TechnologiesListView(View):
     template_name = 'technologies/list.html'
 
     @inject
-    async def get(self, request, db=Provide[Container.db]):
+    async def get(self, request, page, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+
         async with db.session() as session:
             tech_service = TechnologiesRepository(session)
-            # curr_page = request.GET.get('page')
+            limit = 1
+            total, technologies = await tech_service.get_technologies(limit, page)
+            last_page = ceil(total / limit)
 
-            technologies = await tech_service.get_technologies(10, 1)
             return TemplateResponse(self.request, self.template_name, {
                 'technologies': technologies,
-                # 'next_page': curr_page + 1
+                'total': total,
+                'current_page': page,
+                'prev_page': page - 1,
+                'next_page': page + 1 if last_page > page else 0,
+                'last_page': last_page 
             })
 
     async def post(self, request):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         selected = request.POST.getlist('selected_technologies')
         if selected:
             return redirect(
@@ -83,6 +101,9 @@ class TechnologiesDeleteView(View):
 
     @inject
     async def get(self, request, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         selected = loads(request.GET.get('selected_technologies', '[]'))
         selected = list(map(int, selected))
         if not selected:
@@ -101,6 +122,9 @@ class TechnologiesDeleteView(View):
 
     @inject
     async def post(self, request, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         selected = await sync_to_async(request.session.get)(
             'selected_technologies'
         )
@@ -129,6 +153,9 @@ class TechnologiesEditView(View):
 
     @inject
     async def get(self, request, tech_id, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         async with db.session() as session:
             tech_repo = TechnologiesRepository(session)
             try:
@@ -144,6 +171,9 @@ class TechnologiesEditView(View):
 
     @inject
     async def post(self, request, tech_id, db=Provide[Container.db]):
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return redirect(reverse_lazy('users:login'))
+        
         # action = request.POST.get('action')
         form = CreateTechnologyForm(request.POST)
         print(form)
@@ -154,8 +184,9 @@ class TechnologiesEditView(View):
                 #     await tech_repo.delete_technologies_by_id([tech_id])
                 #     messages.success(request, 'Технология успешно удалена')
                 # elif action == 'save':
-                await tech_repo.edit(tech_id, form.title)
-                messages.success(request, 'Технология успешно изменена')
+                title = form.cleaned_data.get('title')
+                await tech_repo.edit(tech_id, title)
+                messages.success(request, f'Технология успешно изменена: {title}')
 
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так: {e}')

@@ -8,6 +8,7 @@
 
 {% block content %}
 <div class="mx-auto col-lg-8">
+	<h2>{{ total }}</h2>
 	<h1>Список технологий</h1>
 	<form method="post">
 		{% if messages %}
@@ -36,8 +37,23 @@
 			{% endfor %}
 			</tbody>
 		</table>
-		<button type="submit" class="btn btn-danger">Удалить выбранные</button>
+		<div class="d-flex">
+			<a href="{% url 'technologies:create' %}" class="btn btn-primary me-2">Создать</a>
+			<button type="submit" class="btn btn-danger">Удалить выбранные</button>
+		</div>
 	</form>
+	<ul class="pagination mt-3">
+		<li class="page-item"><a href="{% url 'technologies:list' page=1 %}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+		{% if prev_page != 0 %}
+			<li class="page-item"><a href="{% url 'technologies:list' page=prev_page %}" class="page-link">{{ prev_page }}</a></li>
+		{% endif %}
+		<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+		{% if next_page != 0 %}
+			<li class="page-item"><a href="{% url 'technologies:list' page=next_page %}" class="page-link">{{ next_page }} </a></li>
+		{% endif %}
+		<li class="page-item"><a href="{% url 'technologies:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+		<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+	</ul>
 </div>
 {% endblock %}
 
