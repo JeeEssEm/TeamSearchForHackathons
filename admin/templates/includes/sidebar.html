@@ -1,5 +1,5 @@
 <div
-	class="flex-shrink-0 p-3 sidebar__left col-lg-3 col-sm-12 d-flex justify-content-sm-center justify-content-md-start">
+	class="flex-shrink-0 p-3 sidebar__left col-lg-3 col-sm-12 col-xs-12 d-flex justify-content-sm-center justify-content-md-start">
 	<ul class="list-unstyled ps-0 ">
 		<li class="mb-1">
 			<button
@@ -10,7 +10,7 @@
 			</button>
 			<div class="collapse" id="forms-collapse">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#"
+					<li><a href="{% url 'questionary:validate' %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Проверить
 						анкеты</a></li>
 					<li><a href="#"

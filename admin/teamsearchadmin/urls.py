@@ -21,10 +21,12 @@ from django.urls import path, include
 import users.urls
 import home.urls
 import technologies.urls
+import questionary.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(home.urls)),
     path("auth/", include(users.urls)),
     path("technologies/", include(technologies.urls)),
+    path("questionary/", include(questionary.urls)),
 ]

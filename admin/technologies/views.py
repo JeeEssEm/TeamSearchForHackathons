@@ -15,15 +15,14 @@ from core.dependencies.container import Container
 from core.repositories import TechnologiesRepository
 from .forms import CreateTechnologyForm
 
+from teamsearchadmin.mixins import AsyncLoginRequiredMixin
 
-class CreateTechnologyView(View):
+
+class CreateTechnologyView(AsyncLoginRequiredMixin, View):
     template_name = 'technologies/create.html'
 
     @inject
     async def post(self, request, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-        
         form = CreateTechnologyForm(request.POST)
         if form.is_valid():
             async with db.session() as session:
@@ -45,9 +44,6 @@ class CreateTechnologyView(View):
         })
 
     async def get(self, request):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-        
         form = CreateTechnologyForm()
         return TemplateResponse(
             request, self.template_name,
@@ -56,14 +52,11 @@ class CreateTechnologyView(View):
             })
 
 
-class TechnologiesListView(View):
+class TechnologiesListView(AsyncLoginRequiredMixin, View):
     template_name = 'technologies/list.html'
 
     @inject
     async def get(self, request, page=1, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-
         async with db.session() as session:
             tech_service = TechnologiesRepository(session)
             limit = 1
@@ -80,9 +73,6 @@ class TechnologiesListView(View):
             })
 
     async def post(self, request, page):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-        
         selected = request.POST.getlist('selected_technologies')
         if selected:
             return redirect(
@@ -96,14 +86,11 @@ class TechnologiesListView(View):
         return await self.get(request)
 
 
-class TechnologiesDeleteView(View):
+class TechnologiesDeleteView(AsyncLoginRequiredMixin, View):
     template_name = 'technologies/delete.html'
 
     @inject
     async def get(self, request, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-        
         selected = loads(request.GET.get('selected_technologies', '[]'))
         selected = list(map(int, selected))
         if not selected:
@@ -122,9 +109,6 @@ class TechnologiesDeleteView(View):
 
     @inject
     async def post(self, request, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-        
         selected = await sync_to_async(request.session.get)(
             'selected_technologies'
         )
@@ -148,14 +132,11 @@ class TechnologiesDeleteView(View):
         return redirect(reverse_lazy('technologies:list', kwargs={'page': 1}))
 
 
-class TechnologiesEditView(View):
+class TechnologiesEditView(AsyncLoginRequiredMixin, View):
     template_name = 'technologies/edit.html'
 
     @inject
     async def get(self, request, tech_id, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
-    
         async with db.session() as session:
             tech_repo = TechnologiesRepository(session)
             try:
@@ -172,8 +153,6 @@ class TechnologiesEditView(View):
 
     @inject
     async def post(self, request, tech_id, db=Provide[Container.db]):
-        if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect(reverse_lazy('users:login'))
         form = CreateTechnologyForm(request.POST)
 
         async with db.session() as session:
