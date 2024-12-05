@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+	Список технологий
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto col-lg-8">
+	<h1>Вы уверены, что хотите удалить следующие технологии?</h1>
+	<form method="post" action="{% url 'technologies:delete' %}">
+		{% csrf_token %}
+		<table class="table table-striped">
+			<thead>
+			<tr>
+				<th>ID</th>
+				<th>Название</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for tech in technologies %}
+				<tr>
+					<td>{{ tech.id }}</td>
+					<td>{{ tech.title }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<button type="submit" class="btn btn-danger">Подтвердить</button>
+	</form>
+</div>
+{% endblock %}

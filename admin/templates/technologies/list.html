@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Список технологий
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto col-lg-8">
+	<h1>Список технологий</h1>
+	<form method="post">
+		{% if messages %}
+			{% for msg in messages %}
+				<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
+					{{ msg }}
+				</div>
+				{% endfor %}
+		{% endif %}
+		{% csrf_token %}
+		<table class="table table-striped">
+			<thead>
+			<tr>
+				<th><input type="checkbox" id="select-all"></th>
+				<th>ID</th>
+				<th>Название</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for tech in technologies %}
+			<tr>
+				<td><input type="checkbox" name="selected_technologies" value="{{ tech.id }}"></td>
+				<td>{{ tech.id }}</td>
+				<td><a href="{% url 'technologies:edit' tech_id=tech.id %}">{{ tech.title }}</a></td>
+			</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<div class="d-flex">
+			<a href="{% url 'technologies:create' %}" class="btn btn-primary me-2">Создать</a>
+			<button type="submit" class="btn btn-danger">Удалить выбранные</button>
+		</div>
+	</form>
+	<ul class="pagination mt-3">
+		<li class="page-item"><a href="{% url 'technologies:list' page=1 %}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+		{% if prev_page != 0 %}
+			<li class="page-item"><a href="{% url 'technologies:list' page=prev_page %}" class="page-link">{{ prev_page }}</a></li>
+		{% endif %}
+		<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+		{% if next_page != 0 %}
+			<li class="page-item"><a href="{% url 'technologies:list' page=next_page %}" class="page-link">{{ next_page }} </a></li>
+		{% endif %}
+		<li class="page-item"><a href="{% url 'technologies:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+		<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+	</ul>
+</div>
+{% endblock %}
+
+{% block scripts %}
+	<script src="{% static 'js/select_all.js' %}"></script>
+{% endblock %}

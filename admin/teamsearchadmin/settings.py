@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import sys
 from pathlib import Path
 import os
+import django
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,6 +34,7 @@ JWT_EXPIRATION_DELTA_DAYS = 3
 INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "home.apps.HomeConfig",
+    "technologies.apps.TechnologiesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -124,3 +127,4 @@ if DEBUG:
     EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 else:
     ...
+

@@ -43,7 +43,7 @@ class UpdateUser:
 class TeamMember(BaseUser):
     role: str
     technologies: list[str]
-    description: str
+    description: str  # ?
     about_me: str
     # avatar: str  # потом S3 прикрутим и сделаем это
     # feedbacks:  #
