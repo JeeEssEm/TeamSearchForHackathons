@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     S3_SECRET_ACCESS_KEY: str = "secret key"
     S3_ENDPOINT: str = "endpoint url"
 
+    MODERATOR_FORM_ROTATION_DAYS: int = 2
+
 
 settings = Settings()
 

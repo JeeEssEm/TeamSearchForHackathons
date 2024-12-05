@@ -1,3 +1,4 @@
+from datetime import datetime
 from dataclasses import dataclass
 
 
@@ -5,15 +6,14 @@ from dataclasses import dataclass
 class CreateUser:
     name: str
     surname: str
-    middle_name: str = None
     email: str
-    password: str
+    middle_name: str = None
     uni: str = None
     year_of_study: int = None
     group: str = None  # Указываем значение по умолчанию
     about_me: str = None
-    resume: str = None
-    avatar: str = None
+    # resume: str = None
+    # avatar: str = None
 
 
 @dataclass
@@ -30,7 +30,6 @@ class UpdateUser:
     surname: str = None
     middle_name: str = None
     email: str = None
-    password: str = None
     uni: str = None
     year_of_study: int = None
     group: str = None
@@ -51,11 +50,11 @@ class TeamMember(BaseUser):
 
 @dataclass
 class User:
+    updated_at: datetime
     id: int
     name: str
     surname: str
     middle_name: str = None
-    email: str
     uni: str = None
     year_of_study: int = None
     group: str = None
@@ -69,7 +68,6 @@ class User:
     hackathons: list[str] = None
     sent_feedbacks: list[str] = None
     received_feedbacks: list[str] = None
-    updated_at: str
 
     def __post_init__(self):
         if self.technologies is None:

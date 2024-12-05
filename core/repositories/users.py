@@ -1,8 +1,12 @@
-from sqlalchemy import insert, delete, update, select
+from datetime import timedelta, timezone, datetime
+
+from sqlalchemy import insert, delete, update, select, or_, and_
+
 from core.dtos import CreateUser, User, BaseUser
 from core.exceptions import NotFound
-from .base import Repository
+from core.config import settings
 import core.models as models
+from .base import Repository
 
 
 class UsersRepository(Repository):
@@ -14,7 +18,7 @@ class UsersRepository(Repository):
 
     async def get_baseuser_by_id(self, user_id: int) -> BaseUser:
         user = await self._get_by_id(user_id)
-        return await user.convert_to_dto_baseuser()
+        return user.convert_to_dto_baseuser()
 
     async def get_user_by_id(self, user_id: int) -> User:
         user = await self._get_by_id(user_id)
@@ -25,11 +29,11 @@ class UsersRepository(Repository):
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)
-        return user.convert_to_dto_user()
+        return await user.convert_to_dto_user()
 
     async def update_user(self, user_id: int, data: CreateUser) -> User:
         # Получаем пользователя из базы данных
-        user = await self._get_user_by_id(user_id)
+        user = await self._get_by_id(user_id)
 
         # Обновляем данные пользователя
         if data.name is not None:
@@ -58,4 +62,56 @@ class UsersRepository(Repository):
         await self.session.commit()
         await self.session.refresh(user)
 
-        return user.convert_to_dto_user()
+        return await user.convert_to_dto_user()
+
+    def _convert_form(self, dto):
+        dto.technologies = list(map(lambda t: t.title, dto.technologies))
+        dto.roles = list(map(lambda t: t.title, dto.roles))
+        return dto
+
+    async def get_moderator_form(self, moderator_id: int) -> User | None:
+        stmt = select(models.User).where(
+            models.User.moderator_id == moderator_id,
+            models.User.form_status == models.FormStatus.in_review
+        )
+        res = await self.session.scalar(stmt)
+
+        if not res:
+            return None
+        dto = await res.convert_to_dto_user()
+        return self._convert_form(dto)
+
+    async def set_moderator(self, moderator_id: int, user_id: int):
+        user = await self._get_by_id(user_id)
+        user.moderator_id = moderator_id
+
+        await self.session.commit()
+
+    async def get_form(self, moderator_id: int) -> User | None:
+        delta = timedelta(
+            days=settings.MODERATOR_FORM_ROTATION_DAYS
+        )
+        today = datetime.now(timezone.utc)
+        # FIXME: разобраться с датой ревью
+        stmt = select(models.User).where(or_(
+            and_(
+                models.User.moderator_id.is_not(None),
+                models.User.updated_at - today > delta
+            ),
+            models.User.moderator_id.is_(None)
+        )).where(models.User.form_status == models.FormStatus.in_review)
+
+        res = await self.session.scalar(stmt)
+        if not res:
+            return None
+        await self.set_moderator(moderator_id, res.id)
+        await self.session.refresh(res)
+        dto = await res.convert_to_dto_user()
+        return self._convert_form(dto)
+
+    async def change_user_form_state(self, user_id: int, approve=False,
+                                     feedback=None):
+        user = await self._get_by_id(user_id)
+        user.form_status = models.FormStatus.approved if approve else models.FormStatus.rejected
+        # доавление фидбека...
+        await self.session.commit()

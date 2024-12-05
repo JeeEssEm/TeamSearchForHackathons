@@ -1,8 +1,9 @@
+from enum import IntEnum
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, Boolean, DateTime, func
+from sqlalchemy import Integer, String, Boolean, func
 
 from core.database import Base
 from core import dtos
@@ -14,6 +15,12 @@ if TYPE_CHECKING:
     from .feedback import Feedback
 
 
+class FormStatus(IntEnum):
+    rejected = 0
+    in_review = 1
+    approved = 2
+
+
 class User(Base):
     __tablename__ = "users"
     telegram_id: Mapped[int] = mapped_column(
@@ -22,7 +29,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     middlename: Mapped[str] = mapped_column(String(50), nullable=True)
     surname: Mapped[str] = mapped_column(String(50), nullable=False)
-    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    # email: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     uni: Mapped[str] = mapped_column(String(50), nullable=True)
     year_of_study: Mapped[int] = mapped_column(Integer, nullable=True)
     group: Mapped[str] = mapped_column(String(50), nullable=True)
@@ -31,9 +38,9 @@ class User(Base):
     avatar: Mapped[str | None] = mapped_column(String(255), nullable=True)
     moderator_id: Mapped[int | None]
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(), nullable=False
+        server_default=func.now(), onupdate=func.now()
     )
-    form_status: Mapped[bool] = mapped_column(Boolean, default=False)
+    form_status: Mapped[FormStatus] = mapped_column(default=FormStatus.in_review.value)
     is_form_private: Mapped[bool] = mapped_column(Boolean, default=False)
 
     roles: Mapped[list["Role"]] = relationship(
@@ -61,36 +68,31 @@ class User(Base):
         return dtos.BaseUser(
             id=self.id,
             name=self.name,
-            middle_name=self.middlename
-            or "",  # Обрабатываем None для middle_name
+            middle_name=self.middlename or "",
             surname=self.surname,
         )
 
-    def convert_to_dto_user(self) -> dtos.User:
+    async def convert_to_dto_user(self) -> dtos.User:
         return dtos.User(
             id=self.id,
             name=self.name,
-            middle_name=self.middlename,
+            middle_name=self.middlename or "",
             surname=self.surname,
-            email=self.email,
             uni=self.uni,
             year_of_study=self.year_of_study,
             group=self.group,
             about_me=self.about_me,
             resume=self.resume,
             avatar=self.avatar,
-            form_status=self.form_status,
-            is_form_private=self.is_form_private,
-            technologies=[tech.convert_to_dto() for tech in self.technologies],
-            roles=[role.convert_to_dto() for role in self.roles],
+            technologies=[
+                tech.convert_to_dto()
+                for tech in await self.awaitable_attrs.technologies],
+            roles=[
+                role.convert_to_dto()
+                for role in await self.awaitable_attrs.roles],
             hackathons=[
-                hackathon.convert_to_dto() for hackathon in self.hackathons
+                hackathon.convert_to_dto()
+                for hackathon in await self.awaitable_attrs.hackathons
             ],
-            sent_feedbacks=[
-                feedback.convert_to_dto() for feedback in self.sent_feedbacks
-            ],
-            received_feedbacks=[
-                feedback.convert_to_dto()
-                for feedback in self.received_feedbacks
-            ],
+            updated_at=self.updated_at,
         )

@@ -17,3 +17,8 @@ class RoleView:
 @dataclass
 class UpdateRole:
     title: str
+
+
+@dataclass
+class Role(CreateRole):
+    id: int

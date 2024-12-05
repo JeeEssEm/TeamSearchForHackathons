@@ -16,8 +16,18 @@ class UsersService(Service):
     async def update_user(self, user_id: int, data: UpdateUser) -> User:
         return await self.repository.update_user(user_id, data)
 
-    async def delete_user(self, user_id: int):
-        user = await self.repository._get_user_by_id(user_id)
-        if not user:
-            raise NotFound("Пользователь не найден")
-        await self.repository.delete(user_id)
+    # async def delete_user(self, user_id: int):
+    #     await self.repository.get_user_by_id(user_id)
+    #     await self.repository.delete(user_id)
+
+    async def get_form(self, moderator_id: int) -> User | None:
+        moder_form = await self.repository.get_moderator_form(moderator_id)
+        if not moder_form:
+            moder_form = await self.repository.get_form(moderator_id)
+        return moder_form
+
+    async def approve_user(self, user_id: int):
+        ...
+
+    async def reject_user(self, user_id: int):
+        ...
