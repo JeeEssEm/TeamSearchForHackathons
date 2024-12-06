@@ -26,8 +26,11 @@ class UsersService(Service):
             moder_form = await self.repository.get_form(moderator_id)
         return moder_form
 
-    async def approve_user(self, user_id: int):
-        ...
+    async def get_form_by_id(self, form_id: int) -> User:
+        return await self.repository.get_form_by_id(form_id)
 
-    async def reject_user(self, user_id: int):
-        ...
+    async def approve_user(self, user_id: int, moderator_id: int, feedback: str = None):
+        await self.repository.change_user_form_state(user_id, moderator_id, approve=True, feedback=feedback)
+
+    async def reject_user(self, user_id: int, moderator_id: int, feedback: str = None):        
+        await self.repository.change_user_form_state(user_id, moderator_id, approve=False, feedback=feedback)

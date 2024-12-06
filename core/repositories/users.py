@@ -11,7 +11,7 @@ from .base import Repository
 
 class UsersRepository(Repository):
     async def _get_by_id(self, user_id: int) -> models.User:
-        user = await self.session.get(user_id)
+        user = await self.session.get(models.User, user_id)
         if not user:
             raise NotFound("Пользователь не найден")
         return user
@@ -72,7 +72,7 @@ class UsersRepository(Repository):
     async def get_moderator_form(self, moderator_id: int) -> User | None:
         stmt = select(models.User).where(
             models.User.moderator_id == moderator_id,
-            models.User.form_status == models.FormStatus.in_review
+            models.User.form_status == models.FormStatus.in_review.value
         )
         res = await self.session.scalar(stmt)
 
@@ -99,7 +99,7 @@ class UsersRepository(Repository):
                 models.User.updated_at - today > delta
             ),
             models.User.moderator_id.is_(None)
-        )).where(models.User.form_status == models.FormStatus.in_review)
+        )).where(models.User.form_status == models.FormStatus.in_review.value)
 
         res = await self.session.scalar(stmt)
         if not res:
@@ -109,9 +109,14 @@ class UsersRepository(Repository):
         dto = await res.convert_to_dto_user()
         return self._convert_form(dto)
 
-    async def change_user_form_state(self, user_id: int, approve=False,
+    async def change_user_form_state(self, user_id: int, moderator_id: int, approve=False,
                                      feedback=None):
         user = await self._get_by_id(user_id)
-        user.form_status = models.FormStatus.approved if approve else models.FormStatus.rejected
-        # доавление фидбека...
+        user.moderator_id = moderator_id
+        user.form_status = models.FormStatus.approved.value if approve else models.FormStatus.rejected.value
+        user.moderator_feedback = feedback
         await self.session.commit()
+    
+    async def get_form_by_id(self, form_id: int) -> User:
+        user = await self._get_by_id(form_id)
+        return self._convert_form(await user.convert_to_dto_user())

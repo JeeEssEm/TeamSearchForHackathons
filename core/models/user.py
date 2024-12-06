@@ -36,6 +36,7 @@ class User(Base):
     about_me: Mapped[str] = mapped_column(String(300), nullable=True)
     resume: Mapped[str | None] = mapped_column(String(255), nullable=True)
     avatar: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    moderator_feedback: Mapped[str | None]
     moderator_id: Mapped[int | None]
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
@@ -79,11 +80,14 @@ class User(Base):
             middle_name=self.middlename or "",
             surname=self.surname,
             uni=self.uni,
+            moderator_feedback=self.moderator_feedback,
             year_of_study=self.year_of_study,
             group=self.group,
             about_me=self.about_me,
             resume=self.resume,
             avatar=self.avatar,
+            moderator_id=self.moderator_id,
+            form_status=self.form_status,
             technologies=[
                 tech.convert_to_dto()
                 for tech in await self.awaitable_attrs.technologies],

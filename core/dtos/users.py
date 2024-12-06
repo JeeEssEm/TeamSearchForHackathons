@@ -1,6 +1,11 @@
 from datetime import datetime
 from dataclasses import dataclass
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.models import FormStatus
+
 
 @dataclass
 class CreateUser:
@@ -61,7 +66,9 @@ class User:
     about_me: str = None
     resume: str = None
     avatar: str = None
-    form_status: bool = False
+    moderator_id: int = None
+    form_status: 'FormStatus' = None
+    moderator_feedback: str = None
     is_form_private: bool = False
     technologies: list[str] = None
     roles: list[str] = None

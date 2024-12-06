@@ -7,6 +7,11 @@
 {% block content %}
 	<div class="m-auto col-lg-6 d-flex flex-column align-items-center">
 		{% if q %}
+		{% if q.form_status == 2 %}
+			<div class="alert alert-success w-100">Статус: одобрена модератором {{ moderator.first_name }} {{ moderator.last_name }} {{ moderator.email }} {{ moderator.username }}</div>
+		{% elif q.form_status == 0 %}
+			<div class="alert alert-danger w-100">Статус: отклонена модератором {{ moderator.first_name }} {{ moderator.last_name }} {{ moderator.email }} {{ moderator.username }}</div>
+		{% endif %}
 		<div class="d-flex flex-column gap-2 w-100">
 			<section class="d-flex">
 				<div class="d-flex">
@@ -80,14 +85,18 @@
 				</h2>
 			</section>
 		</div>
-		<form action="" method="post"
+		<form action="{% url 'questionary:validate_by_id' user_id=q.id %}" method="post"
 		      class="mx-auto d-flex flex-column align-items-center w-100 mt-5">
 			{% csrf_token %}
 			{% if messages %}
 				{% for msg in messages %}
 					<div
 						class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
-						{{ msg }}
+						{% if 'safe' in msg.tags %}
+							{{ msg|safe }}
+						{% else %}
+							{{ msg }}
+						{% endif %}
 					</div>
 				{% endfor %}
 			{% endif %}
@@ -105,9 +114,12 @@
 					</label>
 				</div>
 			{% endfor %}
+			{% if q.form_status != 2 %}
+				<span class="mt-3 alert alert-warning">Изменение статуса анкеты</span>
+			{% endif %}
 			<div class="d-flex gap-3">
-				<button type="submit" class="btn btn-success mt-3">Одобрить</button>
-				<button type="submit" class="btn btn-danger mt-3">Отклонить</button>
+				<button type="submit" class="btn btn-success mt-3" name="approve">Одобрить</button>
+				<button type="submit" class="btn btn-danger mt-3" name="reject">Отклонить</button>
 {#				<button type="submit" class="btn btn-secondary mt-3">Пропустить</button>#}
 			</div>
 		</form>
