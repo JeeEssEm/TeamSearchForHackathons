@@ -30,6 +30,13 @@ class BaseUser:
 
 
 @dataclass
+class Form(BaseUser):
+    moderator_id: int
+    form_status: 'FormStatus'
+    updated_at: datetime
+
+
+@dataclass
 class UpdateUser:
     name: str = None
     surname: str = None

@@ -72,6 +72,17 @@ class User(Base):
             middle_name=self.middlename or "",
             surname=self.surname,
         )
+    
+    def convert_to_dto_form(self) -> dtos.Form:
+        return dtos.Form(
+            id=self.id,
+            name=self.name,
+            middle_name=self.middlename or "",
+            surname=self.surname,
+            updated_at=self.updated_at,
+            moderator_id=self.moderator_id,
+            form_status=self.form_status
+        )
 
     async def convert_to_dto_user(self) -> dtos.User:
         return dtos.User(

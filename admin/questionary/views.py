@@ -83,3 +83,21 @@ class ValidateQuestionaryByIdView(AsyncLoginRequiredMixin, View):
             # предыдущим юзером. Например, случайно реджектнул
 
         return redirect(reverse_lazy('questionary:validate'))
+
+
+class QuestionaryListView(AsyncLoginRequiredMixin, View):
+    template_name = 'questionaries/list.html'
+
+    @inject
+    async def get(self, request, db=Provide[Container.db]):
+        async with db.session() as session:
+            user_service = UsersService(session)
+            questionaries = await user_service.get_all_short_forms()
+
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context={
+                    'questionaries': questionaries 
+                }
+            )

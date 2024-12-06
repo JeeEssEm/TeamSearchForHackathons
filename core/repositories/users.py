@@ -2,7 +2,7 @@ from datetime import timedelta, timezone, datetime
 
 from sqlalchemy import insert, delete, update, select, or_, and_
 
-from core.dtos import CreateUser, User, BaseUser
+from core.dtos import CreateUser, User, BaseUser, Form
 from core.exceptions import NotFound
 from core.config import settings
 import core.models as models
@@ -120,3 +120,8 @@ class UsersRepository(Repository):
     async def get_form_by_id(self, form_id: int) -> User:
         user = await self._get_by_id(form_id)
         return self._convert_form(await user.convert_to_dto_user())
+
+    async def get_all_forms(self) -> list[Form]:
+        stmt = select(models.User)
+        res = await self.session.scalars(stmt)
+        return list(map(lambda u: u.convert_to_dto_form(), res))
