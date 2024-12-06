@@ -29,7 +29,7 @@ class ValidateQuestionaryView(AsyncLoginRequiredMixin, View):
             user_service = UsersService(session)
             user = await user_service.get_form(moderator_id)
             form = QuestionaryForm()
-            
+
             return TemplateResponse(
                 request,
                 template=self.template_name,
@@ -50,7 +50,7 @@ class ValidateQuestionaryByIdView(AsyncLoginRequiredMixin, View):
                 user = await user_service.get_form_by_id(user_id)
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так... {e}')
-                return redirect(reverse_lazy('home:index'))  # TODO: добавить отображание messages
+                return redirect(reverse_lazy('questionary:list'))  # TODO: добавить отображание messages
             moderator = await sync_to_async(get_object_or_404)(UserModel, id=user.moderator_id)
             form = QuestionaryForm(initial={'feedback': user.moderator_feedback})
             return TemplateResponse(

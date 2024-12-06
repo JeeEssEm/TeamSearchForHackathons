@@ -72,7 +72,7 @@ class UsersRepository(Repository):
     async def get_moderator_form(self, moderator_id: int) -> User | None:
         stmt = select(models.User).where(
             models.User.moderator_id == moderator_id,
-            models.User.form_status == models.FormStatus.in_review.value
+            models.User.form_status == models.FormStatus.in_review
         )
         res = await self.session.scalar(stmt)
 
@@ -99,7 +99,7 @@ class UsersRepository(Repository):
                 models.User.updated_at - today > delta
             ),
             models.User.moderator_id.is_(None)
-        )).where(models.User.form_status == models.FormStatus.in_review.value)
+        )).where(models.User.form_status == models.FormStatus.in_review)
 
         res = await self.session.scalar(stmt)
         if not res:

@@ -3,12 +3,12 @@
 {% load static %}
 
 {% block title %}
-Список технологий
+	Список анкет
 {% endblock %}
 
 {% block content %}
 <div class="mx-auto col-lg-8">
-	<h1>Список технологий</h1>
+	<h1>Список анкет</h1>
 	<form method="post">
 		{% if messages %}
 			{% for msg in messages %}
@@ -23,18 +23,18 @@
 			<tr>
 				<th>ID</th>
 				<th>ФИО</th>
-                <th>Статус</th>
-                <th>Модератор</th>
-                <th>Дата изменения</th>
+        <th>Статус</th>
+        <th>Модератор</th>
+        <th>Дата изменения</th>
 			</tr>
 			</thead>
 			<tbody>
 			{% for q in questionaries %}
 			<tr>
 				<!-- <td><input type="checkbox" name="selected_technologies" value="{{ q.id }}"></td> -->
-				<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}"></a>{{ q.id }}</td>
-                <td>{{ q.name }} {{ q.middle_name }} {{ q.surname }}</td>
-                <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
+				<td>{{ q.id }}</td>
+				<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}">{{ q.name }} {{ q.middle_name }} {{ q.surname }}</a></td>
+        <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
 				<td> {% if q.moderator_id %}  {{ q.moderator_id }} {% else %} Не назначен {% endif %}</td>
                 <td>{{ q.updated_at }}</td>
 			</tr>

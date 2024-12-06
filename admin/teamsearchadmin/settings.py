@@ -128,4 +128,3 @@ if DEBUG:
     EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 else:
     ...
-
