@@ -10,7 +10,6 @@ from core.services.users import UsersService
 from core import dtos
 
 from config.config import BaseUser
-from database.models.user import User
 from handlers.start import start
 from lexicon.lexicon_ru import LEXICON_RU
 from keyboards.keyboards import yes_no_kb

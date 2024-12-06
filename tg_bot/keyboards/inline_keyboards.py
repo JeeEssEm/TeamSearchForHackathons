@@ -14,7 +14,6 @@ from core.repositories import TeamsRepository, UsersRepository
 from core import dtos
 
 from lexicon.lexicon_ru import LEXICON_RU
-from database.technologies_data import tech_data
 
 search_team_button = InlineKeyboardButton(
     text='Найти команду',

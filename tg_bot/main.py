@@ -46,7 +46,7 @@ async def main():
     ])
 
     await set_main_menu(bot)
-    logging.disable(logging.INFO)
+    # logging.disable(logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
