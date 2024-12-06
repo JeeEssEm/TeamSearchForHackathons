@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from .technology import Technology
     from .hackathon import Hackathon
     from .feedback import Feedback
+    from .team import Team
 
 
 class FormStatus(IntEnum):
@@ -64,6 +65,12 @@ class User(Base):
         back_populates="receiver",
         foreign_keys="Feedback.receiver_id",
     )
+    teams: Mapped[list["Team"]] = relationship(
+        secondary="users_teams",
+        back_populates="members"
+    )
+
+    my_teams: Mapped[list["Team"]] = relationship()
 
     def convert_to_dto_baseuser(self) -> dtos.BaseUser:
         return dtos.BaseUser(
@@ -71,6 +78,19 @@ class User(Base):
             name=self.name,
             middle_name=self.middlename or "",
             surname=self.surname,
+        )
+
+    async def convert_to_dto_member(self) -> dtos.TeamMember:
+        return dtos.TeamMember(
+            id=self.id,
+            name=self.name,
+            middle_name=self.middlename or "",
+            surname=self.surname,
+            role='',
+            technologies=[
+                tech.convert_to_dto()
+                for tech in await self.awaitable_attrs.technologies],
+            about_me=self.about_me
         )
     
     def convert_to_dto_form(self) -> dtos.Form:

@@ -16,7 +16,7 @@ class Team(Base):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(300), nullable=False)
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    users: Mapped[list["User"]] = relationship("User", secondary="users_teams")
+    members: Mapped[list["User"]] = relationship("User", secondary="users_teams")
     hackathons: Mapped[list["Hackathon"]] = relationship(
         "Hackathon", secondary="teams_hackathons"
     )
@@ -24,16 +24,16 @@ class Team(Base):
         Integer, ForeignKey("users.id"), nullable=False
     )
     # поле для получения капитана
-    captain: Mapped["User"] = relationship()
+    captain: Mapped["User"] = relationship(back_populates="my_teams")
 
     async def convert_to_dto(self) -> dtos.Team:
         members = [
-            user.convert_to_dto_baseuser()
-            for user in await self.awaitable_attrs.users
+            await user.convert_to_dto_member()
+            for user in await self.awaitable_attrs.members
         ]
-        members.append(
-            (await self.awaitable_attrs.captain).convert_to_dto_baseuser()
-        )
+        # members.append(
+        #     (await self.awaitable_attrs.captain).convert_to_dto_member()
+        # )
         return dtos.Team(
             id=self.id,
             title=self.title,

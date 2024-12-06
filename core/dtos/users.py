@@ -9,10 +9,10 @@ if TYPE_CHECKING:
 
 @dataclass
 class CreateUser:
+    telegram_id: int
     name: str
     surname: str
-    email: str
-    middle_name: str = None
+    middlename: str = None
     uni: str = None
     year_of_study: int = None
     group: str = None  # Указываем значение по умолчанию
@@ -54,7 +54,6 @@ class UpdateUser:
 class TeamMember(BaseUser):
     role: str
     technologies: list[str]
-    description: str  # ?
     about_me: str
     # avatar: str  # потом S3 прикрутим и сделаем это
     # feedbacks:  #

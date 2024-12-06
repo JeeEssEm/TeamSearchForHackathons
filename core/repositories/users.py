@@ -1,3 +1,4 @@
+from typing import NamedTuple
 from datetime import timedelta, timezone, datetime
 
 from sqlalchemy import insert, delete, update, select, or_, and_
@@ -26,6 +27,8 @@ class UsersRepository(Repository):
 
     async def create_user(self, data: CreateUser) -> User:
         user = models.User(**data.__dict__)
+        user.id = data.telegram_id
+
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)
@@ -109,14 +112,15 @@ class UsersRepository(Repository):
         dto = await res.convert_to_dto_user()
         return self._convert_form(dto)
 
-    async def change_user_form_state(self, user_id: int, moderator_id: int, approve=False,
+    async def change_user_form_state(self, user_id: int, moderator_id: int,
+                                     approve=False,
                                      feedback=None):
         user = await self._get_by_id(user_id)
         user.moderator_id = moderator_id
         user.form_status = models.FormStatus.approved.value if approve else models.FormStatus.rejected.value
         user.moderator_feedback = feedback
         await self.session.commit()
-    
+
     async def get_form_by_id(self, form_id: int) -> User:
         user = await self._get_by_id(form_id)
         return self._convert_form(await user.convert_to_dto_user())
@@ -125,3 +129,13 @@ class UsersRepository(Repository):
         stmt = select(models.User)
         res = await self.session.scalars(stmt)
         return list(map(lambda u: u.convert_to_dto_form(), res))
+
+    async def get_teams(self, user_id: int) -> list[dict]:
+        user = await self._get_by_id(user_id)
+        return list(map(
+            lambda t: {
+                'id': t.id,
+                'title': t.title,
+            },
+            await user.awaitable_attrs.teams)
+        )

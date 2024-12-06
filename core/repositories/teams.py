@@ -1,4 +1,4 @@
-from sqlalchemy import insert, delete, update
+from sqlalchemy import insert, delete, update, select
 
 from .base import Repository
 from core import models
@@ -34,7 +34,27 @@ class TeamsRepository(Repository):
 
     async def get_by_id(self, team_id: int) -> Team:
         team = await self._get_team_by_id(team_id)
-        return await team.convert_to_dto()
+        dto = await team.convert_to_dto()
+        member_ids = list(map(lambda m: m.id, team.members))
+        # чтобы подтянуть роль юзера в конкретной команде, приходится исполнять
+        # такое:
+        stmt = (select(models.users_teams, models.Role)
+                .join(models.Role)
+                .distinct()
+                .where(
+            models.users_teams.c.team_id == team.id,
+            models.users_teams.c.user_id.in_(member_ids)
+        ))
+        # рот твой вертел. Почему нельзя было сделать users_teams сущностью??
+        # вот упёрся тебе этот association_table
+        res = await self.session.execute(stmt)
+
+        # проходим по всем юзерам и ставим ему найденную роль
+        for row in res:
+            for user in dto.members:
+                if row[0] == user.id:
+                    user.role = row[-1].title
+        return dto
 
     async def edit(self, team_id: int, data: BaseTeam) -> Team:
         team = await self._get_team_by_id(team_id)
