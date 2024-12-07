@@ -42,12 +42,20 @@
 			</tbody>
 		</table>
 		<div class="d-flex">
+
 		</div>
 	</form>
-
+		<ul class="pagination mt-3">
+			<li class="page-item"><a href="{% url 'questionary:list' page=1 %}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+			{% if prev_page != 0 %}
+				<li class="page-item"><a href="{% url 'questionary:list' page=prev_page %}" class="page-link">{{ prev_page }}</a></li>
+			{% endif %}
+			<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+			{% if next_page != 0 %}
+				<li class="page-item"><a href="{% url 'questionary:list' page=next_page %}" class="page-link">{{ next_page }} </a></li>
+			{% endif %}
+			<li class="page-item"><a href="{% url 'questionary:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+			<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+	</ul>
 </div>
-{% endblock %}
-
-{% block scripts %}
-	<script src="{% static 'js/select_all.js' %}"></script>
 {% endblock %}

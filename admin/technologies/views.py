@@ -59,7 +59,7 @@ class TechnologiesListView(AsyncLoginRequiredMixin, View):
     async def get(self, request, page=1, db=Provide[Container.db]):
         async with db.session() as session:
             tech_service = TechnologiesRepository(session)
-            limit = 1
+            limit = 10
             total, technologies = await tech_service.get_technologies(limit, page)
             last_page = ceil(total / limit)
 

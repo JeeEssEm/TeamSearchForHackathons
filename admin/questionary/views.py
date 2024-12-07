@@ -1,9 +1,10 @@
 from asgiref.sync import sync_to_async
+from math import ceil
 
 from django.views.generic import View
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, aget_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User as UserModel
 
@@ -51,7 +52,10 @@ class ValidateQuestionaryByIdView(AsyncLoginRequiredMixin, View):
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так... {e}')
                 return redirect(reverse_lazy('questionary:list'))  # TODO: добавить отображание messages
-            moderator = await sync_to_async(get_object_or_404)(UserModel, id=user.moderator_id)
+            try:
+                moderator = await aget_object_or_404(UserModel, id=user.moderator_id)
+            except Exception as e:
+                moderator = None
             form = QuestionaryForm(initial={'feedback': user.moderator_feedback})
             return TemplateResponse(
                 request,
@@ -89,15 +93,25 @@ class QuestionaryListView(AsyncLoginRequiredMixin, View):
     template_name = 'questionaries/list.html'
 
     @inject
-    async def get(self, request, db=Provide[Container.db]):
+    async def get(self, request, page, db=Provide[Container.db]):
         async with db.session() as session:
             user_service = UsersService(session)
-            questionaries = await user_service.get_all_short_forms()
+
+            limit = 10
+            total, questionaries = await user_service.get_all_short_forms(
+                page, limit
+            )
+            last_page = ceil(total / limit)
 
             return TemplateResponse(
                 request,
                 self.template_name,
                 context={
-                    'questionaries': questionaries 
+                    'questionaries': questionaries,
+                    'total': total,
+                    'current_page': page,
+                    'prev_page': page - 1,
+                    'next_page': page + 1 if last_page > page else 0,
+                    'last_page': last_page or page
                 }
             )

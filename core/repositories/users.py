@@ -1,7 +1,7 @@
 from typing import NamedTuple
 from datetime import timedelta, timezone, datetime
 
-from sqlalchemy import insert, delete, update, select, or_, and_
+from sqlalchemy import insert, delete, update, select, or_, and_, func
 
 from core.dtos import CreateUser, User, BaseUser, Form
 from core.exceptions import NotFound
@@ -125,10 +125,14 @@ class UsersRepository(Repository):
         user = await self._get_by_id(form_id)
         return self._convert_form(await user.convert_to_dto_user())
 
-    async def get_all_forms(self) -> list[Form]:
-        stmt = select(models.User)
+    async def get_all_forms(self, page: int, limit: int) -> (int, list[Form]):
+        stmt = select(models.User).limit(limit).offset((page - 1) * limit)
+        count = select(models.User, func.count())
+
         res = await self.session.scalars(stmt)
-        return list(map(lambda u: u.convert_to_dto_form(), res))
+        count = await self.session.execute(count)
+
+        return count.first()[1], list(map(lambda u: u.convert_to_dto_form(), res))
 
     async def get_teams(self, user_id: int) -> list[dict]:
         user = await self._get_by_id(user_id)

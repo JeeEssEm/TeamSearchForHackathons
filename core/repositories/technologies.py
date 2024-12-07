@@ -19,7 +19,7 @@ class TechnologiesRepository(Repository):
         await self.session.commit()
         return tech.convert_to_dto()
 
-    async def get_technologies(self, limit: int, page: int) -> list[Technology]:
+    async def get_technologies(self, limit: int, page: int) -> (int, list[Technology]):
         stmt = select(models.Technology)
         q = select(models.Technology, func.count())
 

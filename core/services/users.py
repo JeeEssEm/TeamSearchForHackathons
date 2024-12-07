@@ -1,6 +1,6 @@
 from .base import Service
 from core.repositories import UsersRepository
-from core.dtos import User, CreateUser, UpdateUser, BaseUser
+from core.dtos import User, CreateUser, UpdateUser, BaseUser, Form
 from core.exceptions import NotFound
 
 
@@ -35,5 +35,5 @@ class UsersService(Service):
     async def reject_user(self, user_id: int, moderator_id: int, feedback: str = None):        
         await self.repository.change_user_form_state(user_id, moderator_id, approve=False, feedback=feedback)
 
-    async def get_all_short_forms(self):
-        return await self.repository.get_all_forms()
+    async def get_all_short_forms(self, page: int, limit: int = 10) -> (int, list[Form]):
+        return await self.repository.get_all_forms(page, limit)
