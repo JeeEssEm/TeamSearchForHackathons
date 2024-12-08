@@ -62,6 +62,9 @@ class UsersRepository(Repository):
             user.resume = data.resume
         if data.avatar is not None:
             user.avatar = data.avatar
+        if not settings.TRUST_FACTOR:
+            user.moderator_id = None
+            user.form_status = models.FormStatus.in_review
 
         await self.session.commit()
         await self.session.refresh(user)
@@ -95,12 +98,11 @@ class UsersRepository(Repository):
         delta = timedelta(
             days=settings.MODERATOR_FORM_ROTATION_DAYS
         )
-        today = datetime.now(timezone.utc)
-        # FIXME: разобраться с датой ревью
+        today = datetime.now(timezone.utc) - delta
         stmt = select(models.User).where(or_(
             and_(
                 models.User.moderator_id.is_not(None),
-                models.User.updated_at - today > delta
+                models.User.updated_at < today
             ),
             models.User.moderator_id.is_(None)
         )).where(models.User.form_status == models.FormStatus.in_review)
