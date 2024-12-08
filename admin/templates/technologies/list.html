@@ -9,50 +9,71 @@
 {% block content %}
 <div class="mx-auto col-lg-8">
 	<h1>Список технологий</h1>
-	<form method="post">
-		{% if messages %}
-			{% for msg in messages %}
-				<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
-					{{ msg }}
-				</div>
+	<div class="d-flex w-100 justify-content-between flex-sm-column-reverse flex-lg-row">
+		<div class="d-flex flex-column col-lg-8 col-sm-12">
+				<form method="post">
+				{% if messages %}
+					{% for msg in messages %}
+						<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
+							{{ msg }}
+						</div>
+						{% endfor %}
+				{% endif %}
+			{% csrf_token %}
+			<table class="table table-striped">
+				<thead>
+				<tr>
+					<th><input type="checkbox" id="select-all"></th>
+					<th>ID</th>
+					<th>Название</th>
+				</tr>
+				</thead>
+				<tbody>
+				{% for tech in technologies %}
+					<tr>
+						<td><input type="checkbox" name="selected_technologies" value="{{ tech.id }}"></td>
+						<td>{{ tech.id }}</td>
+						<td><a href="{% url 'technologies:edit' tech_id=tech.id %}">{{ tech.title }}</a></td>
+					</tr>
 				{% endfor %}
-		{% endif %}
-		{% csrf_token %}
-		<table class="table table-striped">
-			<thead>
-			<tr>
-				<th><input type="checkbox" id="select-all"></th>
-				<th>ID</th>
-				<th>Название</th>
-			</tr>
-			</thead>
-			<tbody>
-			{% for tech in technologies %}
-			<tr>
-				<td><input type="checkbox" name="selected_technologies" value="{{ tech.id }}"></td>
-				<td>{{ tech.id }}</td>
-				<td><a href="{% url 'technologies:edit' tech_id=tech.id %}">{{ tech.title }}</a></td>
-			</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-		<div class="d-flex">
-			<a href="{% url 'technologies:create' %}" class="btn btn-primary me-2">Создать</a>
-			<button type="submit" class="btn btn-danger">Удалить выбранные</button>
+				</tbody>
+			</table>
+			<div class="d-flex">
+				<a href="{% url 'technologies:create' %}" class="btn btn-primary me-2">Создать</a>
+				<button type="submit" class="btn btn-danger">Удалить выбранные</button>
+			</div>
+		</form>
+				<ul class="pagination mt-3">
+			<li class="page-item"><a href="{% url 'technologies:list' page=1 %}?sorting={{ sorting }}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+			{% if prev_page != 0 %}
+				<li class="page-item"><a href="{% url 'technologies:list' page=prev_page %}?sorting={{ sorting }}" class="page-link">{{ prev_page }}</a></li>
+			{% endif %}
+			<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+			{% if next_page != 0 %}
+				<li class="page-item"><a href="{% url 'technologies:list' page=next_page %}?sorting={{ sorting }}" class="page-link">{{ next_page }} </a></li>
+			{% endif %}
+			<li class="page-item"><a href="{% url 'technologies:list' page=last_page %}?sorting={{ sorting }}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+			<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+		</ul>
 		</div>
+		<form class="d-flex flex-column gap-2 col-lg-3 col-sm-12 ms-auto" method="get" action="{% url 'technologies:list' page=1 %}?sorting={{ sorting }}">
+<!--		<label for="#search"></label>-->
+<!--		<input type="text" placeholder="Поиск..." id="#search" class="form-control">-->
+<!--		<button class="btn btn-dark ms-3" type="submit">Поиск</button>-->
+	  <h3>Сортировка</h3>
+	  <div class="d-flex gap-2">
+		  <div class="d-flex flex-column">
+			  <label for="#sorting">Статус</label>
+			  <select name="sorting" id="#sorting" class="form-select">
+				    <option value="">Без сортировки</option>
+		        <option value="asc" {% if sorting == 'asc' %}selected{% endif %}>По возрастанию (а-я)</option>
+		        <option value="desc" {% if sorting == 'desc' %}selected{% endif %}>По убыванию (я-а)</option>
+			  </select>
+		  </div>
+	  </div>
+	  <button class="btn btn-secondary" type="submit">Применить</button>
 	</form>
-	<ul class="pagination mt-3">
-		<li class="page-item"><a href="{% url 'technologies:list' page=1 %}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
-		{% if prev_page != 0 %}
-			<li class="page-item"><a href="{% url 'technologies:list' page=prev_page %}" class="page-link">{{ prev_page }}</a></li>
-		{% endif %}
-		<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
-		{% if next_page != 0 %}
-			<li class="page-item"><a href="{% url 'technologies:list' page=next_page %}" class="page-link">{{ next_page }} </a></li>
-		{% endif %}
-		<li class="page-item"><a href="{% url 'technologies:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
-		<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
-	</ul>
+	</div>
 </div>
 {% endblock %}
 

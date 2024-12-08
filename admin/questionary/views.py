@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from math import ceil
 
 from django.views.generic import View
@@ -11,13 +10,10 @@ from django.contrib.auth.models import User as UserModel
 from dependency_injector.wiring import Provide, inject
 
 from teamsearchadmin.mixins import AsyncLoginRequiredMixin
-# from django.forms.
 
-# from core.services import
 from core.dependencies.container import Container
 from core.services import UsersService
 from .forms import QuestionaryForm
-from core.dtos import User
 
 
 class ValidateQuestionaryView(AsyncLoginRequiredMixin, View):
@@ -98,7 +94,7 @@ class QuestionaryListView(AsyncLoginRequiredMixin, View):
             user_service = UsersService(session)
             filters = {}
             status = request.GET.get('status')
-            mine = bool(request.GET.get('mine'))
+            mine = request.GET.get('mine', 'False') == 'True'
             if status:
                 filters['status'] = status
             if mine:
