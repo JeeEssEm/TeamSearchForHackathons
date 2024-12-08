@@ -96,10 +96,17 @@ class QuestionaryListView(AsyncLoginRequiredMixin, View):
     async def get(self, request, page, db=Provide[Container.db]):
         async with db.session() as session:
             user_service = UsersService(session)
+            filters = {}
+            status = request.GET.get('status')
+            mine = bool(request.GET.get('mine'))
+            if status:
+                filters['status'] = status
+            if mine:
+                filters['moderator_id'] = request.user.id
 
             limit = 10
             total, questionaries = await user_service.get_all_short_forms(
-                page, limit
+                page, filters, limit
             )
             last_page = ceil(total / limit)
 
@@ -112,6 +119,8 @@ class QuestionaryListView(AsyncLoginRequiredMixin, View):
                     'current_page': page,
                     'prev_page': page - 1,
                     'next_page': page + 1 if last_page > page else 0,
-                    'last_page': last_page or page
+                    'last_page': last_page or page,
+                    'status': status,
+                    'mine': mine
                 }
             )

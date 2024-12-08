@@ -9,6 +9,24 @@
 {% block content %}
 <div class="mx-auto col-lg-8">
 	<h1>Список анкет</h1>
+
+  <form class="w-100 d-flex my-2 gap-2" method="get" action="{% url 'questionary:list' page=1 %}">
+<!--		<label for="#search"></label>-->
+<!--		<input type="text" placeholder="Поиск..." id="#search" class="form-control">-->
+<!--		<button class="btn btn-dark ms-3" type="submit">Поиск</button>-->
+	  <select name="status" id="#status" class="form-select w-25">
+		    <option value="">Все</option>
+        <option value="approved" {% if status == 'approved' %}selected{% endif %}>Одобрено</option>
+        <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Отклонено</option>
+        <option value="in_review" {% if status == 'in_review' %}selected{% endif %}>В процессе</option>
+	  </select>
+	  <select name="mine" id="#mine" class="form-select w-25">
+		    <option value="">Все</option>
+        <option value="mine" {% if mine %}selected{% endif %}>Только мои</option>
+	  </select>
+	  <button class="btn btn-secondary" type="submit">Применить</button>
+	</form>
+
 	<form method="post">
 		{% if messages %}
 			{% for msg in messages %}
@@ -30,14 +48,14 @@
 			</thead>
 			<tbody>
 			{% for q in questionaries %}
-			<tr>
-				<!-- <td><input type="checkbox" name="selected_technologies" value="{{ q.id }}"></td> -->
-				<td>{{ q.id }}</td>
-				<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}">{{ q.name }} {{ q.middle_name }} {{ q.surname }}</a></td>
-        <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
-				<td> {% if q.moderator_id %}  {{ q.moderator_id }} {% else %} Не назначен {% endif %}</td>
-                <td>{{ q.updated_at }}</td>
-			</tr>
+				<tr>
+					<!-- <td><input type="checkbox" name="selected_technologies" value="{{ q.id }}"></td> -->
+					<td>{{ q.id }}</td>
+					<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}">{{ q.name }} {{ q.middle_name }} {{ q.surname }}</a></td>
+	        <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
+					<td> {% if q.moderator_id %}  {{ q.moderator_id }} {% else %} Не назначен {% endif %}</td>
+	                <td>{{ q.updated_at }}</td>
+				</tr>
 			{% endfor %}
 			</tbody>
 		</table>
@@ -56,6 +74,6 @@
 			{% endif %}
 			<li class="page-item"><a href="{% url 'questionary:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
 			<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
-	</ul>
+		</ul>
 </div>
 {% endblock %}

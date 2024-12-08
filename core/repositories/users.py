@@ -125,14 +125,26 @@ class UsersRepository(Repository):
         user = await self._get_by_id(form_id)
         return self._convert_form(await user.convert_to_dto_user())
 
-    async def get_all_forms(self, page: int, limit: int) -> (int, list[Form]):
-        stmt = select(models.User).limit(limit).offset((page - 1) * limit)
-        count = select(models.User, func.count())
+    async def get_all_forms(self, page: int, limit: int, filters: dict) -> (int, list[Form]):
+        stmt = select(models.User)
+        count = select(func.count())
+
+        if filters.get('moderator_id'):
+            stmt = stmt.where(
+                models.User.moderator_id == filters['moderator_id']
+            )
+        if filters.get('status'):
+            stmt = stmt.where(
+                models.User.form_status == filters['status']
+            )
+        count = select(func.count()).select_from(stmt.subquery())
+        stmt = stmt.limit(limit).offset((page - 1) * limit)
 
         res = await self.session.scalars(stmt)
-        count = await self.session.execute(count)
+        count = await self.session.scalar(count)
 
-        return count.first()[1], list(map(lambda u: u.convert_to_dto_form(), res))
+        return count, list(
+            map(lambda u: u.convert_to_dto_form(), res))
 
     async def get_teams(self, user_id: int) -> list[dict]:
         user = await self._get_by_id(user_id)
