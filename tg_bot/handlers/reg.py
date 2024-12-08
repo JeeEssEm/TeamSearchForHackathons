@@ -9,7 +9,7 @@ from core.dependencies.container import Container
 from core.services.users import UsersService
 from core import dtos
 
-from config.config import BaseUser
+
 from handlers.start import start
 from lexicon.lexicon_ru import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
@@ -88,24 +88,33 @@ async def process_group(message: Message, state: FSMContext, bot: Bot):
         question="Выбери свою роль:",
         options=["Frontend", "Backend", "ML"],  # FIXME: refactor to ids from db
         allows_multiple_answers=True,
-        is_anonymous=False
+        is_anonymous=False,
     )
-    await state.update_data(role_poll_id=poll_message.poll.id, role_message_id=poll_message.message_id)
+    await state.update_data(
+        role_poll_id=poll_message.poll.id,
+        role_message_id=poll_message.message_id,
+    )
     logger.info("Poll for roles sent")
     await state.set_state(UserForm.roles)
 
 
 @router.poll_answer(UserForm.roles)
-async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot):
+async def process_role_poll(
+    poll_answer: PollAnswer, state: FSMContext, bot: Bot
+):
     user_data = await state.get_data()
     role_poll_id = user_data.get('role_poll_id')
     role_message_id = user_data.get('role_message_id')
     if role_poll_id and role_message_id:
-        poll = await bot.stop_poll(chat_id=poll_answer.user.id, message_id=role_message_id)
+        poll = await bot.stop_poll(
+            chat_id=poll_answer.user.id, message_id=role_message_id
+        )
         roles = [poll.options[i].text for i in poll_answer.option_ids]
         await state.update_data(roles=roles)
         logger.info(f"Roles selected: {roles}")
-    await bot.send_message(text='Отлично! Теперь отправьте аватар:', chat_id=poll_answer.user.id)
+    await bot.send_message(
+        text='Отлично! Теперь отправьте аватар:', chat_id=poll_answer.user.id
+    )
     logger.info("User data sent")
     await state.set_state(UserForm.avatar)
     # await state.update_data(selected_technologies = [])
@@ -115,21 +124,27 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
 @router.message(F.photo, UserForm.avatar)
 async def process_avatar(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(avatar=message.photo[0].file_id)
-    await bot.send_message(chat_id=message.chat.id, text='Расскажите немного о себе:')
+    await bot.send_message(
+        chat_id=message.chat.id, text='Расскажите немного о себе:'
+    )
     await state.set_state(UserForm.about_me)
 
 
 @router.message(F.text, UserForm.about_me)
 async def process_about(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(about_me=message.text)
-    await bot.send_message(text='Теперь перечислите выигранные вами хакатоны:', chat_id=message.chat.id)
+    await bot.send_message(
+        text='Теперь перечислите выигранные вами хакатоны:',
+        chat_id=message.chat.id,
+    )
     await state.set_state(UserForm.achievements)
 
 
 @router.message(F.text, UserForm.achievements)
 @inject
-async def process_achievements(message: Message, state: FSMContext, bot: Bot,
-                               db=Provide[Container.db]):
+async def process_achievements(
+    message: Message, state: FSMContext, bot: Bot, db=Provide[Container.db]
+):
     await state.update_data(achievements=message.text)
     user_data = await state.get_data()
     async with db.session() as session:
@@ -152,4 +167,8 @@ async def process_achievements(message: Message, state: FSMContext, bot: Bot,
 async def _(cb: CallbackQuery, state: FSMContext):
     letter = cb.data[-1]
     data = await state.get_data()
-    await cb.message.edit_reply_markup(reply_markup=choose_technologies(letter, data.get('selected_technologies')))
+    await cb.message.edit_reply_markup(
+        reply_markup=choose_technologies(
+            letter, data.get('selected_technologies')
+        )
+    )

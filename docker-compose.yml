@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  tg_bot:
+    build:
+      context: .
+      dockerfile: tg_bot/Dockerfile
+    volumes:
+      - ./tg_bot:/app
+      - ./core:/app/core   # Добавьте монтирование папки core в tg_bot
+    environment:
+      - BOT_TOKEN=7774750092:AAHfP5kQ0XjfWOD3BivTtKYLrb2joQ6RKvo
+    networks:
+      - teamsearch_network
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+      # environment:
+      # - PYTHONPATH=/app  # Путь к рабочей директории внутри контейнера
+    volumes:
+      - ./admin:/app
+      - ./core:/app/core
+    networks:
+      - teamsearch_network
+
+  core:
+    build:
+      context: .
+      dockerfile: core/Dockerfile
+    volumes:
+      - ./core:/app
+    networks:
+      - teamsearch_network
+
+networks:
+  teamsearch_network:
+    driver: bridge

@@ -16,26 +16,18 @@ from core import dtos
 from lexicon.lexicon_ru import LEXICON_RU
 
 search_team_button = InlineKeyboardButton(
-    text='Найти команду',
-    callback_data='Поиск команды...'
+    text='Найти команду', callback_data='Поиск команды...'
 )
 create_team_button = InlineKeyboardButton(
     text='Создать команду',
 )
 
-backward_button = InlineKeyboardButton(
-    text='<<'
-)
-forward_button = InlineKeyboardButton(
-    text='>>'
-)
-send_appl_button = InlineKeyboardButton(
-    text=LEXICON_RU['send_appl']
-)
+backward_button = InlineKeyboardButton(text='<<')
+forward_button = InlineKeyboardButton(text='>>')
+send_appl_button = InlineKeyboardButton(text=LEXICON_RU['send_appl'])
 
 keyboard_1 = InlineKeyboardMarkup(
-    inline_keyboard=[[search_team_button],
-                     [create_team_button]]
+    inline_keyboard=[[search_team_button], [create_team_button]]
 )
 keyboard_2 = InlineKeyboardMarkup(
     inline_keyboard=[[backward_button], [send_appl_button], [forward_button]]
@@ -50,13 +42,18 @@ def alphabet_kb() -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-def choose_technologies(letter: str, selected_technologies: list[int]) -> InlineKeyboardMarkup:
+def choose_technologies(
+    letter: str, selected_technologies: list[int]
+) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for i, j in enumerate(tech_data):
         print(j.lower().startswith(letter))
         if j.upper().startswith(letter):
-            kb.button(text=f'{'✅ ' if i in selected_technologies else '❌ '}{j}', callback_data=f'technology_{i}')
-            print(f'{'✅ ' if i in selected_technologies else '❌ '}{j}')
+            kb.button(
+                text=f"{'✅ ' if i in selected_technologies else '❌ '}{j}",
+                callback_data=f"technology_{i}",
+            )
+            print(f"✅ " if i in selected_technologies else "❌ " + j)
             print(f'technology_{i}')
     kb.button(text='Назад', callback_data='back')
     kb.adjust(1)
@@ -76,7 +73,9 @@ def create_main_keyboard():
 
 
 @inject
-async def my_teams_keyboard(user_id: int, db=Provide[Container.db]) -> InlineKeyboardMarkup:
+async def my_teams_keyboard(
+    user_id: int, db=Provide[Container.db]
+) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     async with db.session() as session:
         user_repo = UsersRepository(session)
@@ -90,19 +89,27 @@ async def my_teams_keyboard(user_id: int, db=Provide[Container.db]) -> InlineKey
 
 
 @inject
-async def my_team_keyboard(user_id: int, team_id: int, db=Provide[Container.db]) -> InlineKeyboardMarkup:
+async def my_team_keyboard(
+    user_id: int, team_id: int, db=Provide[Container.db]
+) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     async with db.session() as session:
         team_repo = TeamsRepository(session)
         my_team = await team_repo.get_by_id(team_id)
         members = my_team.members
         if not (my_team.captain_id == user_id and len(members) <= 1):
-            kb.button(text="Покинуть команду", callback_data=f'leave_team_{team_id}')
+            kb.button(
+                text="Покинуть команду", callback_data=f'leave_team_{team_id}'
+            )
     if my_team.captain_id == user_id:
-        kb.button(text='Редактировать команду', callback_data=f'edit_team_{team_id}')
+        kb.button(
+            text='Редактировать команду', callback_data=f'edit_team_{team_id}'
+        )
     kb.button(text='Участники', callback_data=f'members_{team_id}')
     if my_team.captain_id == user_id:
-        kb.button(text='Создать вакансию', callback_data=f'create_vacancy_{team_id}')
+        kb.button(
+            text='Создать вакансию', callback_data=f'create_vacancy_{team_id}'
+        )
     kb.button(text='Вакансии', callback_data=f'vacancies_{team_id}')
     kb.button(text='Назад', callback_data='my_teams')
     kb.adjust(2)
@@ -110,7 +117,9 @@ async def my_team_keyboard(user_id: int, team_id: int, db=Provide[Container.db])
 
 
 @inject
-async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, list[dtos.BaseUser]]:
+async def team_users_keyboard(
+    user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]
+) -> tuple[InlineKeyboardMarkup, list[dtos.BaseUser]]:
     kb = InlineKeyboardBuilder()
     async with db.session() as Session:
         team_repo = TeamsRepository(Session)
@@ -120,11 +129,20 @@ async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Pr
     if offset < 0:
         offset = len(members) - 1
     if team.captain_id == user_id and members[offset].id != team.captain_id:
-        kb.button(text='Исключить участника', callback_data=f'kick_{team_id}_{members[offset].id}')
-        kb.button(text='Сделать капитаном', callback_data=f'make_captain_{team_id}_{members[offset].id}')
+        kb.button(
+            text='Исключить участника',
+            callback_data=f'kick_{team_id}_{members[offset].id}',
+        )
+        kb.button(
+            text='Сделать капитаном',
+            callback_data=f'make_captain_{team_id}_{members[offset].id}',
+        )
 
     kb.button(text='<<', callback_data=f'members_{team.id}_{offset - 1}')
-    kb.button(text='>>', callback_data=f'members_{team.id}_{(offset + 1) % len(members)}')
+    kb.button(
+        text='>>',
+        callback_data=f'members_{team.id}_{(offset + 1) % len(members)}',
+    )
     kb.button(text='Назад', callback_data=f'team_{team_id}')
     kb.adjust(2)
     return kb.as_markup(), members[offset]
@@ -149,7 +167,3 @@ async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Pr
 #     kb.button(text='Описание', callback_data=f'edit_team_description_{team_id}')
 #     kb.adjust(2)
 #     return kb.as_markup()
-
-
-
-

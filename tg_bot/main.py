@@ -19,7 +19,8 @@ async def main():
     logging.basicConfig(
         level=logging.INFO,
         format='%(filename)s:%(lineno)d #%(levelname)-8s '
-               '[%(asctime)s] - %(name)s - %(message)s')
+        '[%(asctime)s] - %(name)s - %(message)s',
+    )
 
     logger.info('Starting bot')
 
@@ -27,7 +28,7 @@ async def main():
 
     bot = Bot(
         token=config.tg_bot.token,
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     dp = Dispatcher()
 
@@ -37,13 +38,15 @@ async def main():
     dp.include_router(create_vacancy.router)
 
     container = Container()
-    container.wire(modules=[
-        'handlers.reg',
-        'handlers.create_team',
-        'other.filters',
-        'keyboards.inline_keyboards',
-        'handlers.start'
-    ])
+    container.wire(
+        modules=[
+            'handlers.reg',
+            'handlers.create_team',
+            'other.filters',
+            'keyboards.inline_keyboards',
+            'handlers.start',
+        ]
+    )
 
     await set_main_menu(bot)
     # logging.disable(logging.INFO)

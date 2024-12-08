@@ -18,11 +18,14 @@ typing_extensions~=4.12.2
 certifi~=2024.8.30
 coverage~=7.6.7
 greenlet~=3.1.1
-pydantic~=2.10.1
-pydantic_core~=2.27.1
+pydantic==2.8.0
+pydantic_core==2.20.0
 pydantic-settings==2.6.1
 idna~=3.10
 aiosqlite~=0.20.0
 pycparser~=2.22
 wrapt~=1.17.0
 python-dotenv~=1.0.1
+aiogram~=3.14.0
+environs
+dependency_injector
