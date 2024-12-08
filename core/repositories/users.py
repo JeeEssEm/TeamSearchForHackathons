@@ -3,7 +3,7 @@ from datetime import timedelta, timezone, datetime
 
 from sqlalchemy import insert, delete, update, select, or_, and_, func
 
-from core.dtos import CreateUser, User, BaseUser, Form
+from core.dtos import CreateUser, User, BaseUser, Form, UpdateUser
 from core.exceptions import NotFound
 from core.config import settings
 import core.models as models
@@ -34,11 +34,14 @@ class UsersRepository(Repository):
         await self.session.refresh(user)
         return await user.convert_to_dto_user()
 
-    async def update_user(self, user_id: int, data: CreateUser) -> User:
+    async def update_user(self, user_id: int, data: UpdateUser) -> User:
         # Получаем пользователя из базы данных
         user = await self._get_by_id(user_id)
-
         # Обновляем данные пользователя
+
+        if not data.year_of_study:  # ни дня без говнокода
+            user.year_of_study = None
+
         if data.name is not None:
             user.name = data.name
         if data.surname is not None:
@@ -47,8 +50,6 @@ class UsersRepository(Repository):
             user.middlename = data.middle_name
         if data.email is not None:
             user.email = data.email
-        if data.password is not None:
-            user.password = data.password
         if data.uni is not None:
             user.uni = data.uni
         if data.year_of_study is not None:

@@ -65,12 +65,12 @@ def choose_technologies(letter: str, selected_technologies: list[int]) -> Inline
 
 def create_main_keyboard():
     kb = InlineKeyboardBuilder()
-    kb.button(text='Мои анкеты', callback_data='my_forms')
+    kb.button(text='Моя анкета', callback_data='my_forms')
     kb.button(text='Мои команды', callback_data='my_teams')
-    kb.button(text='Создать анкету', callback_data='new_form')
+    kb.button(text='Редактировать анкету', callback_data='new_form')
     kb.button(text='Создать команду', callback_data='new_team')
     kb.button(text='Искать анкеты', callback_data='search_form')
-    kb.button(text='Искать команду', callback_data='search_team')
+    kb.button(text='Искать команды', callback_data='search_team')
     kb.adjust(2)
     return kb.as_markup()
 
@@ -128,6 +128,32 @@ async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Pr
     kb.button(text='Назад', callback_data=f'team_{team_id}')
     kb.adjust(2)
     return kb.as_markup(), members[offset]
+
+
+def my_form_keyboard() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Редактировать имя', callback_data='my_form_edit_name')
+    kb.button(text='Редактировать отчество', callback_data='my_form_edit_middlename')
+    kb.button(text='Редактировать фамилию', callback_data='my_form_edit_surname')
+    kb.button(text='Редактировать университет', callback_data='my_form_edit_uni')
+    kb.button(text='Редактировать курс', callback_data='my_form_edit_course')
+    kb.button(text='Редактировать учебную группу', callback_data='my_form_edit_group')
+    kb.button(text='Редактировать информацию себе', callback_data='my_form_edit_about_me')
+    kb.button(text='Редактировать стек технологий', callback_data='my_form')
+    kb.button(text='Редактировать роли', callback_data='my_form')
+
+    kb.button(text='Назад', callback_data='start')
+    kb.adjust(2)
+    return kb.as_markup()
+
+
+def my_form_edit_field_keyboard(back: str, delete: str = None) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Назад', callback_data=back)
+    if delete:
+        kb.button(text='Удалить поле', callback_data=delete)
+    kb.adjust(2)
+    return kb.as_markup()
 
 
 # async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0) -> tuple[InlineKeyboardMarkup, str]:
