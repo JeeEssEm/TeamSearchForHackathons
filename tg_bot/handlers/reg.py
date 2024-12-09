@@ -30,7 +30,9 @@ router.message.filter(~IsReg())
 async def cmd_start(message: Message, state: FSMContext):
     user_id = str(message.from_user.id)
     await state.update_data(user_id=user_id)
-    await message.reply("Привет! Давай заполним данные для пользователя")
+    await message.reply(
+        "Привет! Давай заполним данные для пользователя. Введи свою фамилию"
+    )
     await state.set_state(UserForm.last_name)
 
 

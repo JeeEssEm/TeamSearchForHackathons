@@ -1,9 +1,9 @@
 from typing import NamedTuple
 from datetime import timedelta, timezone, datetime
 
-from sqlalchemy import insert, delete, update, select, or_, and_
+from sqlalchemy import insert, delete, update, select, or_, and_, func
 
-from core.dtos import CreateUser, User, BaseUser, Form
+from core.dtos import CreateUser, User, BaseUser, Form, UpdateUser
 from core.exceptions import NotFound
 from core.config import settings
 import core.models as models
@@ -34,11 +34,14 @@ class UsersRepository(Repository):
         await self.session.refresh(user)
         return await user.convert_to_dto_user()
 
-    async def update_user(self, user_id: int, data: CreateUser) -> User:
+    async def update_user(self, user_id: int, data: UpdateUser) -> User:
         # Получаем пользователя из базы данных
         user = await self._get_by_id(user_id)
-
         # Обновляем данные пользователя
+
+        if not data.year_of_study:  # ни дня без говнокода
+            user.year_of_study = None
+
         if data.name is not None:
             user.name = data.name
         if data.surname is not None:
@@ -47,8 +50,6 @@ class UsersRepository(Repository):
             user.middlename = data.middle_name
         if data.email is not None:
             user.email = data.email
-        if data.password is not None:
-            user.password = data.password
         if data.uni is not None:
             user.uni = data.uni
         if data.year_of_study is not None:
@@ -61,6 +62,9 @@ class UsersRepository(Repository):
             user.resume = data.resume
         if data.avatar is not None:
             user.avatar = data.avatar
+        if not settings.TRUST_FACTOR:
+            user.moderator_id = None
+            user.form_status = models.FormStatus.in_review
 
         await self.session.commit()
         await self.session.refresh(user)
@@ -94,12 +98,11 @@ class UsersRepository(Repository):
         delta = timedelta(
             days=settings.MODERATOR_FORM_ROTATION_DAYS
         )
-        today = datetime.now(timezone.utc)
-        # FIXME: разобраться с датой ревью
+        today = datetime.now(timezone.utc) - delta
         stmt = select(models.User).where(or_(
             and_(
                 models.User.moderator_id.is_not(None),
-                models.User.updated_at - today > delta
+                models.User.updated_at < today
             ),
             models.User.moderator_id.is_(None)
         )).where(models.User.form_status == models.FormStatus.in_review)
@@ -125,10 +128,26 @@ class UsersRepository(Repository):
         user = await self._get_by_id(form_id)
         return self._convert_form(await user.convert_to_dto_user())
 
-    async def get_all_forms(self) -> list[Form]:
+    async def get_all_forms(self, page: int, limit: int, filters: dict) -> (int, list[Form]):
         stmt = select(models.User)
+        count = select(func.count())
+
+        if filters.get('moderator_id'):
+            stmt = stmt.where(
+                models.User.moderator_id == filters['moderator_id']
+            )
+        if filters.get('status'):
+            stmt = stmt.where(
+                models.User.form_status == filters['status']
+            )
+        count = select(func.count()).select_from(stmt.subquery())
+        stmt = stmt.limit(limit).offset((page - 1) * limit)
+
         res = await self.session.scalars(stmt)
-        return list(map(lambda u: u.convert_to_dto_form(), res))
+        count = await self.session.scalar(count)
+
+        return count, list(
+            map(lambda u: u.convert_to_dto_form(), res))
 
     async def get_teams(self, user_id: int) -> list[dict]:
         user = await self._get_by_id(user_id)

@@ -57,10 +57,11 @@ class TechnologiesListView(AsyncLoginRequiredMixin, View):
 
     @inject
     async def get(self, request, page=1, db=Provide[Container.db]):
+        sorting = request.GET.get('sorting', '')
         async with db.session() as session:
             tech_service = TechnologiesRepository(session)
-            limit = 1
-            total, technologies = await tech_service.get_technologies(limit, page)
+            limit = 10
+            total, technologies = await tech_service.get_technologies(limit, page, sorting)
             last_page = ceil(total / limit)
 
             return TemplateResponse(self.request, self.template_name, {
@@ -69,7 +70,8 @@ class TechnologiesListView(AsyncLoginRequiredMixin, View):
                 'current_page': page,
                 'prev_page': page - 1,
                 'next_page': page + 1 if last_page > page else 0,
-                'last_page': last_page or page
+                'last_page': last_page or page,
+                'sorting': sorting
             })
 
     async def post(self, request, page):

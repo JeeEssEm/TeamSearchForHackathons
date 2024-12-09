@@ -13,7 +13,7 @@
 					<li><a href="{% url 'questionary:validate' %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Проверить
 						анкеты</a></li>
-					<li><a href="{% url 'questionary:list' %}"
+					<li><a href="{% url 'questionary:list' page=1 %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Посмотреть
 						все</a></li>
 				</ul>
@@ -46,33 +46,33 @@
 			</button>
 			<div class="collapse" id="hackathons-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#"
+					<li><a href="{% url 'hackathons:create' %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать
 						хакатон</a></li>
-					<li><a href="#"
+					<li><a href="{% url 'hackathons:list' page=1 %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
 						все</a></li>
 				</ul>
 			</div>
 		</li>
-		<li class="mb-1">
-			<button
-				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-				data-bs-toggle="collapse" data-bs-target="#roles-collapse"
-				aria-expanded="false">
-				Позиции
-			</button>
-			<div class="collapse" id="roles-collapse" style="">
-				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#"
-					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать
-						позицию</a></li>
-					<li><a href="#"
-					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
-						все</a></li>
-				</ul>
-			</div>
-		</li>
+<!--		<li class="mb-1">-->
+<!--			<button-->
+<!--				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"-->
+<!--				data-bs-toggle="collapse" data-bs-target="#roles-collapse"-->
+<!--				aria-expanded="false">-->
+<!--				Позиции-->
+<!--			</button>-->
+<!--			<div class="collapse" id="roles-collapse" style="">-->
+<!--				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">-->
+<!--					<li><a href="#"-->
+<!--					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать-->
+<!--						позицию</a></li>-->
+<!--					<li><a href="#"-->
+<!--					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть-->
+<!--						все</a></li>-->
+<!--				</ul>-->
+<!--			</div>-->
+<!--		</li>-->
 		<li class="mb-1">
 			<button
 				class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
@@ -104,7 +104,7 @@
 						<li><a href="{% url 'users:invite-moderator' %}"
 						       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Создать приглашение</a>
 						</li>
-						<li><a href="#"
+						<li><a href="{% url 'admin:auth_user_changelist' %}"
 						       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть все</a></li>
 					</ul>
 				</div>

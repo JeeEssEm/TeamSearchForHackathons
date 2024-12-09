@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+	Список анкет
+{% endblock %}
+
+
+{% block content %}
+<div class="mx-auto col-lg-8">
+	<h1>Список хакатонов</h1>
+	<div class="d-flex w-100 justify-content-between flex-sm-column-reverse flex-lg-row">
+		<div class="d-flex flex-column col-lg-8 col-sm-12">
+			<form method="post">
+				{% if messages %}
+					{% for msg in messages %}
+						<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
+							{% if 'safe' in msg.tags %}
+								{{ msg|safe }}
+							{% else %}
+								{{ msg }}
+							{% endif %}
+						</div>
+						{% endfor %}
+				{% endif %}
+				{% csrf_token %}
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>ID</th>
+						<th>Название</th>
+		        <th>Дата начала</th>
+		        <th>Дата окончания</th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for h in hacks %}
+						<tr>
+							<!-- <td><input type="checkbox" name="selected_technologies" value="{{ q.id }}"></td> -->
+							<td>{{ h.id }}</td>
+							<td><a href="{% url 'hackathons:detail' hack_id=h.id %}">{{ h.title }}</a></td>
+			        <td>{{ h.start_date }}</td>
+			        <td>{{ h.end_date }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+				<div class="d-flex">
+
+				</div>
+			</form>
+			<ul class="pagination mt-3">
+			<li class="page-item"><a href="{% url 'hackathons:list' page=1 %}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+			{% if prev_page != 0 %}
+				<li class="page-item"><a href="{% url 'hackathons:list' page=prev_page %}" class="page-link">{{ prev_page }}</a></li>
+			{% endif %}
+			<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+			{% if next_page != 0 %}
+				<li class="page-item"><a href="{% url 'hackathons:list' page=next_page %}" class="page-link">{{ next_page }} </a></li>
+			{% endif %}
+			<li class="page-item"><a href="{% url 'hackathons:list' page=last_page %}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+			<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+		</ul>
+		</div>
+    <form class="d-flex flex-column gap-2 col-lg-3 col-sm-12 ms-auto" method="get" action="{% url 'hackathons:list' page=1 %}">
+<!--		<label for="#search"></label>-->
+<!--		<input type="text" placeholder="Поиск..." id="#search" class="form-control">-->
+<!--		<button class="btn btn-dark ms-3" type="submit">Поиск</button>-->
+	  <h3>Фильтры</h3>
+	  <div>
+		  <label for="#date">Даты проведения хакатонов</label>
+		  <select name="date" id="#date" class="form-select">
+			    <option value="">Любые</option>
+	        <option value="on_going" {% if date == 'on_going' %}selected{% endif %}>Текущие</option>
+	        <option value="ended" {% if date == 'ended' %}selected{% endif %}>Прошедшие</option>
+	        <option value="future" {% if date == 'future' %}selected{% endif %}>Будущие</option>
+		  </select>
+	  </div>
+	  <h3>Сортировка</h3>
+	  <div class="d-flex gap-2">
+		  <div class="d-flex flex-column">
+			  <label for="#sort_start_date">Дата начала</label>
+			  <select name="sort_start_date" id="#sort_start_date" class="form-select">
+				  <option value="asc" {% if sort_start_date == 'asc' %}selected{% endif %}>По возрастанию</option>
+				  <option value="desc" {% if sort_start_date == 'desc' %}selected{% endif %}>По убыванию</option>
+			  </select>
+			</div>
+		  <div class="d-flex flex-column">
+	      <label for="#sort_end_date">Дата окончания</label>
+				<select name="sort_end_date" id="#sort_end_date" class="form-select">
+				  <option value="asc" {% if sort_end_date == 'asc' %}selected{% endif %}>По возрастанию</option>
+				  <option value="desc" {% if sort_end_date == 'desc' %}selected{% endif %}>По убыванию</option>
+			  </select>
+			</div>
+	  </div>
+	  <button class="btn btn-secondary" type="submit">Применить</button>
+	</form>
+	</div>
+</div>
+{% endblock %}
