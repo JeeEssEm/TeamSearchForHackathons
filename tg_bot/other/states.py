@@ -15,6 +15,20 @@ class UserForm(StatesGroup):
     group = State()
     roles = State()
 
+
+class UserEditForm(StatesGroup):
+    about_me = State()
+    avatar = State()
+    user_id = State()
+    last_name = State()
+    first_name = State()
+    middle_name = State()
+    university = State()
+    course = State()
+    group = State()
+    roles = State()
+
+
 class TeamForm(StatesGroup):
     role = State()
     avatar = State()

@@ -101,19 +101,6 @@
 		<form action="{% url 'questionary:validate_by_id' user_id=q.id %}" method="post"
 		      class="mx-auto d-flex flex-column align-items-center w-100 mt-5">
 			{% csrf_token %}
-			{% if messages %}
-				{% for msg in messages %}
-					<div
-						class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
-						{% if 'safe' in msg.tags %}
-							{{ msg|safe }}
-						{% else %}
-							{{ msg }}
-						{% endif %}
-					</div>
-				{% endfor %}
-			{% endif %}
-			{% csrf_token %}
 			{% for field in form %}
 				<div class="form-floating w-100">
 					<textarea name="{{ field.html_name }}"

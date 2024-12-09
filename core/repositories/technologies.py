@@ -19,9 +19,17 @@ class TechnologiesRepository(Repository):
         await self.session.commit()
         return tech.convert_to_dto()
 
-    async def get_technologies(self, limit: int, page: int) -> list[Technology]:
+    async def get_technologies(self, limit: int, page: int, sort: str = None) -> (int, list[Technology]):
         stmt = select(models.Technology)
         q = select(models.Technology, func.count())
+
+        sorts = {
+            'asc': lambda query: query.order_by(models.Technology.title.asc()),
+            'desc': lambda query: query.order_by(models.Technology.title.desc()),
+        }
+
+        if sort:
+            stmt = sorts[sort](stmt)
 
         items = await self.session.execute(stmt.limit(limit).offset((page - 1) * limit))
         count = await self.session.execute(q)
