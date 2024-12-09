@@ -110,7 +110,7 @@ async def my_team_keyboard(user_id: int, team_id: int, db=Provide[Container.db])
 
 
 @inject
-async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, list[dtos.BaseUser]]:
+async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, dtos.BaseUser]:
     kb = InlineKeyboardBuilder()
     async with db.session() as Session:
         team_repo = TeamsRepository(Session)
@@ -176,6 +176,25 @@ def my_form_edit_field_keyboard(back: str, delete: str = None) -> InlineKeyboard
 #     kb.adjust(2)
 #     return kb.as_markup()
 
+@inject
+async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db = Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
+    kb = InlineKeyboardBuilder()
+    async with db.session() as session:
+        team_repo = TeamsRepository(session)
+        team = await team_repo.get_by_id(team_id)
+    if team.captain_id == user_id:
+        kb.button(text='Изменить', callback_data=f'edit_vacancy_{vacancy_id}')
+        kb.button(text='Удалить', callback_data=f'delete_{vacancy_id}')
+    kb.button(text='<<', callback_data='backward')
+    kb.button(text='>>', callback_data='forward')
+    kb.adjust(2)
+    return kb.as_markup(), str(offset)
 
 
-
+async def edit_team(team_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Название', callback_data=f'edit_team_name_{team_id}')
+    kb.button(text='Аватар', callback_data=f'edit_team_avatar_{team_id}')
+    kb.button(text='Описание', callback_data=f'edit_team_description_{team_id}')
+    kb.adjust(2)
+    return kb.as_markup()
