@@ -37,14 +37,18 @@
 							<td>{{ q.id }}</td>
 							<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}">{{ q.name }} {{ q.middle_name }} {{ q.surname }}</a></td>
 			        <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
-							<td> {% if q.moderator_id %}  {{ q.moderator_id }} {% else %} Не назначен {% endif %}</td>
-			                <td>{{ q.updated_at }}</td>
+							<td>
+								{% if q.moderator_id %}
+									<a href="{% url 'admin:auth_user_change' object_id=q.moderator_id %}">{{ q.moderator_id }}</a>
+								{% else %}
+									Не назначен
+								{% endif %}</td>
+							<td>{{ q.updated_at }}</td>
 						</tr>
 					{% endfor %}
 					</tbody>
 				</table>
 				<div class="d-flex">
-
 				</div>
 			</form>
 			<ul class="pagination mt-3">

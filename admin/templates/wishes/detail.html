@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+ Фидбек
+{% endblock title %}
+
+{% block content %}
+<div class="m-auto col-lg-12">
+	<h1 class="text-center">{{ name }}</h1>
+
+	<form method="post" class="mx-auto d-flex flex-column align-items-center gap-2">
+		{% for msg in messages %}
+			<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %}">
+				{% if 'safe' in msg.tags %}
+					{{ msg|safe }}
+				{% else %}
+					{{ msg }}
+				{% endif %}
+			</div>
+		{% endfor %}
+		<h1>Фидбек <a href="{% url 'questionary:validate_by_id' user_id=wish.user_id %}">пользователя</a></h1>
+		{% if wish.is_archived %}
+			<div class="alert alert-warning">
+				<span>Отправлено в архив модератором <a href="{% url 'admin:auth_user_change' object_id=wish.moderator_id %}">{{ moderator.username }}</a></span>
+			</div>
+		{% endif %}
+		{% csrf_token %}
+		<div class="col-lg-4 mx-3">
+			<label for="#feedback_area" class="form-label">Текст сообщения</label>
+			<textarea class="form-control" readonly id="#feedback_area">{{ wish.description }}</textarea>
+		</div>
+		{% if not wish.is_archived %}
+			<button type="submit" class="btn btn-secondary mt-3">Отправить в архив</button>
+		{% endif %}
+	</form>
+</div>
+{% endblock %}
