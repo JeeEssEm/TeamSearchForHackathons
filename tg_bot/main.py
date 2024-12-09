@@ -4,12 +4,14 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from dependency_injector.wiring import Provide
 
 from core.dependencies.container import Container
 
 from handlers import create_team, create_vacancy, start, reg
 from config.config import Config, load_config
 from keyboards.set_menu import set_main_menu
+
 
 
 logger = logging.getLogger(__name__)

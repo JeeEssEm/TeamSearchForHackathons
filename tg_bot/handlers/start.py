@@ -15,9 +15,10 @@ from keyboards.inline_keyboards import (
 
 router = Router()
 
-
 @router.message(Command('start'))
-async def start(message: Message, state: FSMContext):
+@inject
+async def start(message: Message, state: FSMContext, db=Provide[Container.db]):
+    await db.init_models()
     await message.answer('Вы в главном меню',
                          reply_markup=create_main_keyboard())
     await state.clear()
