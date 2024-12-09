@@ -15,8 +15,8 @@ from core.dependencies.container import Container
 
 @inject
 async def create_entity(
-    model,
-    db=Provide[Container.db],
+        model,
+        db=Provide[Container.db],
 ):
     async with db.session() as session:
         session.add(model)
@@ -47,10 +47,21 @@ async def get_teams_test(db=Provide[Container.db]):
         print(await team_repo.get_teams(1))
 
 
+@inject
 async def main(db=Provide[Container.db]):
-    if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
-        await db.init_models()  # об этом думать не надо
-
+    # if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
+    #     await db.init_models()  # об этом думать не надо
+    #     await db.add_trgm()
+    async with db.session() as session:
+        repo = TechnologiesRepository(session)
+        print(await repo.search_technologies('node'))
+    # await create_entity(models.Technology(title='fastapi'))
+    # await create_entity(models.Technology(title='Fastapi'))
+    # await create_entity(models.Technology(title='fastAPI'))
+    # await create_entity(models.Technology(title='FastAPI'))
+    # await create_entity(models.Technology(title='FASTAPI'))
+    # await create_entity(models.Technology(title='faSTAPI'))
+    # await create_entity(models.Technology(title='faSTapi'))
     # today = date.today()
     # await create_entity(
     #     models.User(

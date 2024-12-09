@@ -198,3 +198,13 @@ async def edit_team(team_id: int) -> InlineKeyboardMarkup:
     kb.button(text='Описание', callback_data=f'edit_team_description_{team_id}')
     kb.adjust(2)
     return kb.as_markup()
+
+
+async def technologies_keyboard(ln: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Всё верно', callback_data='all_ok')  # FIXME
+    for i in range(ln):
+        kb.button(text=f'Изменить {i + 1})',
+                  callback_data=f'edit_technology_{i}')
+    kb.adjust(2)
+    return kb.as_markup()

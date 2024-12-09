@@ -14,6 +14,7 @@ class UserForm(StatesGroup):
     course = State()
     group = State()
     roles = State()
+    technologies = State()
 
 
 class UserEditForm(StatesGroup):

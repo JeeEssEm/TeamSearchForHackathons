@@ -6,11 +6,13 @@ from aiogram.fsm.context import FSMContext
 from dependency_injector.wiring import Provide, inject
 
 from core.dependencies.container import Container
+from core.repositories import TechnologiesRepository
 from core.services.users import UsersService
 from core import dtos
 
 from config.config import BaseUser
 from handlers.start import start
+from handlers.edit_form.name import make_msg_list
 from lexicon.lexicon_ru import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
 from keyboards.inline_keyboards import alphabet_kb, choose_technologies
@@ -33,7 +35,7 @@ async def cmd_start(message: Message, state: FSMContext):
     await message.reply(
         "Привет! Давай заполним данные для пользователя. Введи свою фамилию"
     )
-    await state.set_state(UserForm.last_name)
+    await state.set_state(UserForm.technologies)
 
 
 # @router.message(F.text, UserForm.email)
@@ -107,11 +109,38 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
         roles = [poll.options[i].text for i in poll_answer.option_ids]
         await state.update_data(roles=roles)
         logger.info(f"Roles selected: {roles}")
-    await bot.send_message(text='Отлично! Теперь отправьте аватар:', chat_id=poll_answer.user.id)
+    await bot.send_message(
+        text='Отлично! Теперь введите ваш стек технологий'
+             ' (каждую технологию через запятую)',
+        chat_id=poll_answer.user.id)
     logger.info("User data sent")
-    await state.set_state(UserForm.avatar)
+    await state.set_state(UserForm.technologies)
     # await state.update_data(selected_technologies = [])
     # await bot.send_message(chat_id=poll_answer.user.id, text='Теперь выбери свой стек технологий:',reply_markup=alphabet_kb())
+
+
+@router.message(F.text, UserForm.technologies)
+@inject
+async def process_technologies(message: Message, state: FSMContext, bot: Bot, db=Provide[Container.db]):
+    txt = message.text.split(',')
+    res = {}
+    msg = []
+    if not txt:
+        await message.answer('Введите технологии через запятую...')  # FIXME
+        return
+    async with db.session() as session:
+        repo = TechnologiesRepository(session)
+        for i, q in enumerate(txt):
+            techs = await repo.search_technologies(q)
+            res[i] = techs
+            msg.append(f"{i + 1}) {techs[0].title if techs else '<i>не найдено</i>'}")
+
+    await message.answer('\n'.join(msg))
+    # FIXME
+    return
+    await bot.send_message(text='Отлично! Теперь отправьте аватар:',
+                           chat_id=message.chat.id)
+    await state.set_state(UserForm.avatar)
 
 
 @router.message(F.photo, UserForm.avatar)
