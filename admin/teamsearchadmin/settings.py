@@ -32,6 +32,7 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_DELTA_DAYS = 3
 
 INSTALLED_APPS = [
+    "wishes.apps.WishesConfig",
     "hackathons.apps.HackathonsConfig",
     "questionary.apps.QuestionaryConfig",
     "users.apps.UsersConfig",

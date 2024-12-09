@@ -27,13 +27,13 @@ class ValidateQuestionaryView(AsyncLoginRequiredMixin, View):
             user = await user_service.get_form(moderator_id)
             form = QuestionaryForm()
 
-            return TemplateResponse(
-                request,
-                template=self.template_name,
-                context={
-                    'form': form,
-                    'q': user
-                })
+        return TemplateResponse(
+            request,
+            template=self.template_name,
+            context={
+                'form': form,
+                'q': user
+            })
 
 
 class ValidateQuestionaryByIdView(AsyncLoginRequiredMixin, View):
@@ -47,7 +47,7 @@ class ValidateQuestionaryByIdView(AsyncLoginRequiredMixin, View):
                 user = await user_service.get_form_by_id(user_id)
             except Exception as e:
                 messages.error(request, f'Что-то пошло не так... {e}')
-                return redirect(reverse_lazy('questionary:list'))  # TODO: добавить отображание messages
+                return redirect(reverse_lazy('questionary:list', kwargs={'page': 1}))
             try:
                 moderator = await aget_object_or_404(UserModel, id=user.moderator_id)
             except Exception as e:

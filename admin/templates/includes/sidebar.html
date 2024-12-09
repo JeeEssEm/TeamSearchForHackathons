@@ -82,10 +82,10 @@
 			</button>
 			<div class="collapse" id="feedbacks-collapse" style="">
 				<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-					<li><a href="#"
+					<li><a href="{% url 'wishes:list' page=1 %}?is_archived=True"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Архив</a>
 					</li>
-					<li><a href="#"
+					<li><a href="{% url 'wishes:list' page=1 %}"
 					       class="link-body-emphasis d-inline-flex text-decoration-none rounded">Просмотреть
 						все</a></li>
 				</ul>

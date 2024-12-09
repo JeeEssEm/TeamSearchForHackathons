@@ -21,7 +21,7 @@ class TechnologiesRepository(Repository):
 
     async def get_technologies(self, limit: int, page: int, sort: str = None) -> (int, list[Technology]):
         stmt = select(models.Technology)
-        q = select(models.Technology, func.count())
+        count = select(func.count()).select_from(stmt.subquery())
 
         sorts = {
             'asc': lambda query: query.order_by(models.Technology.title.asc()),
@@ -31,17 +31,10 @@ class TechnologiesRepository(Repository):
         if sort:
             stmt = sorts[sort](stmt)
 
-        items = await self.session.execute(stmt.limit(limit).offset((page - 1) * limit))
-        count = await self.session.execute(q)
-        #         # .order_by(models.Technology.created_at)
-        #         )
-        # total_stmt = select(func.count(models.Technology)).select_from(
-        #     stmt.subquery()
-        # )
-        # total = await self.session.scalar(total_stmt)
-        # techs = await self.session.scalars(stmt.limit(limit).offset((page - 1) * limit))
-        # print(total, techs)
-        return count.first()[1], list(map(lambda t: t.convert_to_dto(), items.scalars()))
+        items = await self.session.scalars(stmt.limit(limit).offset((page - 1) * limit))
+        count = await self.session.scalar(count)
+
+        return count, list(map(lambda t: t.convert_to_dto(), items))
 
     async def get_technologies_by_id(self, ids: list[int]) -> list[Technology]:
         stmt = select(models.Technology).where(models.Technology.id.in_(ids))

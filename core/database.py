@@ -30,7 +30,11 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 class Database:
     def __init__(self, db_url: str) -> None:
-        self._engine = create_async_engine(db_url, echo=True)
+        self._engine = create_async_engine(
+            db_url,
+            pool_size=10,
+            max_overflow=20
+        )
         self._session_factory = sessionmaker(
             self._engine, class_=AsyncSession, expire_on_commit=False
         )
