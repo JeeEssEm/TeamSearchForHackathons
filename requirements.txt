@@ -29,3 +29,4 @@ python-dotenv~=1.0.1
 aiogram~=3.14.0
 environs
 dependency_injector
+asyncpg>=0.26.0

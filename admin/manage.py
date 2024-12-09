@@ -3,6 +3,13 @@
 import os
 import sys
 
+# блок кода, необходимый для коррентного иморта сore/dependencies (gpt закинул)
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+sys.path.append(str(project_root / 'core'))
+# конец непонятного кода
+
 
 def main():
     """Run administrative tasks."""

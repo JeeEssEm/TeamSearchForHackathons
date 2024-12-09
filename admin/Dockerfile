@@ -1,17 +1,26 @@
-# admin/Dockerfile
-FROM python:3.10-slim
+FROM python:3.12-slim
 
-# Установим рабочую директорию
+# Устанавливаем системные зависимости для компиляции расширений C
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    python3-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Рабочая директория
 WORKDIR /app
 
-# Копируем зависимостя и устанавливаем их
+# Копируем файл зависимостей и устанавливаем их
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем код
+# Копируем код приложения
 COPY ./admin /app
+COPY ./core /app/core
 
-# ENV PYTHONPATH=/app/core:$PYTHONPATH
+# Устанавливаем PYTHONPATH для доступа к core
 ENV PYTHONPATH=/app:$PYTHONPATH
+
 # Запуск приложения
 CMD ["python", "manage.py"]
