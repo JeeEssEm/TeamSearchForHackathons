@@ -5,13 +5,18 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 
 from dependency_injector.wiring import Provide, inject
+
 from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
+from core.repositories import WishesRepository
+from core import dtos
 
+from handlers.edit_form.name import my_forms_handler
 from keyboards.inline_keyboards import (
     create_main_keyboard, my_teams_keyboard, my_team_keyboard,
     team_users_keyboard
 )
+from other.states import LeaveFeedbackForm
 
 router = Router()
 
@@ -72,3 +77,31 @@ async def members(cb: CallbackQuery, state: FSMContext):
                             reply_markup=kb
                             )
     await cb.message.delete()
+
+
+@router.callback_query(F.data == 'leave_feedback')
+async def leave_feedback(cb: CallbackQuery, state: FSMContext):
+    await cb.message.delete()
+    await state.set_state(LeaveFeedbackForm.feedback)
+    await cb.message.answer('Напишите ваш фидбек')
+
+
+@router.message(F.text, LeaveFeedbackForm.feedback)
+@inject
+async def leave_feedback_message(message: Message, state: FSMContext, db=Provide[Container.db]):
+    await state.clear()
+    async with db.session() as session:
+        repo = WishesRepository(session)
+        await repo.create_wish(dtos.CreateWish(
+            user_id=message.from_user.id,
+            description=message.text,
+        ))
+    await message.answer('Спасибо за ваш фидбек!')
+    fake_callback = CallbackQuery(
+        id='fake',
+        from_user=message.from_user,
+        message=message,
+        data='my_forms',
+        chat_instance=str(message.chat.id)
+    )
+    await my_forms_handler(fake_callback, state)

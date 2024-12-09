@@ -37,7 +37,12 @@ class TeamForm(StatesGroup):
     team_achievements = State()
     current_hackathon = State()
 
+
 class VacancyForm(StatesGroup):
     role = State()
     description = State()
     stack = State()
+
+
+class LeaveFeedbackForm(StatesGroup):
+    feedback = State()

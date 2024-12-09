@@ -71,6 +71,7 @@ def create_main_keyboard():
     kb.button(text='Создать команду', callback_data='new_team')
     kb.button(text='Искать анкеты', callback_data='search_form')
     kb.button(text='Искать команды', callback_data='search_team')
+    kb.button(text='Оставить фидбек', callback_data='leave_feedback')
     kb.adjust(2)
     return kb.as_markup()
 
