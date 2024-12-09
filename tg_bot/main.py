@@ -6,6 +6,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from dependency_injector.wiring import Provide
 
+from dependency_injector.wiring import Provide, inject
+
 from config.config import Config, load_config
 
 from core.dependencies.container import Container
@@ -20,6 +22,11 @@ from keyboards.set_menu import set_main_menu
 
 
 logger = logging.getLogger(__name__)
+
+
+@inject
+async def init_db(db=Provide[Container.db]):
+    await db.init_models()
 
 
 async def main():
@@ -53,6 +60,7 @@ async def main():
 
     container = Container()
     container.wire(modules=[
+        __name__,
         'handlers.reg',
         'handlers.create_team',
         'other.filters',
@@ -67,6 +75,7 @@ async def main():
         'handlers.edit_form.about_me',
     ])
 
+    # await init_db()
     await set_main_menu(bot)
     # logging.disable(logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)

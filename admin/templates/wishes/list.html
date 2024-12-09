@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}
+	Список фидбеков
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto col-lg-8">
+	<h1>Список фидбеков</h1>
+	<a href="{% url 'wishes:list' page=1 %}?is_archived=True" class="btn btn-secondary">Архив</a>
+	<div class="d-flex w-100 justify-content-between flex-sm-column-reverse flex-lg-row">
+		<div class="d-flex flex-column col-lg-8 col-sm-12">
+			<form method="post">
+				{% if messages %}
+				{% for msg in messages %}
+				<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
+					{% if 'safe' in msg.tags %}
+						{{ msg|safe }}
+					{% else %}
+						{{ msg }}
+					{% endif %}
+				</div>
+				{% endfor %}
+				{% endif %}
+				{% csrf_token %}
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>ID</th>
+						<th>Фидбек</th>
+						<th>Пользователь</th>
+						<th>Модератор</th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for w in wishes %}
+					<tr>
+						<td>{{ w.id }}</td>
+						<td><a href="{% url 'wishes:detail' wid=w.id %}">{{ w.description|truncatechars:33 }}</a></td>
+						<td>
+								<a href="{% url 'questionary:validate_by_id' user_id=w.user_id %}">{{ w.user_id }}</a>
+						</td>
+						<td>
+							{% if w.moderator_id %}
+								<a href="{% url 'admin:auth_user_change' object_id=w.moderator_id %}">{{ w.moderator_id }}</a>
+							{% else %}
+								<span>Не назначен</span>
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</form>
+			<ul class="pagination mt-3">
+				<li class="page-item"><a href="{% url 'wishes:list' page=1 %}?is_archived={{ is_archived }}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+				{% if prev_page != 0 %}
+				<li class="page-item"><a href="{% url 'wishes:list' page=prev_page %}?is_archived={{ is_archived }}" class="page-link">{{ prev_page }}</a></li>
+				{% endif %}
+				<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+				{% if next_page != 0 %}
+				<li class="page-item"><a href="{% url 'wishes:list' page=next_page %}?is_archived={{ is_archived }}" class="page-link">{{ next_page }} </a></li>
+				{% endif %}
+				<li class="page-item"><a href="{% url 'wishes:list' page=last_page %}?is_archived={{ is_archived }}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+				<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@ import home.urls
 import technologies.urls
 import questionary.urls
 import hackathons.urls
+import wishes.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,4 +32,5 @@ urlpatterns = [
     path("technologies/", include(technologies.urls)),
     path("questionary/", include(questionary.urls)),
     path("hackathons/", include(hackathons.urls)),
+    path("wishes/", include(wishes.urls)),
 ]

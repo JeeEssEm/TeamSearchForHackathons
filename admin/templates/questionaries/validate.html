@@ -20,9 +20,9 @@
 
 		{% if q %}
 			{% if q.form_status == 2 %}
-				<div class="alert alert-success w-100">Статус: одобрена модератором {{ moderator.first_name }} {{ moderator.last_name }} {{ moderator.email }} {{ moderator.username }}</div>
+				<div class="alert alert-success w-100">Статус: одобрена модератором  <a href="{% url 'admin:auth_user_change' object_id=moderator.id %}">{{ moderator.username }}</a></div>
 			{% elif q.form_status == 0 %}
-				<div class="alert alert-danger w-100">Статус: отклонена модератором {{ moderator.first_name }} {{ moderator.last_name }} {{ moderator.email }} {{ moderator.username }}</div>
+				<div class="alert alert-danger w-100">Статус: отклонена модератором <a href="{% url 'admin:auth_user_change' object_id=moderator.id %}">{{ moderator.username }}</a></div>
 			{% endif %}
 
 		<div class="d-flex flex-column gap-2 w-100">

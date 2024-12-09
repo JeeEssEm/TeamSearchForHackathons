@@ -4,3 +4,4 @@ from .hackathons import HackathonsRepository
 from .vacancies import VacanciesRepository
 from .users import UsersRepository
 from .roles import RolesRepository
+from .wishes import WishesRepository
