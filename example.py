@@ -51,19 +51,19 @@ async def main(db=Provide[Container.db]):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
 
-    today = date.today()
-    await create_entity(
-        models.User(
-            name="name",
-            middlename="middle name",
-            surname="surname",
-            uni="miem",
-            year_of_study=-1,
-            group="biv248",
-            about_me="it feels so empty without me",
-            telegram_id=123123,
-        )
-    )
+    # today = date.today()
+    # await create_entity(
+    #     models.User(
+    #         name="name",
+    #         middlename="middle name",
+    #         surname="surname",
+    #         uni="miem",
+    #         year_of_study=-1,
+    #         group="biv248",
+    #         about_me="it feels so empty without me",
+    #         telegram_id=123123,
+    #     )
+    # )
     # await create_entity(
     #     models.Hackathon(
     #         title="test hack 1", start_date=today, end_date=today, id=1
@@ -74,22 +74,22 @@ async def main(db=Provide[Container.db]):
     #         title="test hack 2", start_date=today, end_date=today, id=2
     #     )
     # )
-    await create_entity(
-        models.Technology(
-            title="test hack 1"
-        )
-    )
-    await create_entity(
-        models.Technology(
-            title="test hack 2"
-        )
-    )
-
-    await create_team()
+    # await create_entity(
+    #     models.Technology(
+    #         title="test hack 1"
+    #     )
+    # )
+    # await create_entity(
+    #     models.Technology(
+    #         title="test hack 2"
+    #     )
+    # )
+    #
+    # await create_team()
 
     # await test()
     # await create_team()
-    await get_teams_test()
+    # await get_teams_test()
 
 
 if __name__ == "__main__":
@@ -98,6 +98,6 @@ if __name__ == "__main__":
     container = Container()
     container.wire(modules=[__name__])
 
-    logging.disable(logging.INFO)
+    # logging.disable(logging.INFO)
 
     asyncio.run(main())

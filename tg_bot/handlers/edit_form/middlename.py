@@ -28,7 +28,7 @@ async def my_form_edit_middlename(cb: CallbackQuery, state: FSMContext):
     await cb.message.delete()
 
 
-@router.callback_query(F.data == 'my_form_delete_surname')
+@router.callback_query(F.data == 'my_form_delete_middlename')
 @inject
 async def my_form_delete_middlename(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
     async with db.session() as session:
@@ -37,7 +37,7 @@ async def my_form_delete_middlename(cb: CallbackQuery, state: FSMContext, db=Pro
             cb.from_user.id,
             dtos.UpdateUser(middle_name='')
         )
-    await cb.message.answer('Отчество успешно изменена!')
+    await cb.message.answer('Отчество успешно изменено!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -48,7 +48,7 @@ async def my_form_delete_middlename(cb: CallbackQuery, state: FSMContext, db=Pro
     await my_forms_handler(fake_callback, state)
 
 
-@router.message(F.text, UserEditForm.last_name)
+@router.message(F.text, UserEditForm.middle_name)
 @inject
 async def process_edit_middlename(message: Message, state: FSMContext, db=Provide[Container.db]):
     async with db.session() as session:
