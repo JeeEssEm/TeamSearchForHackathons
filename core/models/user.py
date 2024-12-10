@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, Boolean, func
+from sqlalchemy import Integer, String, Boolean, func, TIMESTAMP
 
 from core.database import Base
 from core import dtos
@@ -41,6 +41,9 @@ class User(Base):
     moderator_id: Mapped[int | None]
     updated_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), onupdate=func.now()
+    )
+    moderator_set_at: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP(timezone=True)
     )
     form_status: Mapped[FormStatus] = mapped_column(default=FormStatus.in_review.value)
     is_form_private: Mapped[bool] = mapped_column(Boolean, default=False)

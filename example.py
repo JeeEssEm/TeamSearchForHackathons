@@ -49,9 +49,9 @@ async def get_teams_test(db=Provide[Container.db]):
 
 @inject
 async def main(db=Provide[Container.db]):
-    # if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
-    #     await db.init_models()  # об этом думать не надо
-    #     await db.add_trgm()
+    if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
+        await db.init_models()  # об этом думать не надо
+        await db.add_trgm()
     async with db.session() as session:
         repo = TechnologiesRepository(session)
         print(await repo.search_technologies('node'))

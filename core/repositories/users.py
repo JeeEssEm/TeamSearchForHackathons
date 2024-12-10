@@ -65,6 +65,7 @@ class UsersRepository(Repository):
         if not settings.TRUST_FACTOR:
             user.moderator_id = None
             user.form_status = models.FormStatus.in_review
+            user.moderator_set_at = datetime.now(timezone.utc).date()
 
         await self.session.commit()
         await self.session.refresh(user)
@@ -91,7 +92,7 @@ class UsersRepository(Repository):
     async def set_moderator(self, moderator_id: int, user_id: int):
         user = await self._get_by_id(user_id)
         user.moderator_id = moderator_id
-
+        user.moderator_set_at = datetime.now(timezone.utc).date()
         await self.session.commit()
 
     async def get_form(self, moderator_id: int) -> User | None:
@@ -102,7 +103,7 @@ class UsersRepository(Repository):
         stmt = select(models.User).where(or_(
             and_(
                 models.User.moderator_id.is_not(None),
-                models.User.updated_at < today
+                models.User.moderator_set_at < today
             ),
             models.User.moderator_id.is_(None)
         )).where(models.User.form_status == models.FormStatus.in_review)

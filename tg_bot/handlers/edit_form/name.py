@@ -11,6 +11,7 @@ from other.states import UserEditForm
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
+from core.models import FormStatus
 
 router = Router()
 
@@ -31,6 +32,11 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
         stack = make_msg_list(list(map(lambda t: t.title, user.technologies)))
         roles = make_msg_list(list(map(lambda r: r.title, user.roles)))
         fullname = f'{user.name} {user.middle_name} {user.surname}'
+        status = 'в рассмотрении'
+        if user.form_status == FormStatus.approved:
+            status = 'одобрено'
+        elif user.form_status == FormStatus.rejected:
+            status = f'отклонено по причине: {user.moderator_feedback or '<i>не указано</i>'}'
         msg = f'''
 Вот твоя анкета
 <i><b>ФИО</b></i>
@@ -47,6 +53,8 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 {stack or '<i>не указано</i>'}
 <i><b>Роли</b></i>
 {roles or '<i>не указано</i>'}
+\n
+Статус анкеты: {status}
 '''
         await cb.message.answer(msg, parse_mode=ParseMode.HTML,
                                 reply_markup=my_form_keyboard())
