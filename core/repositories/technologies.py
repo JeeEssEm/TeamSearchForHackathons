@@ -62,3 +62,10 @@ class TechnologiesRepository(Repository):
              )
         res = await self.session.scalars(q)
         return list(map(lambda t: t.convert_to_dto(), res))
+
+    async def get_technologies_startswith(self, letter: str) -> list[Technology]:
+        q = select(models.Technology).where(
+            func.lower(models.Technology.title).startswith(letter)
+        )
+        res = await self.session.scalars(q)
+        return list(map(lambda t: t.convert_to_dto(), res))

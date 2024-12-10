@@ -12,14 +12,17 @@ from core import dtos
 
 from config.config import BaseUser
 from handlers.start import start
+from handlers.technologies import my_technologies
 from handlers.edit_form.name import make_msg_list
 from lexicon.lexicon_ru import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
-from keyboards.inline_keyboards import alphabet_kb, choose_technologies
+from keyboards.inline_keyboards import (
+    alphabet_kb, choose_technologies, technologies_keyboard
+)
 import logging
 
 from other.filters import IsReg
-from other.states import UserForm
+from other.states import UserForm, TechnologyForm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,7 +38,7 @@ async def cmd_start(message: Message, state: FSMContext):
     await message.reply(
         "Привет! Давай заполним данные для пользователя. Введи свою фамилию"
     )
-    await state.set_state(UserForm.technologies)
+    await state.set_state(UserForm.last_name)
 
 
 # @router.message(F.text, UserForm.email)
@@ -124,22 +127,37 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
 async def process_technologies(message: Message, state: FSMContext, bot: Bot, db=Provide[Container.db]):
     txt = message.text.split(',')
     res = {}
-    msg = []
+    seen = set()
     if not txt:
         await message.answer('Введите технологии через запятую...')  # FIXME
         return
+    pointer = 0
+    msg = []
     async with db.session() as session:
         repo = TechnologiesRepository(session)
         for i, q in enumerate(txt):
             techs = await repo.search_technologies(q)
-            res[i] = techs
-            msg.append(f"{i + 1}) {techs[0].title if techs else '<i>не найдено</i>'}")
+            t = techs[0] if techs else None
+            msg.append(f"{i + 1}) {t.title if t else '<i>не найдено</i>'}")
+            if not t or t.id not in seen:
+                res[pointer] = None
+                pointer += 1
+                if t:
+                    seen.add(t.id)
+    resp_text = f"Вот список ваших технологий:\n{'\n'.join(msg)}"
+    await message.reply(
+        f'{resp_text}\n\n'
+        f' Вы сможете изменить этот список после окончания регистрации\n'
+        f'Теперь отправьте вашу аватарку:'
+    )
+    await state.update_data(technologies=seen)
+    await state.set_state(UserForm.avatar)
 
-    await message.answer('\n'.join(msg))
-    # FIXME
-    return
+
+@router.callback_query(F.data == 'continue_avatar')
+async def continue_avatar(cb: CallbackQuery, state: FSMContext, bot: Bot):
     await bot.send_message(text='Отлично! Теперь отправьте аватар:',
-                           chat_id=message.chat.id)
+                           chat_id=cb.message.chat.id)
     await state.set_state(UserForm.avatar)
 
 
@@ -163,6 +181,7 @@ async def process_achievements(message: Message, state: FSMContext, bot: Bot,
                                db=Provide[Container.db]):
     await state.update_data(achievements=message.text)
     user_data = await state.get_data()
+    techs = list(user_data.get('technologies'))
     async with db.session() as session:
         user_service = UsersService(session)
         user = dtos.CreateUser(
@@ -175,7 +194,11 @@ async def process_achievements(message: Message, state: FSMContext, bot: Bot,
             group=user_data.get('group'),
             about_me=user_data.get('about_me'),
         )  # TODO: сделать добавление ролей в телеге
-        await user_service.create_user(user)
+        user = await user_service.create_user(user)
+        if techs:
+            await user_service.set_user_technologies(
+                user.id, techs
+            )
     await start(message=message, state=state)
 
 

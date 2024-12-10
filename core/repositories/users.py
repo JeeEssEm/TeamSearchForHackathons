@@ -158,3 +158,18 @@ class UsersRepository(Repository):
             },
             await user.awaitable_attrs.teams)
         )
+
+    async def set_technologies(self, user_id: int, tech_ids: list[int]) -> None:
+        q = insert(models.users_technologies).values(
+            [{'user_id': user_id, 'technology_id': t_id} for t_id in tech_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def delete_technology(self, user_id: int, tech_id: int):
+        q = delete(models.users_technologies).where(
+            models.users_technologies.c.user_id == user_id,
+            models.users_technologies.c.technology_id == tech_id
+        )
+        await self.session.execute(q)
+        await self.session.commit()

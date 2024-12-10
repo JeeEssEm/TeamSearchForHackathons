@@ -17,6 +17,10 @@ class UserForm(StatesGroup):
     technologies = State()
 
 
+class TechnologyForm(StatesGroup):
+    selected_technologies = State()
+
+
 class UserEditForm(StatesGroup):
     about_me = State()
     avatar = State()

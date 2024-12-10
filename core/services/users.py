@@ -37,3 +37,9 @@ class UsersService(Service):
 
     async def get_all_short_forms(self, page: int, filters: dict, limit: int = 10) -> (int, list[Form]):
         return await self.repository.get_all_forms(page, limit, filters)
+
+    async def set_user_technologies(self, user_id: int, techs: list[int]):
+        await self.repository.set_technologies(user_id, techs)
+
+    async def delete_user_technology(self, user_id: int, tech_id: int):
+        await self.repository.delete_technology(user_id, tech_id)

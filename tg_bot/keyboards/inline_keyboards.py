@@ -42,11 +42,20 @@ keyboard_2 = InlineKeyboardMarkup(
 )
 
 
-def alphabet_kb() -> InlineKeyboardMarkup:
+def alphabet_kb(pos) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for i in range(65, 91):
-        kb.button(text=chr(i), callback_data=f'technologies_{chr(i)}')
+        kb.button(text=chr(i), callback_data=f'technologies_{pos}_{chr(i)}')
     kb.adjust(5)
+    kb.button(text='Назад', callback_data='back')
+    return kb.as_markup()
+
+
+def edit_technology_keyboard(pos, techs) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for t in techs:
+        kb.button(text=t.title, callback_data=f'technologies_{pos}_{t}')
+
     return kb.as_markup()
 
 
@@ -139,7 +148,7 @@ def my_form_keyboard() -> InlineKeyboardMarkup:
     kb.button(text='Редактировать курс', callback_data='my_form_edit_course')
     kb.button(text='Редактировать учебную группу', callback_data='my_form_edit_group')
     kb.button(text='Редактировать информацию себе', callback_data='my_form_edit_about_me')
-    kb.button(text='Редактировать стек технологий', callback_data='my_form')
+    kb.button(text='Редактировать стек технологий', callback_data='my_technologies')
     kb.button(text='Редактировать роли', callback_data='my_form')
 
     kb.button(text='Назад', callback_data='start')
@@ -177,7 +186,7 @@ def my_form_edit_field_keyboard(back: str, delete: str = None) -> InlineKeyboard
 #     return kb.as_markup()
 
 @inject
-async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db = Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
+async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
     kb = InlineKeyboardBuilder()
     async with db.session() as session:
         team_repo = TeamsRepository(session)
@@ -200,11 +209,15 @@ async def edit_team(team_id: int) -> InlineKeyboardMarkup:
     return kb.as_markup()
 
 
-async def technologies_keyboard(ln: int) -> InlineKeyboardMarkup:
+def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='Всё верно', callback_data='all_ok')  # FIXME
-    for i in range(ln):
-        kb.button(text=f'Изменить {i + 1})',
-                  callback_data=f'edit_technology_{i}')
-    kb.adjust(2)
+    kb.button(text='Назад', callback_data=cb)
+    kb.button(text='Добавить автоматически', callback_data='add_technology_auto')
+    kb.button(text='Добавить вручную (пока не работает)', callback_data='add_technology_manually')
+
+    for i, t in enumerate(techs):
+        kb.button(text=f'удалить {i + 1})',
+                  callback_data=f'delete_technology_{t.id}')
+
+    kb.adjust(1, 1, 1, *[2 for _ in range(len(techs))])
     return kb.as_markup()
