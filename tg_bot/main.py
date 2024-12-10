@@ -4,7 +4,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from dependency_injector.wiring import Provide
+from dependency_injector.wiring import Provide, inject
 
 from dependency_injector.wiring import Provide, inject
 
@@ -18,6 +18,10 @@ from handlers.edit_form import (
 )
 
 from keyboards.set_menu import set_main_menu
+
+@inject
+async def init_db(db=Provide[Container.db]):
+    await db.init_models()
 
 
 
@@ -73,11 +77,12 @@ async def main():
         'handlers.edit_form.group',
         'handlers.edit_form.course',
         'handlers.edit_form.about_me',
+        'handlers.create_vacancy',
+        __name__
     ])
 
     # await init_db()
     await set_main_menu(bot)
-    # logging.disable(logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 

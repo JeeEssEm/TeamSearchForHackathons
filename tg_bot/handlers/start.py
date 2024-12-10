@@ -6,27 +6,30 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 
 from dependency_injector.wiring import Provide, inject
 
+from handlers.edit_form.name import my_forms_handler
+from keyboards.inline_keyboards import (create_main_keyboard, my_teams_keyboard, my_team_keyboard,
+    team_users_keyboard
+)
+from other.states import LeaveFeedbackForm
+
 from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
 from core import dtos
 
-from handlers.edit_form.name import my_forms_handler
-from keyboards.inline_keyboards import (
-    create_main_keyboard, my_teams_keyboard, my_team_keyboard,
-    team_users_keyboard
-)
-from other.states import LeaveFeedbackForm
 
 router = Router()
 
 @router.message(Command('start'))
-@inject
-async def start(message: Message, state: FSMContext, db=Provide[Container.db]):
-    await db.init_models()
+async def start(message: Message, state: FSMContext):
     await message.answer('Вы в главном меню',
                          reply_markup=create_main_keyboard())
     await state.clear()
+
+@router.callback_query(F.data == 'start')
+async def start_callback(cb: CallbackQuery, state: FSMContext):
+    await cb.message.delete()
+    await cb.message.answer(text ='Вы в главном меню' ,reply_markup=create_main_keyboard())
 
 
 @router.callback_query(F.data == 'my_teams')

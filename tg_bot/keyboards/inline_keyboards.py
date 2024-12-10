@@ -84,7 +84,7 @@ async def my_teams_keyboard(user_id: int, db=Provide[Container.db]) -> InlineKey
 
     for team in teams:
         kb.button(text=team['title'], callback_data=f'team_{team["id"]}')
-    kb.button(text='Назад', callback_data='back')
+    kb.button(text='Назад', callback_data='start')
     kb.adjust(2)
     return kb.as_markup()
 

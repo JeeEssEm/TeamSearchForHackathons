@@ -7,7 +7,7 @@ class CreateVacancy:
     description: str
     team_id: int
     role_id: int
-    technologies: list[int]
+    # technologies: list[int]
 
 
 @dataclass

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DB_USER: str = "jes"
     DB_PASSWORD: str = "pwd123qwe"
 
-    DEBUG: bool = False
+    DEBUG: bool = True
     TRUST_FACTOR: bool = False
     INIT_MODELS: bool = True
 
