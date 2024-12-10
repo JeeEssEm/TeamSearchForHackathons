@@ -43,3 +43,9 @@ class UsersService(Service):
 
     async def delete_user_technology(self, user_id: int, tech_id: int):
         await self.repository.delete_technology(user_id, tech_id)
+
+    async def set_user_roles(self, user_id: int, roles: list[int]):
+        await self.repository.set_roles(user_id, roles)
+
+    async def delete_user_roles(self, user_id: int):
+        await self.repository.delete_all_roles(user_id)

@@ -17,6 +17,11 @@ class UserForm(StatesGroup):
     technologies = State()
 
 
+class RoleForm(StatesGroup):
+    roles = State()
+    reroute = State()
+
+
 class TechnologyForm(StatesGroup):
     selected_technologies = State()
 

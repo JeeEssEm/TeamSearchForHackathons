@@ -11,7 +11,6 @@ class CreateRole:
 class RoleView:
     id: int
     title: str
-    users: List[int]
 
 
 @dataclass

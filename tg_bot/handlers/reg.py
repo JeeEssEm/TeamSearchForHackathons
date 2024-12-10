@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from dependency_injector.wiring import Provide, inject
 
 from core.dependencies.container import Container
-from core.repositories import TechnologiesRepository
+from core.repositories import TechnologiesRepository, RolesRepository
 from core.services.users import UsersService
 from core import dtos
 
@@ -87,13 +87,19 @@ async def process_course(message: Message, state: FSMContext):
 
 
 @router.message(F.text, UserForm.group)
-async def process_group(message: Message, state: FSMContext, bot: Bot):
+@inject
+async def process_group(message: Message, state: FSMContext, bot: Bot, db=Provide[Container.db]):
     await state.update_data(group=message.text)
     await message.reply("Теперь выбери свою роль:")
+
+    async with db.session() as session:
+        repo = RolesRepository(session)
+        roles = await repo.get_all_roles()
+
     poll_message = await bot.send_poll(
         chat_id=message.chat.id,
         question="Выбери свою роль:",
-        options=["Frontend", "Backend", "ML"],  # FIXME: refactor to ids from db
+        options=[role.title for role in roles],
         allows_multiple_answers=True,
         is_anonymous=False
     )
@@ -124,12 +130,12 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext, bot: Bot
 
 @router.message(F.text, UserForm.technologies)
 @inject
-async def process_technologies(message: Message, state: FSMContext, bot: Bot, db=Provide[Container.db]):
+async def process_technologies(message: Message, state: FSMContext, db=Provide[Container.db]):
     txt = message.text.split(',')
     res = {}
     seen = set()
     if not txt:
-        await message.answer('Введите технологии через запятую...')  # FIXME
+        await message.answer('Введите технологии через запятую...')
         return
     pointer = 0
     msg = []
@@ -147,7 +153,7 @@ async def process_technologies(message: Message, state: FSMContext, bot: Bot, db
     resp_text = f"Вот список ваших технологий:\n{'\n'.join(msg)}"
     await message.reply(
         f'{resp_text}\n\n'
-        f' Вы сможете изменить этот список после окончания регистрации\n'
+        f'Вы сможете изменить этот список после окончания регистрации\n'
         f'Теперь отправьте вашу аватарку:'
     )
     await state.update_data(technologies=seen)
@@ -184,6 +190,10 @@ async def process_achievements(message: Message, state: FSMContext, bot: Bot,
     techs = list(user_data.get('technologies'))
     async with db.session() as session:
         user_service = UsersService(session)
+        repo = RolesRepository(session)
+
+        roles = user_data.get('roles')
+
         user = dtos.CreateUser(
             telegram_id=message.from_user.id,
             name=user_data.get('first_name'),
@@ -193,12 +203,15 @@ async def process_achievements(message: Message, state: FSMContext, bot: Bot,
             year_of_study=user_data.get('course'),
             group=user_data.get('group'),
             about_me=user_data.get('about_me'),
-        )  # TODO: сделать добавление ролей в телеге
+        )
         user = await user_service.create_user(user)
         if techs:
             await user_service.set_user_technologies(
                 user.id, techs
             )
+        if roles:
+            selected_roles = await repo.get_roles_ids(roles)
+            await user_service.set_user_roles(user.id, selected_roles)
     await start(message=message, state=state)
 
 

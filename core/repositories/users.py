@@ -173,3 +173,17 @@ class UsersRepository(Repository):
         )
         await self.session.execute(q)
         await self.session.commit()
+
+    async def set_roles(self, user_id: int, role_ids: list[int]):
+        q = insert(models.users_roles).values(
+            [{'user_id': user_id, 'role_id': r_id} for r_id in role_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def delete_all_roles(self, user_id: int):
+        q = delete(models.users_roles).where(
+            models.users_roles.c.user_id == user_id,
+        )
+        await self.session.execute(q)
+        await self.session.commit()

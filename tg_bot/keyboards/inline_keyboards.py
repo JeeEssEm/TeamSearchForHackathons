@@ -149,7 +149,7 @@ def my_form_keyboard() -> InlineKeyboardMarkup:
     kb.button(text='Редактировать учебную группу', callback_data='my_form_edit_group')
     kb.button(text='Редактировать информацию себе', callback_data='my_form_edit_about_me')
     kb.button(text='Редактировать стек технологий', callback_data='my_technologies')
-    kb.button(text='Редактировать роли', callback_data='my_form')
+    kb.button(text='Редактировать роли', callback_data='edit_roles')
 
     kb.button(text='Назад', callback_data='start')
     kb.adjust(2)
