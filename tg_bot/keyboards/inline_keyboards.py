@@ -127,17 +127,23 @@ async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Pr
         team_repo = TeamsRepository(Session)
         team = await team_repo.get_by_id(team_id)
     members = team.members
-
+    adjustment = []
     if offset < 0:
         offset = len(members) - 1
     if team.captain_id == user_id and members[offset].id != team.captain_id:
         kb.button(text='Исключить участника', callback_data=f'kick_{team_id}_{members[offset].id}')
         kb.button(text='Сделать капитаном', callback_data=f'make_captain_{team_id}_{members[offset].id}')
+        adjustment.append(2)
+
+    if team.captain_id == user_id:
+        kb.button(text='Поменять роль', callback_data=f'change_team_role_{team_id}_{members[offset].id}')
+        adjustment.append(1)
 
     kb.button(text='<<', callback_data=f'members_{team.id}_{offset - 1}')
     kb.button(text='>>', callback_data=f'members_{team.id}_{(offset + 1) % len(members)}')
     kb.button(text='Назад', callback_data=f'team_{team_id}')
-    kb.adjust(2)
+
+    kb.adjust(*(adjustment + [2, 1]))
     return kb.as_markup(), members[offset]
 
 

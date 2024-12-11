@@ -161,3 +161,53 @@ async def delete_old_team_hacks(cb: CallbackQuery, state: FSMContext, db=Provide
         chat_instance=cb.chat_instance
     )
     await teams(fake_callback, state)
+
+
+@router.callback_query(F.data.startswith('change_team_role_'))
+@inject
+async def change_team_role(cb: CallbackQuery, state: FSMContext, bot: Bot, db=Provide[Container.db]):
+    team_id = int(cb.data.split('_')[-2])
+    user_id = int(cb.data.split('_')[-1])
+
+    await state.set_state(TeamEditForm.role)
+    await state.update_data(team_id=team_id, user_id=user_id)
+
+    async with db.session() as session:
+        repo = RolesRepository(session)
+        roles = await repo.get_all_roles()
+
+    poll_message = await bot.send_poll(
+        chat_id=cb.message.chat.id,
+        question="Выбери роль:",
+        options=[role.title for role in roles],
+        allows_multiple_answers=False,
+        is_anonymous=False
+    )
+    await state.update_data(role_poll_id=poll_message.poll.id, role_message_id=poll_message.message_id)
+
+
+@router.poll_answer(TeamEditForm.role)
+@inject
+async def edit_role_team_confirm(poll_answer: PollAnswer, state: FSMContext, bot: Bot, db=Provide[Container.db]):
+    user_data = await state.get_data()
+    role_poll_id = user_data.get('role_poll_id')
+    role_message_id = user_data.get('role_message_id')
+    team_id = user_data.get('team_id')
+    user_id = user_data.get('user_id')
+
+    if role_poll_id and role_message_id:
+        poll = await bot.stop_poll(chat_id=poll_answer.user.id,
+                                   message_id=role_message_id)
+        roles = [poll.options[i].text for i in poll_answer.option_ids]
+        async with db.session() as session:
+            service = TeamsService(session)
+            repo = RolesRepository(session)
+            selected_roles = await repo.get_roles_ids(roles)
+            await service.edit_user_role(team_id, user_id,
+                                         selected_roles[0])
+
+    await bot.send_message(
+        text='Роль успешно изменена!',
+        chat_id=poll_answer.user.id
+    )
+    await state.clear()

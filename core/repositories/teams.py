@@ -86,6 +86,7 @@ class TeamsRepository(Repository):
         await self.session.commit()
 
     async def edit_user_role(self, team_id: int, user_id: int, role_id: int):
+        print(team_id, user_id, role_id)
         stmt = (
             update(models.users_teams)
             .where(
