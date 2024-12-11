@@ -23,4 +23,4 @@ COPY ./core /app/core
 ENV PYTHONPATH=/app:$PYTHONPATH
 
 # Запуск приложения
-CMD ["python", "manage.py"]
+CMD ["uvicorn", "teamsearchadmin.asgi:application", "--host", "0.0.0.0", "--port", "8000"]

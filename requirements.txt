@@ -30,3 +30,4 @@ aiogram~=3.14.0
 environs
 dependency_injector
 asyncpg>=0.26.0
+uvicorn

@@ -15,17 +15,19 @@ services:
     depends_on:
       - postgres
 
-  # admin:
-  #   build:
-  #     context: .
-  #     dockerfile: admin/Dockerfile
-  #   volumes:
-  #     - ./admin:/app
-  #     - ./core:/app/core
-  #   networks:
-  #     - teamsearch_network
-  #   depends_on:
-  #     - postgres
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+    volumes:
+      - ./admin:/app
+      - ./core:/app/core
+    networks:
+      - teamsearch_network
+    depends_on:
+      - postgres
+    ports:
+    - "8000:8000"
 
   postgres:
     image: postgres:15-alpine
