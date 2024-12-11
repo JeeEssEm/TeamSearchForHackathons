@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   tg_bot:
@@ -15,17 +15,17 @@ services:
     depends_on:
       - postgres
 
-  admin:
-    build:
-      context: .
-      dockerfile: admin/Dockerfile
-    volumes:
-      - ./admin:/app
-      - ./core:/app/core
-    networks:
-      - teamsearch_network
-    depends_on:
-      - postgres
+  # admin:
+  #   build:
+  #     context: .
+  #     dockerfile: admin/Dockerfile
+  #   volumes:
+  #     - ./admin:/app
+  #     - ./core:/app/core
+  #   networks:
+  #     - teamsearch_network
+  #   depends_on:
+  #     - postgres
 
   postgres:
     image: postgres:15-alpine
@@ -39,24 +39,25 @@ services:
       - tsfh_db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
     networks:
       - teamsearch_network
-    depends_on:
-      - tg_bot
-      - admin
+
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   ports:
+  #     - "80:80"
+  #   networks:
+  #     - teamsearch_network
+  #   depends_on:
+  #     - tg_bot
+  #     - admin
 
 networks:
   teamsearch_network:
     driver: bridge
 
 volumes:
-  postgres_data:
-
+  tsfh_db-data:
