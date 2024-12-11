@@ -52,55 +52,15 @@ async def main(db=Provide[Container.db]):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
         await db.add_trgm()
-    async with db.session() as session:
-        repo = TechnologiesRepository(session)
-        print(await repo.search_technologies('node'))
-    # await create_entity(models.Technology(title='fastapi'))
-    # await create_entity(models.Technology(title='Fastapi'))
-    # await create_entity(models.Technology(title='fastAPI'))
-    # await create_entity(models.Technology(title='FastAPI'))
-    # await create_entity(models.Technology(title='FASTAPI'))
-    # await create_entity(models.Technology(title='faSTAPI'))
-    # await create_entity(models.Technology(title='faSTapi'))
-    # today = date.today()
-    # await create_entity(
-    #     models.User(
-    #         name="name",
-    #         middlename="middle name",
-    #         surname="surname",
-    #         uni="miem",
-    #         year_of_study=-1,
-    #         group="biv248",
-    #         about_me="it feels so empty without me",
-    #         telegram_id=123123,
-    #     )
-    # )
-    # await create_entity(
-    #     models.Hackathon(
-    #         title="test hack 1", start_date=today, end_date=today, id=1
-    #     )
-    # )
-    # await create_entity(
-    #     models.Hackathon(
-    #         title="test hack 2", start_date=today, end_date=today, id=2
-    #     )
-    # )
-    # await create_entity(
-    #     models.Technology(
-    #         title="test hack 1"
-    #     )
-    # )
-    # await create_entity(
-    #     models.Technology(
-    #         title="test hack 2"
-    #     )
-    # )
-    #
-    # await create_team()
+    await create_entity(models.Technology(title='django'))
+    await create_entity(models.Technology(title='fastapi'))
+    await create_entity(models.Technology(title='react'))
 
-    # await test()
-    # await create_team()
-    # await get_teams_test()
+    await create_entity(models.Role(title='Backend'))
+    await create_entity(models.Role(title='ML'))
+    await create_entity(models.Role(title='Data Science'))
+    await create_entity(models.Role(title='DevOps'))
+    await create_entity(models.Role(title='Frontend'))
 
 
 if __name__ == "__main__":

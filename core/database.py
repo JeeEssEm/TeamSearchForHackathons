@@ -49,6 +49,7 @@ class Database:
             await session.execute(text(
                 'CREATE EXTENSION IF NOT EXISTS pg_trgm')
             )
+            await session.commit()
 
     async def drop_models(self):
         async with self._engine.begin() as session:
