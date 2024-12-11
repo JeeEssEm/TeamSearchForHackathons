@@ -51,7 +51,7 @@ async def build_message_with_filters(data, db=Provide[Container.db]) -> str:
 @router.callback_query(F.data == 'set_filters')
 async def set_filters(cb: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    back = data.get('back')
+    back = data.get('return_back')
     find = data.get('find')
     # feel_lucky = data.get('find')
 
@@ -93,7 +93,7 @@ async def set_roles_confirm(poll_answer: PollAnswer, state: FSMContext, bot: Bot
     roles = [poll.options[i].text for i in poll_answer.option_ids]
     await state.update_data(roles=roles)
 
-    back = data.get('back')
+    back = data.get('return_back')
     find = data.get('find')
     data['roles'] = roles
     # feel_lucky = data.get('find')
@@ -130,7 +130,7 @@ async def set_techs_confirm(message: Message, state: FSMContext, bot: Bot, db=Pr
                 res.append(techs[0])
     await state.update_data(techs=res)
     data['techs'] = res
-    back = data.get('back')
+    back = data.get('return_back')
     find = data.get('find')
 
     await bot.send_message(
