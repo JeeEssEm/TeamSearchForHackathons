@@ -23,7 +23,7 @@ import logging
 
 from other.filters import IsReg
 from other.states import UserForm, TechnologyForm
-
+import emoji
 router = Router()
 
 
@@ -69,7 +69,7 @@ async def delete_technology(cb: CallbackQuery, state: FSMContext,
     async with db.session() as session:
         service = UsersService(session)
         await service.delete_user_technology(cb.from_user.id, tech_id)
-    await cb.message.answer(text='Технология успешно удалена!')
+    await cb.message.answer(text='Технология успешно удалена!' + emoji.emojize(":white_check_mark:"))
     await my_technologies(cb, state)
 
 
@@ -97,9 +97,9 @@ async def process_add_technology_auto(message: Message, state: FSMContext,
             else:
                 await user_service.set_user_technologies(message.from_user.id,
                                                          [found[0].id])
-                await message.answer('Технология успешно добавлена!')
+                await message.answer('Технология успешно добавлена!'emoji.emojize(":white_check_mark:") + )
         else:
-            await message.answer('Технология не найдена')
+            await message.answer('Технология не найдена' + emoji.emojize(":x:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

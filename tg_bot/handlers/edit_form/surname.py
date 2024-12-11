@@ -12,7 +12,7 @@ from .name import my_forms_handler
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
-
+import emoji
 router = Router()
 
 
@@ -36,7 +36,7 @@ async def my_form_delete_name(cb: CallbackQuery, state: FSMContext, db=Provide[C
             cb.from_user.id,
             dtos.UpdateUser(surname='')
         )
-    await cb.message.answer('Фамилия успешно изменена!')
+    await cb.message.answer('Фамилия успешно изменена!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -56,7 +56,7 @@ async def process_edit_name(message: Message, state: FSMContext, db=Provide[Cont
             message.from_user.id,
             dtos.UpdateUser(surname=message.text.strip())
         )
-    await message.answer('Фамилия успешно изменена!')
+    await message.answer('Фамилия успешно изменена!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

@@ -25,7 +25,7 @@ import logging
 
 from other.filters import IsReg
 from other.states import UserForm, TechnologyForm
-
+import emoji
 
 router = Router()
 
@@ -114,7 +114,7 @@ async def done_hacks(cb: CallbackQuery, state: FSMContext, db=Provide[Container.
         await user_service.delete_user_hacks(cb.from_user.id)
         if user_hacks:
             await user_service.set_user_hacks(cb.from_user.id, user_hacks)
-    await cb.message.answer('Желаемые хакатоны успешно изменены!')
+    await cb.message.answer('Желаемые хакатоны успешно изменены!' + emoji.emojize(":white_check_mark:"))
     await state.clear()
 
     await my_forms_handler(cb, state)
