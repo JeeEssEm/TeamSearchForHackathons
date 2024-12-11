@@ -12,7 +12,7 @@ from .name import my_forms_handler
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
-import emoji
+
 router = Router()
 
 
@@ -36,7 +36,7 @@ async def my_form_delete_course(cb: CallbackQuery, state: FSMContext, db=Provide
             cb.from_user.id,
             dtos.UpdateUser(year_of_study=0)
         )
-    await cb.message.answer('Год обучения успешно изменён!' + emoji.emojize(":white_check_mark:"))
+    await cb.message.answer('Год обучения успешно изменён!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -60,7 +60,7 @@ async def process_edit_course(message: Message, state: FSMContext, db=Provide[Co
             message.from_user.id,
             dtos.UpdateUser(year_of_study=int(message.text))
         )
-    await message.answer('Год обучения успешно изменён!' + emoji.emojize(":white_check_mark:"))
+    await message.answer('Год обучения успешно изменён!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

@@ -7,17 +7,17 @@ from other.states import VacancyForm
 
 import logging
 
-
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 router = Router()
 
+
 @router.message(Command(commands='create_vacancy'))
 async def create_vacancy(message: Message, state: FSMContext):
     await message.reply('Введите искомую роль:')
     await state.set_state(VacancyForm.role)
+
 
 @router.message(F.text, VacancyForm.role)
 async def process_role(message: Message, state: FSMContext):

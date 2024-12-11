@@ -18,7 +18,7 @@ from keyboards.inline_keyboards import (
     team_users_keyboard
 )
 from other.states import LeaveFeedbackForm
-import emoji
+
 router = Router()
 
 
@@ -34,7 +34,7 @@ async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
     await cb.message.delete()
     await state.clear()
     await bot.send_message(
-        text='Приветствую тебя в <b>главном меню</b>' + emoji.emojize(":wave:") + 'выбери, что ты хочешь сделать',
+        text='Приветствую тебя в <b>главном меню</b> выбери, что ты хочешь сделать',
         reply_markup=create_main_keyboard(),
         chat_id=cb.message.chat.id
     )
@@ -44,7 +44,7 @@ async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
 @inject
 async def my_teams(cb: CallbackQuery, state: FSMContext,
                    db=Provide[Container.db]):
-    await cb.message.answer(text='Выберите команду:' + emoji.emojize(":busts_in_silhouette:"),
+    await cb.message.answer(text='Выберите команду:',
                             reply_markup=await my_teams_keyboard(
                                 cb.from_user.id))
     await cb.message.delete()
@@ -110,7 +110,7 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
             user_id=message.from_user.id,
             description=message.text,
         ))
-    await message.answer('Спасибо за ваш фидбек!' + emoji.emojize(":heart:"))
+    await message.answer('Спасибо за ваш фидбек!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

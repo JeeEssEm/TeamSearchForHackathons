@@ -118,7 +118,7 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext,
         await state.update_data(roles=roles)
         logger.info(f"Roles selected: {roles}")
     await bot.send_message(
-        text='Отлично!' + emoji.emojize(":white_check_mark:") 'Теперь введите ваш стек технологий'
+        text='Отлично!' + emoji.emojize(":white_check_mark:") + 'Теперь введите ваш стек технологий'
              ' (каждую технологию через запятую)',
         chat_id=poll_answer.user.id)
     logger.info("User data sent")

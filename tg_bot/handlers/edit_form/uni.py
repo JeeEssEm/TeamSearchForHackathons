@@ -12,13 +12,13 @@ from .name import my_forms_handler
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
-import emoji
+
 router = Router()
 
 
 @router.callback_query(F.data == 'my_form_edit_uni')
 async def my_form_edit_uni(cb: CallbackQuery, state: FSMContext):
-    await cb.message.reply('Окей, введи свой <b>университет</b>' + emoji.emojize(":school:"),
+    await cb.message.reply('Окей, введи свой <b>университет</b>',
                            reply_markup=my_form_edit_field_keyboard(
                                'my_forms', 'my_form_delete_uni'
                            ),
@@ -36,7 +36,7 @@ async def my_form_delete_uni(cb: CallbackQuery, state: FSMContext, db=Provide[Co
             cb.from_user.id,
             dtos.UpdateUser(uni='')
         )
-    await cb.message.answer('Университет успешно изменён!' + emoji.emojize(":white_check_mark:"))
+    await cb.message.answer('Университет успешно изменён!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -56,7 +56,7 @@ async def process_edit_uni(message: Message, state: FSMContext, db=Provide[Conta
             message.from_user.id,
             dtos.UpdateUser(uni=message.text.strip())
         )
-    await message.answer('Университет успешно изменён!' + emoji.emojize(":white_check_mark:"))
+    await message.answer('Университет успешно изменён!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,
