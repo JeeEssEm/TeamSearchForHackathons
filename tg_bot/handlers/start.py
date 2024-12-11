@@ -17,7 +17,7 @@ from keyboards.inline_keyboards import (
     team_users_keyboard
 )
 from other.states import LeaveFeedbackForm
-
+import emoji
 router = Router()
 
 
@@ -33,7 +33,7 @@ async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
     await cb.message.delete()
     await state.clear()
     await bot.send_message(
-        text='Вы в главном меню',
+        text='Приветствую тебя в <b>главном меню</b>' + emoji.emojize(":wave:") + 'выбери, что ты хочешь сделать',
         reply_markup=create_main_keyboard(),
         chat_id=cb.message.chat.id
     )
@@ -43,7 +43,7 @@ async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
 @inject
 async def my_teams(cb: CallbackQuery, state: FSMContext,
                    db=Provide[Container.db]):
-    await cb.message.answer(text='Выберите команду:',
+    await cb.message.answer(text='Выберите команду:' + emoji.emojize(":busts_in_silhouette:"),
                             reply_markup=await my_teams_keyboard(
                                 cb.from_user.id))
     await cb.message.delete()
@@ -63,10 +63,10 @@ async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
         hacks = ''.join(list(map(lambda h: f'\t - {h.title}\n', team.hacks)))
         await cb.message.answer(
             text=f'''Вот твоя команда:
-Название команды: {team.title}
-Описание: {team.description}
-Состав:\n{team_members}
-Желаемые хакатоны:\n{hacks}
+Название команды: {team.title}\n
+Описание: {team.description}\n
+Состав:\n{team_members}\n
+Желаемые хакатоны:\n{hacks}\n
 ''',
             reply_markup=await my_team_keyboard(cb.from_user.id, team.id),
             parse_mode=ParseMode.MARKDOWN
@@ -110,7 +110,7 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
             user_id=message.from_user.id,
             description=message.text,
         ))
-    await message.answer('Спасибо за ваш фидбек!')
+    await message.answer('Спасибо за ваш фидбек!' + emoji.emojize(":heart:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

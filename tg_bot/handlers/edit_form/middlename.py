@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from dependency_injector.wiring import Provide, inject
-
+import emoji
 from keyboards.inline_keyboards import my_form_keyboard, my_form_edit_field_keyboard
 from other.states import UserEditForm
 from .name import my_forms_handler
@@ -37,7 +37,7 @@ async def my_form_delete_middlename(cb: CallbackQuery, state: FSMContext, db=Pro
             cb.from_user.id,
             dtos.UpdateUser(middle_name='')
         )
-    await cb.message.answer('Отчество успешно изменено!')
+    await cb.message.answer('Отчество успешно изменено!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -57,7 +57,7 @@ async def process_edit_middlename(message: Message, state: FSMContext, db=Provid
             message.from_user.id,
             dtos.UpdateUser(middle_name=message.text.strip())
         )
-    await message.answer('Отчество успешно изменено!')
+    await message.answer('Отчество успешно изменено!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

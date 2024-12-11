@@ -17,7 +17,7 @@ from keyboards.inline_keyboards import (
     alphabet_kb, choose_technologies, technologies_keyboard
 )
 from other.states import RoleForm
-
+import emoji
 router = Router()
 
 
@@ -58,7 +58,7 @@ async def set_roles(poll_answer: PollAnswer, state: FSMContext, bot: Bot, db=Pro
             await user_service.set_user_roles(poll_answer.user.id,
                                               selected_roles)
     await bot.send_message(
-        text='Роли успешно изменены!',
+        text='Роли успешно изменены!' + emoji.emojize(":white_check_mark:"),
         chat_id=poll_answer.user.id
     )
     await state.clear()

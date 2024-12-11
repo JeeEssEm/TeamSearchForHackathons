@@ -12,7 +12,7 @@ from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
 from core.models import FormStatus
-
+import emoji
 router = Router()
 
 
@@ -33,9 +33,9 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
         roles = make_msg_list(list(map(lambda r: r.title, user.roles)))
         hacks = make_msg_list(list(map(lambda h: h.title, user.hackathons)))
         fullname = f'{user.name} {user.middle_name} {user.surname}'
-        status = 'в рассмотрении'
+        status = 'в рассмотрении' + emoji.emojize(":zzz:")
         if user.form_status == FormStatus.approved:
-            status = 'одобрено'
+            status = 'одобрено' + emoji.emojize(":white_check_mark:")
         elif user.form_status == FormStatus.rejected:
             status = f'отклонено по причине: {user.moderator_feedback or '<i>не указано</i>'}'
         msg = f'''
@@ -66,7 +66,7 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 
 @router.callback_query(F.data == 'my_form_edit_name')
 async def my_form_edit_name(cb: CallbackQuery, state: FSMContext):
-    await cb.message.reply('Окей, введи своё <b>имя</b>',
+    await cb.message.reply('Окей' + emoji.emojize(":ok_hand:") + 'введи своё <b>имя</b>',
                            reply_markup=my_form_edit_field_keyboard(
                                'my_forms', 'my_form_delete_name'
                            ),
@@ -84,7 +84,7 @@ async def my_form_delete_name(cb: CallbackQuery, state: FSMContext, db=Provide[C
             cb.from_user.id,
             dtos.UpdateUser(name='')
         )
-    await cb.message.answer('Имя успешно изменено!')
+    await cb.message.answer('Имя успешно изменено!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,
@@ -104,7 +104,7 @@ async def process_edit_name(message: Message, state: FSMContext, db=Provide[Cont
             message.from_user.id,
             dtos.UpdateUser(name=message.text.strip())
         )
-    await message.answer('Имя успешно изменено!')
+    await message.answer('Имя успешно изменено!' + emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,

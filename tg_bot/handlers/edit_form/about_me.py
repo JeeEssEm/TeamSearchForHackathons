@@ -12,7 +12,7 @@ from .name import my_forms_handler
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
-
+import emoji
 router = Router()
 
 
@@ -51,7 +51,7 @@ async def my_form_delete_about_me(cb: CallbackQuery, state: FSMContext, db=Provi
 @inject
 async def process_edit_about_me(message: Message, state: FSMContext, db=Provide[Container.db]):
     if len(message.text) > 300:
-        await message.reply('Текст не более 300 символов.')
+        await message.reply('Текст не более 300 символов.'+ emoji.emojize(":x:"))
         return
 
     async with db.session() as session:
@@ -60,7 +60,7 @@ async def process_edit_about_me(message: Message, state: FSMContext, db=Provide[
             message.from_user.id,
             dtos.UpdateUser(about_me=message.text.strip())
         )
-    await message.answer('Информация о себе успешно изменена!')
+    await message.answer('Информация о себе успешно изменена!'+ emoji.emojize(":white_check_mark:"))
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,
