@@ -41,7 +41,7 @@ class Team(Base):
             members=members,
             captain_id=self.captain_id,
             hacks=[
-                hack.convert_to_dto_basehack()
+                hack.convert_to_dto()
                 for hack in await self.awaitable_attrs.hackathons
             ],
         )

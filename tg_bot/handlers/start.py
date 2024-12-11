@@ -11,7 +11,8 @@ from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
 from core import dtos
 
-from handlers.edit_form.name import my_forms_handler
+from handlers.edit_form.name import (
+    my_forms_handler, make_hacks_list, make_msg_list)
 from keyboards.inline_keyboards import (
     create_main_keyboard, my_teams_keyboard, my_team_keyboard,
     team_users_keyboard
@@ -52,15 +53,15 @@ async def my_teams(cb: CallbackQuery, state: FSMContext,
 @router.callback_query(F.data.startswith('team_'))
 @inject
 async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    await cb.message.delete()
     team_id = int(cb.data.split('_')[1])
     async with db.session() as session:
         team_service = TeamsService(session)
         team = await team_service.get_team_by_id(team_id)
-        # TODO: добавление хакатонов с fuzzy search по базе
-        team_members = ''.join(
-            list(map(lambda m: f'\t - _{m.name} {m.surname}_ \n', team.members))
-        )
-        hacks = ''.join(list(map(lambda h: f'\t - {h.title}\n', team.hacks)))
+
+        team_members = make_msg_list(list([f'{m.name} {m.surname}'
+                                           for m in team.members]))
+        hacks = make_msg_list(make_hacks_list(team.hacks))
         await cb.message.answer(
             text=f'''Вот твоя команда:
 Название команды: {team.title}
@@ -69,9 +70,8 @@ async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
 Желаемые хакатоны:\n{hacks}
 ''',
             reply_markup=await my_team_keyboard(cb.from_user.id, team.id),
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.HTML
         )
-        await cb.message.delete()
 
 
 @router.callback_query(F.data.startswith('members_'))

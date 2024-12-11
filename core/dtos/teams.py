@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from .users import BaseUser
-from .hackathons import BaseHackathon
+from .users import TeamMember
+from .hackathons import Hackathon
 
 
 @dataclass
@@ -19,5 +19,11 @@ class CreateTeam(BaseTeam):
 @dataclass
 class Team(CreateTeam):
     id: int
-    members: list[BaseUser]
-    hacks: list[BaseHackathon]
+    members: list[TeamMember]
+    hacks: list[Hackathon]
+
+
+@dataclass
+class EditTeam:
+    title: str | None = None
+    description: str | None = None

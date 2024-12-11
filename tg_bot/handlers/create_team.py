@@ -1,11 +1,11 @@
 from aiogram import F, Router, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, PollAnswer
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, \
+    PollAnswer
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from dependency_injector.wiring import Provide, inject
-
 
 from core.dependencies.container import Container
 from core.repositories import RolesRepository
@@ -17,7 +17,6 @@ from keyboards.inline_keyboards import my_team_keyboard
 from other.states import TeamForm
 
 import logging
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -48,7 +47,8 @@ async def process_team_description(message: Message, state: FSMContext):
 @router.message(F.photo, TeamForm.avatar)
 async def process_avatar(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(avatar=message.photo[0].file_id)
-    await bot.send_message(chat_id=message.chat.id, text='Какие достижения у вашей команды?')
+    await bot.send_message(chat_id=message.chat.id,
+                           text='Какие достижения у вашей команды?')
     await state.set_state(TeamForm.team_achievements)
 
 
@@ -57,7 +57,8 @@ async def process_team_achievements(message: Message, state: FSMContext):
     await state.update_data(team_achievements=message.text)
     await message.reply("В каком актуальном хакатоне вы участвуете?")
 
-    await state.update_data(back='start', done='current_hackathon', new_message=True)
+    await state.update_data(back='start', done='current_hackathon',
+                            new_message=True)
     fake_callback = CallbackQuery(
         id='fake',
         from_user=message.from_user,
@@ -71,8 +72,10 @@ async def process_team_achievements(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == 'current_hackathon')
 @inject
-async def process_team_role(cb: CallbackQuery, state: FSMContext, bot: Bot, db=Provide[Container.db]):
-    await cb.message.reply("Какая у вас будет роль?")
+async def process_team_role(cb: CallbackQuery, state: FSMContext, bot: Bot,
+                            db=Provide[Container.db]):
+    await cb.message.delete()
+    await cb.message.answer("Какая у вас будет роль?")
     await state.set_state(TeamForm.role)
 
     async with db.session() as session:
@@ -92,12 +95,13 @@ async def process_team_role(cb: CallbackQuery, state: FSMContext, bot: Bot, db=P
 
 @router.poll_answer(TeamForm.role)
 @inject
-async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext, bot: Bot,
+async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext,
+                                    bot: Bot,
                                     db=Provide[Container.db]):
-    
     user_data = await state.get_data()
     role_poll_id = user_data.get('role_poll_id')
     role_message_id = user_data.get('role_message_id')
+    roles = []
     if role_poll_id and role_message_id:
         poll = await bot.stop_poll(chat_id=poll_answer.user.id,
                                    message_id=role_message_id)
@@ -111,7 +115,7 @@ async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext, 
         team = dtos.CreateTeam(
             captain_id=poll_answer.user.id, title=user_data['team_name'],
             description=user_data['team_description'],
-            hacks=hacks,  # FIXME: добавлять не один хакатон, а пачку. Fuzzy Search
+            hacks=hacks,
             # current_hackathon=user_data['current_hackathon'],
             # achievements=user_data['team_achievements'],
             # avatar=user_data['avatar']
@@ -119,11 +123,6 @@ async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext, 
         role = await role_repo.get_roles_ids(roles)
 
         team = await team_service.create_team(team, role[0])
-        # FIXME: сделать выбор для роли капитана в команде
-        # team = await Team(captain_id=message.from_user.id, title=user_data['team_name'],
-    #                   description=user_data['team_description'], avatar=user_data['avatar'],
-    #                   current_hackathon=user_data['current_hackathon'], achievements=user_data['team_achievements']).save()
-    # await TeamUsers(message.from_user.id, 1, team.id).save()
 
     await bot.send_message(text=f'''Вот твоя команда:
 Название команды: {user_data['team_name']}
@@ -132,7 +131,6 @@ async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext, 
 {'\n'.join([h.title for h in team.hacks])}
 Состав: {team.members}
 ''', reply_markup=await my_team_keyboard(poll_answer.user.id, team.id),
-chat_id=poll_answer.user.id
-)
+                           chat_id=poll_answer.user.id
+                           )
     await state.clear()
-

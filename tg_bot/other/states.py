@@ -52,6 +52,15 @@ class TeamForm(StatesGroup):
     current_hackathon = State()
 
 
+class TeamEditForm(StatesGroup):
+    role = State()
+    avatar = State()
+    team_name = State()
+    team_description = State()
+    team_achievements = State()
+    current_hackathon = State()
+
+
 class VacancyForm(StatesGroup):
     role = State()
     description = State()

@@ -1,8 +1,10 @@
+from datetime import date
+
 from sqlalchemy import insert, delete, update, select
 
 from .base import Repository
 from core import models
-from core.dtos import CreateTeam, Team, BaseTeam
+from core.dtos import CreateTeam, Team, BaseTeam, EditTeam
 from core.exceptions import NotFound
 
 
@@ -56,10 +58,11 @@ class TeamsRepository(Repository):
                     user.role = row[-1].title
         return dto
 
-    async def edit(self, team_id: int, data: BaseTeam) -> Team:
+    async def edit(self, team_id: int, data: EditTeam) -> Team:
         team = await self._get_team_by_id(team_id)
         team.title = data.title or team.title
         team.description = data.description or team.description
+        await self.session.commit()
         return await team.convert_to_dto()
 
     async def add_user_to_team(self, team_id: int, user_id: int, role_id: int):
@@ -106,7 +109,26 @@ class TeamsRepository(Repository):
         await self.session.execute(stmt)
         await self.session.commit()
 
+    async def remove_all_hacks(self, team_id: int):
+        stmt = delete(models.teams_hackathons).where(
+            models.teams_hackathons.c.team_id == team_id,
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()
+
     async def delete_team(self, team_id: int):
         stmt = delete(models.Team).where(models.Team.id == team_id)
+        await self.session.execute(stmt)
+        await self.session.commit()
+
+    async def remove_old_hacks(self, team_id: int):
+        today = date.today()
+        sub_q = select(models.Hackathon.id).where(
+            models.Hackathon.end_date < today
+        )
+        stmt = delete(models.teams_hackathons).where(
+            models.teams_hackathons.c.team_id == team_id,
+            models.teams_hackathons.c.hackathon_id.in_(sub_q)
+        )
         await self.session.execute(stmt)
         await self.session.commit()

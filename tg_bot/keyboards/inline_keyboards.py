@@ -95,7 +95,7 @@ async def my_teams_keyboard(user_id: int, db=Provide[Container.db]) -> InlineKey
 
     for team in teams:
         kb.button(text=team['title'], callback_data=f'team_{team["id"]}')
-    kb.button(text='Назад', callback_data='back')
+    kb.button(text='Назад', callback_data='start')
     kb.adjust(2)
     return kb.as_markup()
 
@@ -121,7 +121,7 @@ async def my_team_keyboard(user_id: int, team_id: int, db=Provide[Container.db])
 
 
 @inject
-async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, dtos.BaseUser]:
+async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, dtos.TeamMember]:
     kb = InlineKeyboardBuilder()
     async with db.session() as Session:
         team_repo = TeamsRepository(Session)
@@ -203,15 +203,6 @@ async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: in
     return kb.as_markup(), str(offset)
 
 
-async def edit_team(team_id: int) -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-    kb.button(text='Название', callback_data=f'edit_team_name_{team_id}')
-    kb.button(text='Аватар', callback_data=f'edit_team_avatar_{team_id}')
-    kb.button(text='Описание', callback_data=f'edit_team_description_{team_id}')
-    kb.adjust(2)
-    return kb.as_markup()
-
-
 def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text='Назад', callback_data=cb)
@@ -227,9 +218,10 @@ def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:
 
 
 def hacks_keyboard(hacks: list, user_hacks: list[int], total: int, page: int,
-                   back: str, done: str, limit: int = 5) -> InlineKeyboardMarkup:
+                   back: str, done: str, delete_old_hacks: str, limit: int = 5) -> InlineKeyboardMarkup:
     # 1 <= len(hacks) <= 5
     kb = InlineKeyboardBuilder()
+
     for h in hacks:
         txt = h.title
         if h.id in user_hacks:
@@ -243,5 +235,28 @@ def hacks_keyboard(hacks: list, user_hacks: list[int], total: int, page: int,
     kb.button(text='>>', callback_data=f'hacks_pages_{next_page}')
     kb.button(text='Назад', callback_data=back)
     kb.button(text='Готово', callback_data=done)
+
+    if delete_old_hacks:
+        kb.button(text='Удалить прошедшие хакатоны',
+                  callback_data=delete_old_hacks)
+
     kb.adjust(*[1 for _ in range(len(hacks))], 2, 2, 2)
+    return kb.as_markup()
+
+
+def edit_team_keyboard(team_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.button(text='Редактировать название', callback_data=f'title_team_edit_{team_id}')
+    # kb.button(text='Редактировать аватарку', callback_data=f'avatar_team_edit_{team_id}')
+    kb.button(text='Редактировать описание', callback_data=f'description_team_edit_{team_id}')
+    kb.button(text='Редактировать желаемые хакатоны', callback_data=f'hacks_team_edit_{team_id}')
+    kb.button(text='Назад', callback_data=f'team_{team_id}')
+    kb.adjust(2, 2, 2, 1)
+    return kb.as_markup()
+
+
+def go_back(back):
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Назад', callback_data=back)
     return kb.as_markup()

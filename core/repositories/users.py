@@ -1,5 +1,5 @@
 from typing import NamedTuple
-from datetime import timedelta, timezone, datetime
+from datetime import timedelta, timezone, datetime, date
 
 from sqlalchemy import insert, delete, update, select, or_, and_, func
 
@@ -203,3 +203,14 @@ class UsersRepository(Repository):
         await self.session.execute(q)
         await self.session.commit()
 
+    async def remove_old_hacks(self, user_id: int):
+        today = date.today()
+        sub_q = select(models.Hackathon.id).where(
+            models.Hackathon.end_date < today
+        )
+        stmt = delete(models.users_hackathons).where(
+            models.users_hackathons.c.user_id == user_id,
+            models.users_hackathons.c.hackathon_id.in_(sub_q)
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()

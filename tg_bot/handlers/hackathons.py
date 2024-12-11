@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from dependency_injector.wiring import Provide, inject
 
 from core.dependencies.container import Container
-from core.repositories import HackathonsRepository
+from core.repositories import HackathonsRepository, UsersRepository
 from core.services.users import UsersService
 from core import dtos
 
@@ -39,8 +39,21 @@ async def hacks_start(cb: CallbackQuery, state: FSMContext,  db=Provide[Containe
 
         user = await user_service.get_user(cb.from_user.id)
         await state.update_data(user_hacks=[h.id for h in user.hackathons])
-    await state.update_data(page=1)
+    await state.update_data(
+        page=1,
+        delete_old_hacks=f'remove_old_hacks_user_{cb.from_user.id}'
+    )
     await hacks_pages(cb, state)
+
+
+@router.callback_query(F.data.startswith('remove_old_hacks_user_'))
+@inject
+async def remove_old_hacks_user(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    user_id = int(cb.data.split('_')[-1])
+    async with db.session() as session:
+        repo = UsersRepository(session)
+        await repo.remove_old_hacks(user_id)
+    await my_forms_handler(cb, state)
 
 
 @router.callback_query(F.data.startswith('hacks_pages_'))
@@ -51,6 +64,7 @@ async def hacks_pages(cb: CallbackQuery, state: FSMContext, db=Provide[Container
     done = data.get('done', 'done_hacks')
     new_message = data.get('new_message', False)
     flag = cb.data.startswith('hacks_pages')
+    delete_old_hacks = data.get('delete_old_hacks', '')
     page = int(cb.data.split('_')[-1]) if flag else data['page']
 
     user_hacks = (await state.get_data()).get('user_hacks', [])
@@ -64,14 +78,14 @@ async def hacks_pages(cb: CallbackQuery, state: FSMContext, db=Provide[Container
     if not new_message:
         await cb.message.edit_reply_markup(
             reply_markup=hacks_keyboard(hacks, user_hacks, total, page,
-                                        back, done)
+                                        back, done, delete_old_hacks)
         )
         return
     await state.update_data(new_message=False)
     await cb.message.answer(
         text='Выберите желаемые хакатоны',
         reply_markup=hacks_keyboard(hacks, user_hacks, total, page,
-                                    back, done)
+                                    back, done, delete_old_hacks)
     )
 
 

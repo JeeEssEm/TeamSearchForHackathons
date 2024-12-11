@@ -1,3 +1,5 @@
+from datetime import date
+
 from aiogram import Router, F
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -23,6 +25,15 @@ def make_msg_list(collection: list) -> str:
     return '\n'.join(col)
 
 
+def make_hacks_list(lst: list[dtos.Hackathon]) -> list[str]:
+    today = date.today()
+    for i, h in enumerate(lst):
+        lst[i] = h.title
+        if h.end_date < today:
+            lst[i] += ' (<i>уже прошёл</i>)'
+    return lst
+
+
 @router.callback_query(F.data == 'my_forms')
 @inject
 async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
@@ -31,7 +42,7 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
         user = await service.get_user(cb.from_user.id)
         stack = make_msg_list(list(map(lambda t: t.title, user.technologies)))
         roles = make_msg_list(list(map(lambda r: r.title, user.roles)))
-        hacks = make_msg_list(list(map(lambda h: h.title, user.hackathons)))
+        hacks = make_msg_list(make_hacks_list(user.hackathons))
         fullname = f'{user.name} {user.middle_name} {user.surname}'
         status = 'в рассмотрении'
         if user.form_status == FormStatus.approved:
