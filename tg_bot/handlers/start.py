@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -26,6 +26,17 @@ async def start(message: Message, state: FSMContext):
     await message.answer('Вы в главном меню',
                          reply_markup=create_main_keyboard())
     await state.clear()
+
+
+@router.callback_query(F.data == 'start')
+async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
+    await cb.message.delete()
+    await state.clear()
+    await bot.send_message(
+        text='Вы в главном меню',
+        reply_markup=create_main_keyboard(),
+        chat_id=cb.message.chat.id
+    )
 
 
 @router.callback_query(F.data == 'my_teams')
@@ -63,7 +74,7 @@ async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
 @router.callback_query(F.data.startswith('members_'))
 @inject
 async def members(cb: CallbackQuery, state: FSMContext):
-    team_id, offset = cb.data.split('_')[1], int(cb.data.split('_')[2]) if len(
+    team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
         cb.data.split('_')) > 2 else 0
 
     kb, user = await team_users_keyboard(cb.from_user.id, team_id, offset)

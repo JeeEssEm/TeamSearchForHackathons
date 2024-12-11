@@ -188,3 +188,18 @@ class UsersRepository(Repository):
         )
         await self.session.execute(q)
         await self.session.commit()
+
+    async def delete_all_hacks(self, user_id: int):
+        q = delete(models.users_hackathons).where(
+            models.users_hackathons.c.user_id == user_id,
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def set_hacks(self, user_id: int, hack_ids: list[int]):
+        q = insert(models.users_hackathons).values(
+            [{'user_id': user_id, 'hackathon_id': h_id} for h_id in hack_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+

@@ -17,19 +17,20 @@ from handlers.start import start
 from handlers.edit_form.name import make_msg_list
 from lexicon.lexicon_ru import LEXICON_RU
 from keyboards.keyboards import yes_no_kb
-from keyboards.inline_keyboards import alphabet_kb, choose_technologies, technologies_keyboard
+from keyboards.inline_keyboards import alphabet_kb, choose_technologies, \
+    technologies_keyboard
 import logging
 
 from other.filters import IsReg
 from other.states import UserForm, TechnologyForm
-
 
 router = Router()
 
 
 @router.callback_query(F.data == 'my_technologies')
 @inject
-async def my_technologies(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+async def my_technologies(cb: CallbackQuery, state: FSMContext,
+                          db=Provide[Container.db]):
     await cb.message.delete()
     async with db.session() as session:
         service = UsersService(session)
@@ -61,7 +62,8 @@ async def add_technology_manually(cb: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith('delete_technology_'))
 @inject
-async def delete_technology(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+async def delete_technology(cb: CallbackQuery, state: FSMContext,
+                            db=Provide[Container.db]):
     tech_id = int(cb.data.split('_')[-1])
 
     async with db.session() as session:
@@ -80,7 +82,8 @@ async def add_technology_auto(cb: CallbackQuery, state: FSMContext):
 
 @router.message(F.text, TechnologyForm.selected_technologies)
 @inject
-async def process_add_technology_auto(message: Message, state: FSMContext, db=Provide[Container.db]):
+async def process_add_technology_auto(message: Message, state: FSMContext,
+                                      db=Provide[Container.db]):
     tech = message.text
     async with db.session() as session:
         user_service = UsersService(session)
@@ -93,7 +96,7 @@ async def process_add_technology_auto(message: Message, state: FSMContext, db=Pr
                 await message.answer('Технология уже есть в вашем списке!')
             else:
                 await user_service.set_user_technologies(message.from_user.id,
-                                                     [found[0].id])
+                                                         [found[0].id])
                 await message.answer('Технология успешно добавлена!')
         else:
             await message.answer('Технология не найдена')

@@ -36,7 +36,7 @@ async def my_form_delete_uni(cb: CallbackQuery, state: FSMContext, db=Provide[Co
             cb.from_user.id,
             dtos.UpdateUser(uni='')
         )
-    await cb.message.answer('Группа успешно изменена!')
+    await cb.message.answer('Университет успешно изменён!')
     fake_callback = CallbackQuery(
         id='fake',
         from_user=cb.from_user,

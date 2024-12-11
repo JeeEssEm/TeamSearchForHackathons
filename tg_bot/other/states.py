@@ -22,6 +22,10 @@ class RoleForm(StatesGroup):
     reroute = State()
 
 
+class HacksForm(StatesGroup):
+    user_hacks = State()
+
+
 class TechnologyForm(StatesGroup):
     selected_technologies = State()
 

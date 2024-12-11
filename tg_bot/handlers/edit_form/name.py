@@ -31,6 +31,7 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
         user = await service.get_user(cb.from_user.id)
         stack = make_msg_list(list(map(lambda t: t.title, user.technologies)))
         roles = make_msg_list(list(map(lambda r: r.title, user.roles)))
+        hacks = make_msg_list(list(map(lambda h: h.title, user.hackathons)))
         fullname = f'{user.name} {user.middle_name} {user.surname}'
         status = 'в рассмотрении'
         if user.form_status == FormStatus.approved:
@@ -53,6 +54,8 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 {stack or '<i>не указано</i>'}
 <i><b>Роли</b></i>
 {roles or '<i>не указано</i>'}
+<i><b>Желаемые хакатоны</b></i>
+{hacks or '<i>не указано</i>'}
 \n
 Статус анкеты: {status}
 '''
