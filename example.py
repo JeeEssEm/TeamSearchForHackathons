@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import date
+from datetime import date, timezone, timedelta, datetime
 
 from dependency_injector.wiring import Provide, inject
 
@@ -61,6 +61,17 @@ async def main(db=Provide[Container.db]):
     await create_entity(models.Role(title='Data Science'))
     await create_entity(models.Role(title='DevOps'))
     await create_entity(models.Role(title='Frontend'))
+    today = date.today()
+    await create_entity(models.Hackathon(
+        title='Test hack 1',
+        start_date=today + timedelta(days=1),
+        end_date=today + timedelta(days=2)
+        ))
+    await create_entity(models.Hackathon(
+        title='Test hack 2',
+        start_date=today + timedelta(days=1),
+        end_date=today + timedelta(days=2)
+        ))
 
 
 if __name__ == "__main__":

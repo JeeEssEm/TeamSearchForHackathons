@@ -60,11 +60,14 @@ async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
         team_members = ''.join(
             list(map(lambda m: f'\t - _{m.name} {m.surname}_ \n', team.members))
         )
+        hacks = ''.join(list(map(lambda h: f'\t - {h.title}\n', team.hacks)))
         await cb.message.answer(
             text=f'''Вот твоя команда:
 Название команды: {team.title}
 Описание: {team.description}
-Состав:\n {team_members}''',
+Состав:\n{team_members}
+Желаемые хакатоны:\n{hacks}
+''',
             reply_markup=await my_team_keyboard(cb.from_user.id, team.id),
             parse_mode=ParseMode.MARKDOWN
         )

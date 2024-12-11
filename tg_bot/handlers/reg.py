@@ -202,8 +202,8 @@ async def complete_hacks(cb: CallbackQuery, state: FSMContext, bot: Bot,
                          db=Provide[Container.db]):
     await cb.message.delete()
     user_data = await state.get_data()
-    techs = list(user_data.get('technologies'))
-    hacks = list(user_data.get('user_hacks'))
+    techs = list(user_data.get('technologies', []))
+    hacks = list(user_data.get('user_hacks', []))
     async with db.session() as session:
         user_service = UsersService(session)
         repo = RolesRepository(session)
