@@ -12,7 +12,9 @@ from core.repositories import WishesRepository
 from core import dtos
 
 from handlers.edit_form.name import (
-    my_forms_handler, make_hacks_list, make_msg_list)
+    my_forms_handler, make_hacks_list, make_msg_list
+)
+from handlers.filters import set_filters
 from keyboards.inline_keyboards import (
     create_main_keyboard, my_teams_keyboard, my_team_keyboard,
     team_users_keyboard
@@ -119,3 +121,9 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
         chat_instance=str(message.chat.id)
     )
     await my_forms_handler(fake_callback, state)
+
+
+@router.callback_query(F.data == 'search_form')
+async def search_forms(cb: CallbackQuery, state: FSMContext):
+    await state.update_data(back='start', find='CHANGEME')
+    await set_filters(cb, state)

@@ -8,6 +8,7 @@ from core import dtos
 
 if TYPE_CHECKING:
     from .technology import Technology
+    from .role import Role
 
 
 class Vacancy(Base):
@@ -24,8 +25,9 @@ class Vacancy(Base):
     technologies: Mapped[list["Technology"]] = relationship(
         secondary="vacancies_technologies"
     )
+    role: Mapped["Role"] = relationship()
 
-    async def convert_to_dto_view(self):
+    async def convert_to_dto_view(self) -> dtos.VacancyView:
         techs = [
             tech.convert_to_dto()
             for tech in await self.awaitable_attrs.technologies
@@ -35,5 +37,5 @@ class Vacancy(Base):
             team_id=self.team_id,
             description=self.description,
             technologies=techs,
-            role=await self.awaitable_attrs.role.title,
+            role=(await self.awaitable_attrs.role).title,
         )

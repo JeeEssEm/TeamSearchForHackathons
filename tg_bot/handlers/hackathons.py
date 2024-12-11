@@ -13,11 +13,9 @@ from core.services.users import UsersService
 from core import dtos
 
 from config.config import BaseUser
-from handlers.start import start
+
 from handlers.edit_form.name import my_forms_handler
-from handlers.edit_form.name import make_msg_list
-from lexicon.lexicon_ru import LEXICON_RU
-from keyboards.keyboards import yes_no_kb
+
 from keyboards.inline_keyboards import (
     alphabet_kb, choose_technologies, technologies_keyboard, hacks_keyboard
 )

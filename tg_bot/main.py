@@ -13,7 +13,7 @@ from core.dependencies.container import Container
 
 from handlers import (
     create_team, create_vacancy, start, reg, technologies, roles,
-    hackathons, edit_team
+    hackathons, edit_team, filters
 )
 from handlers.edit_form import (
     name, surname, middlename, uni, group, course, about_me
@@ -63,6 +63,7 @@ async def main():
     dp.include_router(roles.router)
     dp.include_router(hackathons.router)
     dp.include_router(edit_team.router)
+    dp.include_router(filters.router)
 
     container = Container()
     container.wire(modules=[
@@ -82,7 +83,8 @@ async def main():
         'handlers.technologies',
         'handlers.roles',
         'handlers.hackathons',
-        'handlers.edit_team'
+        'handlers.edit_team',
+        'handlers.filters'
     ])
 
     # await init_db()

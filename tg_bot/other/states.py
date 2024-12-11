@@ -69,3 +69,8 @@ class VacancyForm(StatesGroup):
 
 class LeaveFeedbackForm(StatesGroup):
     feedback = State()
+
+
+class FiltersForm(StatesGroup):
+    role = State()
+    techs = State()

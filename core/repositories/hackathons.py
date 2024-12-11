@@ -76,3 +76,10 @@ class HackathonsRepository(Repository):
         hack.end_date = data.end_date or hack.end_date
         await self.session.commit()
         return hack.convert_to_dto()
+
+    async def get_hacks_by_ids(self, hack_ids: list[int]) -> list[Hackathon]:
+        q = select(models.Hackathon).where(
+            models.Hackathon.id.in_(hack_ids)
+        )
+        res = await self.session.scalars(q)
+        return list(map(lambda h: h.convert_to_dto(), res))
