@@ -7,16 +7,19 @@ from dependency_injector.wiring import Provide, inject
 from core.config import settings
 from core import models
 from core import dtos
-from core.repositories import (TeamsRepository, TechnologiesRepository,
-                               UsersRepository)
+from core.repositories import (
+    TeamsRepository,
+    TechnologiesRepository,
+    UsersRepository,
+)
 from core.services import TeamsService
 from core.dependencies.container import Container
 
 
 @inject
 async def create_entity(
-        model,
-        db=Provide[Container.db],
+    model,
+    db=Provide[Container.db],
 ):
     async with db.session() as session:
         session.add(model)
@@ -49,12 +52,15 @@ async def get_teams_test(db=Provide[Container.db]):
 
 @inject
 async def main(db=Provide[Container.db]):
-    if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
+    if (
+        False and settings.INIT_MODELS
+    ):  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
         await db.add_trgm()
-    async with db.session() as session:
-        repo = TechnologiesRepository(session)
-        print(await repo.search_technologies('node'))
+
+    # async with db.session() as session:
+    #     repo = TechnologiesRepository(session)
+    #     print(await repo.search_technologies('node'))
     # await create_entity(models.Technology(title='fastapi'))
     # await create_entity(models.Technology(title='Fastapi'))
     # await create_entity(models.Technology(title='fastAPI'))
@@ -90,11 +96,9 @@ async def main(db=Provide[Container.db]):
     #         title="test hack 1"
     #     )
     # )
-    # await create_entity(
-    #     models.Technology(
-    #         title="test hack 2"
-    #     )
-    # )
+    await create_entity(models.Technology(title="Flask"))
+    await create_entity(models.Technology(title="django"))
+
     #
     # await create_team()
 

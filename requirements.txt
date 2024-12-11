@@ -26,3 +26,4 @@ aiosqlite~=0.20.0
 pycparser~=2.22
 wrapt~=1.17.0
 python-dotenv~=1.0.1
+dependency_injector==4.43.0

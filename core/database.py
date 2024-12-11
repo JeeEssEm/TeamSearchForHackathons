@@ -31,9 +31,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 class Database:
     def __init__(self, db_url: str) -> None:
         self._engine = create_async_engine(
-            db_url,
-            pool_size=10,
-            max_overflow=20
+            db_url, pool_size=10, max_overflow=20
         )
         self._session_factory = sessionmaker(
             self._engine, class_=AsyncSession, expire_on_commit=False
@@ -46,9 +44,10 @@ class Database:
 
     async def add_trgm(self):
         async with self._session_factory() as session:
-            await session.execute(text(
-                'CREATE EXTENSION IF NOT EXISTS pg_trgm')
+            await session.execute(
+                text('CREATE EXTENSION IF NOT EXISTS pg_trgm')
             )
+            await session.commit()
 
     async def drop_models(self):
         async with self._engine.begin() as session:
