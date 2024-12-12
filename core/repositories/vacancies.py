@@ -59,12 +59,3 @@ class VacanciesRepository(Repository):
         vac = await self._get_by_id(vacancy_id)
         await self.session.delete(vac)
         await self.session.commit()
-
-    async def search_vacancies(self, hacks: list[int], techs: list[int],
-                               roles: list[int], user_teams: list[int]):
-        q = select(models.Vacancy).where(
-            models.Vacancy.team_id.notin_(user_teams)
-        )
-        if roles:
-            q = q.where(models.Vacancy.role_id.in_(roles))
-

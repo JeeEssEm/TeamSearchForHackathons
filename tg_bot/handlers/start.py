@@ -21,14 +21,24 @@ from keyboards.inline_keyboards import (
 )
 from other.states import LeaveFeedbackForm
 
-router = Router()
+from core.dependencies.container import Container
+from core.services import TeamsService, UsersService
+from core.repositories import WishesRepository
+from core import dtos
+from tg_bot.keyboards.inline_keyboards import check_vacancies
 
+router = Router()
 
 @router.message(Command('start'))
 async def start(message: Message, state: FSMContext):
     await message.answer('Вы в главном меню',
                          reply_markup=create_main_keyboard())
     await state.clear()
+
+@router.callback_query(F.data == 'start')
+async def start_callback(cb: CallbackQuery, state: FSMContext):
+    await cb.message.delete()
+    await cb.message.answer(text ='Вы в главном меню' ,reply_markup=create_main_keyboard())
 
 
 @router.callback_query(F.data == 'start')
@@ -123,7 +133,23 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
     await my_forms_handler(fake_callback, state)
 
 
+@router.callback_query(F.data.startswith('vacancies_'))
+async def view_vacancies(cb: CallbackQuery, state: FSMContext):
+    team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
+        cb.data.split('_')) > 2 else 0
+    # FIXME сделать текст
+    kb, vacancy = await check_vacancies(cb.from_user.id, team_id, offset)
+
+    await cb.message.answer(text=f'''--------''',
+
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=kb
+                            )
+    await cb.message.delete()
+
+    
 @router.callback_query(F.data == 'search_form')
 async def search_forms(cb: CallbackQuery, state: FSMContext):
     await state.update_data(return_back='start', find='CHANGEME')
     await set_filters(cb, state)
+

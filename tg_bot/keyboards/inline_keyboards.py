@@ -200,13 +200,15 @@ async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: in
     async with db.session() as session:
         team_repo = TeamsRepository(session)
         team = await team_repo.get_by_id(team_id)
+    vacancies = team.vacancies
     if team.captain_id == user_id:
         kb.button(text='Изменить', callback_data=f'edit_vacancy_{vacancy_id}')
         kb.button(text='Удалить', callback_data=f'delete_{vacancy_id}')
-    kb.button(text='<<', callback_data='backward')
-    kb.button(text='>>', callback_data='forward')
+    kb.button(text='<<', callback_data=f'vacancies_{team.id}_{offset - 1}') #FIXME write relationships: team with vacancies
+    kb.button(text='>>', callback_data=f'vacancies_{team.id}_{(offset + 1) % len(vacancies)}')
+    kb.button(text='Назад', callback_data=f'team_{team_id}')
     kb.adjust(2)
-    return kb.as_markup(), str(offset)
+    return kb.as_markup(), vacancies[offset]
 
 
 def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:

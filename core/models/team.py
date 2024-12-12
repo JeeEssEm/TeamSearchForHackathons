@@ -24,9 +24,9 @@ class Team(Base):
     captain_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
     )
-    # поле для получения капитана
+
     captain: Mapped["User"] = relationship(back_populates="my_teams")
-    vacancies: Mapped["Vacancy"] = relationship(back_populates="team")
+    vacancies: Mapped[list["Vacancy"]] = relationship(back_populates="team")
 
     async def convert_to_dto(self) -> dtos.Team:
         members = [
