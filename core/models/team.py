@@ -9,6 +9,7 @@ from core import dtos
 if TYPE_CHECKING:
     from .user import User
     from .hackathon import Hackathon
+    from .vacancy import Vacancy
 
 
 class Team(Base):
@@ -25,15 +26,17 @@ class Team(Base):
     )
     # поле для получения капитана
     captain: Mapped["User"] = relationship(back_populates="my_teams")
+    vacancies: Mapped["Vacancy"] = relationship(back_populates="team")
 
     async def convert_to_dto(self) -> dtos.Team:
         members = [
             await user.convert_to_dto_member()
             for user in await self.awaitable_attrs.members
         ]
-        # members.append(
-        #     (await self.awaitable_attrs.captain).convert_to_dto_member()
-        # )
+        vacancies = [
+            await vac.convert_to_dto_view()
+            for vac in await self.awaitable_attrs.vacancies
+        ]
         return dtos.Team(
             id=self.id,
             title=self.title,
@@ -44,4 +47,5 @@ class Team(Base):
                 hack.convert_to_dto()
                 for hack in await self.awaitable_attrs.hackathons
             ],
+            vacancies=vacancies,
         )

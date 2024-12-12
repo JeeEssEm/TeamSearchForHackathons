@@ -9,6 +9,7 @@ from core import dtos
 if TYPE_CHECKING:
     from .technology import Technology
     from .role import Role
+    from .team import Team
 
 
 class Vacancy(Base):
@@ -26,6 +27,8 @@ class Vacancy(Base):
         secondary="vacancies_technologies"
     )
     role: Mapped["Role"] = relationship()
+
+    team: Mapped["Team"] = relationship(back_populates="vacancies")
 
     async def convert_to_dto_view(self) -> dtos.VacancyView:
         techs = [
