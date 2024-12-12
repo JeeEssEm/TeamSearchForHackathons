@@ -1,4 +1,5 @@
 from aiogram import F, Router, Bot
+from aiogram.enums.parse_mode import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, \
     PollAnswer
@@ -12,6 +13,7 @@ from core.repositories import RolesRepository
 from core.services import TeamsService
 from core import dtos
 
+from handlers.edit_form.name import make_msg_list
 from handlers.hackathons import hacks_pages
 from keyboards.inline_keyboards import my_team_keyboard
 from other.states import TeamForm
@@ -34,21 +36,6 @@ async def cmd_create_team(cb: CallbackQuery, state: FSMContext):
 async def process_team_name(message: Message, state: FSMContext):
     await state.update_data(team_name=message.text)
     await message.reply("Отлично! Расскажите немного о команде:")
-    await state.set_state(TeamForm.team_description)
-
-
-@router.message(F.text, TeamForm.team_description)
-async def process_team_description(message: Message, state: FSMContext):
-    await state.update_data(team_description=message.text)
-    await message.reply("Пришлите фото для аватара вашей команды:")
-    await state.set_state(TeamForm.avatar)
-
-
-@router.message(F.photo, TeamForm.avatar)
-async def process_avatar(message: Message, state: FSMContext, bot: Bot):
-    await state.update_data(avatar=message.photo[0].file_id)
-    await bot.send_message(chat_id=message.chat.id,
-                           text='Какие достижения у вашей команды?')
     await state.set_state(TeamForm.team_achievements)
 
 
@@ -115,22 +102,26 @@ async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext,
         team = dtos.CreateTeam(
             captain_id=poll_answer.user.id, title=user_data['team_name'],
             description=user_data['team_description'],
-            hacks=hacks,
-            # current_hackathon=user_data['current_hackathon'],
-            # achievements=user_data['team_achievements'],
-            # avatar=user_data['avatar']
+            hacks=hacks
         )
         role = await role_repo.get_roles_ids(roles)
-
         team = await team_service.create_team(team, role[0])
-
-    await bot.send_message(text=f'''Вот твоя команда:
-Название команды: {user_data['team_name']}
+        hacks = make_msg_list([h.title for h in team.hacks])
+        members = make_msg_list([f'{m.name} {m.surname}' for m in team.members])
+        msg = f'''
+Вот твоя команда:\n
+<i><b>Название команды:</b></i>\n
+<i>{user_data['team_name']}</i>
 {user_data['team_description']}
-Желаемые хакатоны:
-{'\n'.join([h.title for h in team.hacks])}
-Состав: {team.members}
-''', reply_markup=await my_team_keyboard(poll_answer.user.id, team.id),
-                           chat_id=poll_answer.user.id
-                           )
+<i><b>Желаемые хакатоны:</b></i>
+{hacks}
+Состав:
+{members}
+'''
+    await bot.send_message(
+        text=msg,
+        reply_markup=await my_team_keyboard(poll_answer.user.id, team.id),
+        chat_id=poll_answer.user.id,
+        parse_mode=ParseMode.HTML
+    )
     await state.clear()

@@ -155,24 +155,9 @@ async def process_technologies(message: Message, state: FSMContext,
     await message.reply(
         f'{resp_text}\n\n'
         f'Вы сможете изменить этот список после окончания регистрации\n'
-        f'Теперь отправьте вашу аватарку:'
+        f'Теперь отправьте расскажите о себе:'
     )
     await state.update_data(technologies=seen)
-    await state.set_state(UserForm.avatar)
-
-
-@router.callback_query(F.data == 'continue_avatar')
-async def continue_avatar(cb: CallbackQuery, state: FSMContext, bot: Bot):
-    await bot.send_message(text='Отлично! Теперь отправьте аватар:',
-                           chat_id=cb.message.chat.id)
-    await state.set_state(UserForm.avatar)
-
-
-@router.message(F.photo, UserForm.avatar)
-async def process_avatar(message: Message, state: FSMContext, bot: Bot):
-    await state.update_data(avatar=message.photo[0].file_id)
-    await bot.send_message(chat_id=message.chat.id,
-                           text='Расскажите немного о себе:')
     await state.set_state(UserForm.about_me)
 
 
@@ -181,7 +166,7 @@ async def process_about(message: Message, state: FSMContext, bot: Bot):
     await state.update_data(about_me=message.text, back='complete_hacks',
                             done='complete_hacks', new_message=True)
     await bot.send_message(
-        text='Теперь перечислите хакатоны, для которых вы хотите найти команду:',
+        text='Теперь выберите хакатоны, для которых вы хотите найти команду:',
         chat_id=message.chat.id
     )
 

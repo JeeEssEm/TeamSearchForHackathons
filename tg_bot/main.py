@@ -14,7 +14,7 @@ from core.dependencies.container import Container
 
 from handlers import (
     create_team, create_vacancy, start, reg, technologies, roles,
-    hackathons, edit_team, filters, search_form
+    hackathons, edit_team, filters, search_form, invites
 )
 from handlers.edit_form import (
     name, surname, middlename, uni, group, course, about_me,
@@ -72,6 +72,8 @@ async def main():
     dp.include_router(filters.router)
     dp.include_router(search_form.router)
 
+    dp.include_router(invites.router)
+
     container = Container()
     container.wire(modules=[
         __name__,
@@ -93,7 +95,8 @@ async def main():
         'handlers.hackathons',
         'handlers.edit_team',
         'handlers.filters',
-        'other.search_delegates'
+        'other.search_delegates',
+        'handlers.invites'
     ])
 
     # await init_db()

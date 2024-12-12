@@ -211,3 +211,30 @@ async def edit_role_team_confirm(poll_answer: PollAnswer, state: FSMContext, bot
         chat_id=poll_answer.user.id
     )
     await state.clear()
+
+
+@router.callback_query(F.data.startswith('kick_'))
+@inject
+async def kick(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    team_id = int(cb.data.split('_')[-2])
+    user_id = int(cb.data.split('_')[-1])
+
+    async with db.session() as session:
+        team_service = TeamsService(session)
+        await team_service.kick(team_id=team_id, user_id=user_id)
+    await cb.message.answer('Пользователь исключён из команды')
+    await cb.message.delete()
+
+
+@router.callback_query(F.data.startswith('make_captain_'))
+@inject
+async def make_capitan(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    team_id = int(cb.data.split('_')[-2])
+    user_id = int(cb.data.split('_')[-1])
+
+    async with db.session() as session:
+        team_service = TeamsService(session)
+        await team_service.make_capitan(team_id=team_id, user_id=user_id)
+    await cb.message.answer('Пользователь теперь капитан')
+    await cb.message.delete()
+

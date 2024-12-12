@@ -21,4 +21,5 @@ class VacancyView:
     description: str
     team_id: int
     role: str
+    role_id: int
     technologies: list[Technology]

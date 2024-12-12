@@ -74,11 +74,12 @@ def choose_technologies(letter: str, selected_technologies: list[int]) -> Inline
     return kb.as_markup()
 
 
-def create_main_keyboard():
+def create_main_keyboard(is_approved: bool) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text='Моя анкета', callback_data='my_forms')
     kb.button(text='Мои команды', callback_data='my_teams')
-    kb.button(text='Создать команду', callback_data='new_team')
+    if is_approved:
+        kb.button(text='Создать команду', callback_data='new_team')
     kb.button(text='Искать анкеты', callback_data='search_form')
     kb.button(text='Искать команды', callback_data='search_team')
     kb.button(text='Оставить фидбек', callback_data='leave_feedback')
@@ -242,13 +243,13 @@ def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text='Назад', callback_data=cb)
     kb.button(text='Добавить автоматически', callback_data='add_technology_auto')
-    kb.button(text='Добавить вручную (пока не работает)', callback_data='add_technology_manually')
+    # kb.button(text='Добавить вручную (пока не работает)', callback_data='add_technology_manually')
 
     for i, t in enumerate(techs):
         kb.button(text=f'удалить {i + 1})',
                   callback_data=f'delete_technology_{t.id}')
 
-    kb.adjust(1, 1, 1, *[2 for _ in range(len(techs))])
+    kb.adjust(1, 1, *[2 for _ in range(len(techs))])
     return kb.as_markup()
 
 
@@ -294,4 +295,43 @@ def edit_team_keyboard(team_id: int):
 def go_back(back):
     kb = InlineKeyboardBuilder()
     kb.button(text='Назад', callback_data=back)
+    return kb.as_markup()
+
+
+def invite_keyboard(user_id: int, team_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    kb.button(text='Отклонить', callback_data=f'reject_form')
+    kb.button(text='Принять', callback_data=f'approve_form_{team_id}_{user_id}')
+    kb.adjust(2)
+
+    return kb.as_markup()
+
+
+def choose_team(teams) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    for t in teams:
+        kb.button(text=t['title'], callback_data=f'||invite_to_team_{t['id']}')
+    kb.button(text='Назад', callback_data='||cancel')
+    kb.adjust(*[1 for _ in range(len(teams) + 1)])
+    return kb.as_markup()
+
+
+def choose_vacancy(vacs) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    for i in range(len(vacs)):
+        kb.button(text=f'{i})', callback_data=f'||invite_to_vac_{vacs[i].id}')
+    kb.button(text='Назад', callback_data='||cancel')
+    kb.adjust(*[1 for _ in range(len(vacs) + 1)])
+    return kb.as_markup()
+
+
+def accept_invite(team_id: int, vac_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    kb.button(text='Принять', callback_data=f'|||accept_invite_{vac_id}_{team_id}')
+    kb.button(text='Отклонить', callback_data='||cancel')
+    kb.adjust(2)
     return kb.as_markup()

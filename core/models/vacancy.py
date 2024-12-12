@@ -41,4 +41,5 @@ class Vacancy(Base):
             description=self.description,
             technologies=techs,
             role=(await self.awaitable_attrs.role).title,
+            role_id=self.role_id
         )

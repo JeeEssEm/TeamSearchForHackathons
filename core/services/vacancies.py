@@ -8,7 +8,7 @@ class VacanciesService(Service):
 
     async def create_vacancy(self, data: CreateVacancy) -> VacancyView:
         vac = await self.repository.create_vacancy(data)
-        # await self.repository.add_technologies(vac.id, data.technologies)
+        await self.repository.add_technologies(vac.id, data.technologies)
         return await self.repository.get_by_id(vac.id)
 
     async def get_vacancy(self, vac_id: int) -> VacancyView:

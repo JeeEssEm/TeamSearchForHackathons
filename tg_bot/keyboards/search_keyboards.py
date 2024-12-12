@@ -1,5 +1,3 @@
-from math import ceil
-
 from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardBuilder
 
 

@@ -28,33 +28,40 @@ from other.search_delegates import (
 from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
+from core.models import FormStatus, team
 from core import dtos
 
 from tg_bot.keyboards.inline_keyboards import vacancies_keyboard
 
 router = Router()
 
+
 @router.message(Command('start'))
-async def start(message: Message, state: FSMContext):
+@inject
+async def start(message: Message, state: FSMContext, db=Provide[Container.db]):
+    async with db.session() as session:
+        repo = UsersService(session)
+        user = await repo.get_user(message.from_user.id)
+
     await message.answer('Вы в главном меню',
-                         reply_markup=create_main_keyboard())
+                         reply_markup=create_main_keyboard(
+                             user.form_status == FormStatus.approved
+                         ))
     await state.clear()
-
-@router.callback_query(F.data == 'start')
-async def start_callback(cb: CallbackQuery, state: FSMContext):
-    await cb.message.delete()
-    await cb.message.answer(text ='Вы в главном меню' ,reply_markup=create_main_keyboard())
 
 
 @router.callback_query(F.data == 'start')
-async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
+@inject
+async def start_callback(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    async with db.session() as session:
+        repo = UsersService(session)
+        user = await repo.get_user(cb.from_user.id)
+
     await cb.message.delete()
-    await state.clear()
-    await bot.send_message(
-        text='Приветствую тебя в <b>главном меню</b> выбери, что ты хочешь сделать',
-        reply_markup=create_main_keyboard(),
-        chat_id=cb.message.chat.id
-    )
+    await cb.message.answer(text='Вы в главном меню',
+                            reply_markup=create_main_keyboard(
+                                user.form_status == FormStatus.approved
+                            ))
 
 
 @router.callback_query(F.data == 'my_teams')
@@ -76,16 +83,21 @@ async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
         team_service = TeamsService(session)
         team = await team_service.get_team_by_id(team_id)
 
-        team_members = make_msg_list(list([f'{m.name} {m.surname}'
-                                           for m in team.members]))
-        hacks = make_msg_list(make_hacks_list(team.hacks))
+        hacks = make_msg_list([h.title for h in team.hacks])
+        smember = make_msg_list([f'{m.name} {m.surname}' for m in team.members])
+        msg = f'''
+Вот твоя команда:
+<i><b>Название команды:</b></i>\n
+<i>{team.title}</i>
+<i><b>Описание команды:</b></i>
+<i>{team.description}</i>
+<i><b>Желаемые хакатоны:</b></i>
+{hacks}
+Состав:
+{smember}
+        '''
         await cb.message.answer(
-            text=f'''Вот твоя команда:
-Название команды: {team.title}\n
-Описание: {team.description}\n
-Состав:\n{team_members}\n
-Желаемые хакатоны:\n{hacks}\n
-''',
+            text=msg,
             reply_markup=await my_team_keyboard(cb.from_user.id, team.id),
             parse_mode=ParseMode.HTML
         )
@@ -98,13 +110,18 @@ async def members(cb: CallbackQuery, state: FSMContext):
         cb.data.split('_')) > 2 else 0
 
     kb, user = await team_users_keyboard(cb.from_user.id, team_id, offset)
+    techs = make_msg_list([h.title for h in user.technologies])
+    await cb.message.answer(text=f'''
+<i><b>ФИО</b></i>
+╰{user.name} {user.surname}
+<i><b>Роль</b></i>
+╰{user.role}
+<i><b>Стек технологий</b></i>
+{techs or '<i>не указано</i>'}
+<i><b>О себе</b></i>
+{user.about_me or '<i>Пусто</i>'}''',
 
-    await cb.message.answer(text=f'''{user.name} {user.surname}
-Роль: {user.role}
-Стек: {', '.join(list(map(lambda t: t.title, user.technologies)))}
-{user.about_me or '***<Пусто>***'}''',
-
-                            parse_mode=ParseMode.MARKDOWN,
+                            parse_mode=ParseMode.HTML,
                             reply_markup=kb
                             )
     await cb.message.delete()
@@ -158,9 +175,19 @@ async def team_vacancies(cb: CallbackQuery, state: FSMContext):
             text='В команде ещё нет вакансий'
         )
         return
-
+    vac = team.vacancies[page - 1]
+    stack = make_msg_list([v.title for v in vac.technologies])
+    msg = f'''
+<i><b>Вакансия</b></i>
+<i><b>Роль</b></i>
+╰{vac.role}
+<i><b>Стек технологий</b></i>
+{stack}
+<i><b>Описание</b></i>
+<i>{vac.description}</i>
+'''
     await cb.message.answer(
-        text=f'{team.vacancies[page - 1]}',
+        text=msg,
         reply_markup=vacancies_keyboard(
             user_id=cb.from_user.id,
             team=team,
