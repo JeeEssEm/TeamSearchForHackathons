@@ -1,4 +1,5 @@
 import jwt
+from secrets import token_urlsafe
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,12 +7,34 @@ from django.views.generic import FormView, View
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
+from django.contrib.auth.decorators import user_passes_test
+from django.utils.decorators import method_decorator
 
 from .models import Invite
-from .forms import SignUpForm, ResendActivationForm
+from .forms import SignUpForm, ResendActivationForm, InviteForm
 from .utils import send_activation_email, decode_jwt_token
+
+
+class InviteModeratorView(LoginRequiredMixin, FormView):
+    template_name = 'users/invite_moderator.html'
+    form_class = InviteForm
+
+    @method_decorator(user_passes_test(lambda u: u.is_superuser))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        code = token_urlsafe(128)
+        link = (self.request.build_absolute_uri(
+            reverse_lazy("users:signup")
+        )[:-1] + f"?invite={code}")
+        invite = Invite.objects.create(token=code, user=None)
+        invite.is_superuser = form.cleaned_data.get('is_superuser')
+        invite.save()
+        return self.render_to_response(context={'link': link})
 
 
 class SignUpView(FormView):

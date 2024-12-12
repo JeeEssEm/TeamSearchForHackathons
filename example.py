@@ -1,33 +1,77 @@
 import asyncio
 import logging
+from datetime import date, timezone, timedelta, datetime
 
 from dependency_injector.wiring import Provide, inject
 
 from core.config import settings
-from core.services import TechnologiesService
+from core import models
+from core import dtos
+from core.repositories import (TeamsRepository, TechnologiesRepository,
+                               UsersRepository)
+from core.services import TeamsService
 from core.dependencies.container import Container
 
 
 @inject
-async def handler(
-    tech_service: TechnologiesService = Provide[Container.technology_service],
+async def create_entity(
+        model,
+        db=Provide[Container.db],
 ):
-    # вот это уже пример инъекции зависимости сервиса, работающего с
-    # технологиями. Это збс, потому что вам не нужно думать, как там
-    # создаётся сессия к бд. Просто получаете сервис и дёргаете нужные методы
-
-    # зачастую вам понадобится получать сервисы и работать с ними именно таким
-    # образом
-    res = await tech_service.create_technology("test technology")
-    print(res)
+    async with db.session() as session:
+        session.add(model)
+        await session.commit()
 
 
+@inject
+async def create_team(db=Provide[Container.db]):
+    async with db.session() as session:
+        team_repo = TeamsService(session)
+        dto = dtos.CreateTeam(1, "team 1", "some desc", [1])
+        team = await team_repo.create_team(dto, 1)
+        await team_repo.add_hacks_to_team(team.id, [2])
+        # print(await team_repo.get_by_id(team.id))
+
+
+@inject
+async def test(db=Provide[Container.db]):
+    async with db.session() as session:
+        team_repo = TechnologiesRepository(session)
+        print(await team_repo.get_technologies(10, 1))
+
+
+@inject
+async def get_teams_test(db=Provide[Container.db]):
+    async with db.session() as session:
+        team_repo = TeamsRepository(session)
+        print(await team_repo.get_by_id(4))
+
+
+@inject
 async def main(db=Provide[Container.db]):
     if settings.INIT_MODELS:  # если модельки в бд не созданы, то создаём...
         await db.init_models()  # об этом думать не надо
+        await db.add_trgm()
+    await create_entity(models.Technology(title='django'))
+    await create_entity(models.Technology(title='fastapi'))
+    await create_entity(models.Technology(title='react'))
 
-    for _ in range(23):
-        await handler()
+    await create_entity(models.Role(title='Backend'))
+    await create_entity(models.Role(title='ML'))
+    await create_entity(models.Role(title='Data Science'))
+    await create_entity(models.Role(title='DevOps'))
+    await create_entity(models.Role(title='Frontend'))
+    today = date.today()
+    await create_entity(models.Hackathon(
+        title='Test hack 1',
+        start_date=today + timedelta(days=1),
+        end_date=today + timedelta(days=2)
+        ))
+    await create_entity(models.Hackathon(
+        title='Test hack 2',
+        start_date=today + timedelta(days=1),
+        end_date=today + timedelta(days=2)
+        ))
 
 
 if __name__ == "__main__":
@@ -36,6 +80,6 @@ if __name__ == "__main__":
     container = Container()
     container.wire(modules=[__name__])
 
-    logging.disable(logging.INFO)
+    # logging.disable(logging.INFO)
 
     asyncio.run(main())

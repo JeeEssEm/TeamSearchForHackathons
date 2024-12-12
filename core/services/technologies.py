@@ -11,6 +11,7 @@ class TechnologiesService(Service):
         # тут может быть какая-нибудь логика
         # например, поиск похожих по названию технологий и обработка случая,
         # когда похожая технология найдена
+        # TODO: добавить проверку на похожие названия
         if await self.repository.check_if_same_exists(title):
             return TechnologyResponse(
                 status=ResponseStatus.already_exists,

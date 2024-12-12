@@ -13,8 +13,9 @@ __all__ = (
     "Vacancy",
     "vacancies_technologies",
     "Wish",
+    "FormStatus"
 )
-from .user import User
+from .user import User, FormStatus
 from .role import Role
 from .users_roles import users_roles
 from .users_technologies import users_technologies

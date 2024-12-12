@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+	Список анкет
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto col-lg-8 col-sm-12">
+	<h1>Список анкет</h1>
+	<div class="d-flex w-100 justify-content-between flex-sm-column-reverse flex-lg-row">
+		 <div class="d-flex flex-column col-lg-8 col-sm-12">
+			<form method="post">
+				{% if messages %}
+					{% for msg in messages %}
+						<div class="alert {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %} alert-success {% else %} alert-danger {% endif %} mt-3">
+							{{ msg }}
+						</div>
+						{% endfor %}
+				{% endif %}
+				{% csrf_token %}
+				<table class="table table-striped">
+					<thead>
+					<tr>
+						<th>ID</th>
+						<th>ФИО</th>
+		        <th>Статус</th>
+		        <th>Модератор</th>
+		        <th>Дата изменения</th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for q in questionaries %}
+						<tr>
+							<!-- <td><input type="checkbox" name="selected_technologies" value="{{ q.id }}"></td> -->
+							<td>{{ q.id }}</td>
+							<td><a href="{% url 'questionary:validate_by_id' user_id=q.id %}">{{ q.name }} {{ q.middle_name }} {{ q.surname }}</a></td>
+			        <td>{% if q.form_status == 2 %} Одобрено {% elif q.form_status == 1 %} В процессе {% else %} Отклонено {% endif %}</td>
+							<td>
+								{% if q.moderator_id %}
+									<a href="{% url 'admin:auth_user_change' object_id=q.moderator_id %}">{{ q.moderator_id }}</a>
+								{% else %}
+									Не назначен
+								{% endif %}</td>
+							<td>{{ q.updated_at }}</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+				<div class="d-flex">
+				</div>
+			</form>
+			<ul class="pagination mt-3">
+			<li class="page-item"><a href="{% url 'questionary:list' page=1 %}?status={{ status }}&mine={{ mine }}" class="page-link"><span aria-hidden="true">&laquo;</span></a></li>
+			{% if prev_page != 0 %}
+				<li class="page-item"><a href="{% url 'questionary:list' page=prev_page %}?status={{ status }}&mine={{ mine }}" class="page-link">{{ prev_page }}</a></li>
+			{% endif %}
+			<li class="page-item active"><a href="#" class="page-link">{{ current_page }}</a></li>
+			{% if next_page != 0 %}
+				<li class="page-item"><a href="{% url 'questionary:list' page=next_page %}?status={{ status }}&mine={{ mine }}" class="page-link">{{ next_page }} </a></li>
+			{% endif %}
+			<li class="page-item"><a href="{% url 'questionary:list' page=last_page %}?status={{ status }}&mine={{ mine }}" class="page-link"><span aria-hidden="true">&raquo;</span></a></li>
+			<p class="text-muted ms-3">Всего результатов: {{ total }}</p>
+		</ul>
+	</div>
+		 <form class="d-flex flex-column gap-2 col-lg-3 col-sm-12 ms-auto" method="get" action="{% url 'questionary:list' page=1 %}?status={{ status }}&mine={{ mine }}">
+<!--		<label for="#search"></label>-->
+<!--		<input type="text" placeholder="Поиск..." id="#search" class="form-control">-->
+<!--		<button class="btn btn-dark ms-3" type="submit">Поиск</button>-->
+	  <h3>Фильтры</h3>
+	  <div class="d-flex gap-2">
+		  <div class="d-flex flex-column">
+			  <label for="#status">Статус</label>
+			  <select name="status" id="#status" class="form-select">
+				    <option value="">Все</option>
+		        <option value="approved" {% if status == 'approved' %}selected{% endif %}>Одобрено</option>
+		        <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Отклонено</option>
+		        <option value="in_review" {% if status == 'in_review' %}selected{% endif %}>В процессе</option>
+			  </select>
+		  </div>
+		  <div>
+			  <label for="#mine">Мои</label>
+			  <select name="mine" id="#mine" class="form-select">
+				    <option value="" {% if not mine %}selected{% endif %}>Все</option>
+		        <option value="True" {% if mine %}selected{% endif %}>Только мои</option>
+			  </select>
+		  </div>
+	  </div>
+	  <button class="btn btn-secondary" type="submit">Применить</button>
+	</form>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+	Пригласить модератора
+{% endblock %}
+
+{% block content %}
+	<div class="my-auto d-flex flex-column justify-content-center align-items-center">
+		<h3>Генерация ссылки-приглашения для модератора</h3>
+		{% if link %}
+				<div class="d-flex">
+				<div class="lg-4 sm-12 form-floating">
+					<input type="text" value="{{ link }}" id="link" class="form-control" readonly>
+					<label for="link">Ваша ссылка:</label>
+				</div>
+				<button onclick="copyText()" class="btn btn-primary mx-2">Скопировать</button>
+			</div>
+		{% else %}
+			<form method="post" enctype="multipart/form-data" class="d-flex flex-column justify-content-center">
+				{% csrf_token %}
+				<div class="d-flex gap-2 my-3">
+					{% for field in form %}
+						{{ field }}
+						{{ field.label }}
+					{% endfor %}
+				</div>
+				<button class="btn btn-primary" type="submit">Сгенерировать</button>
+			</form>
+			{% endif %}
+	</div>
+{% endblock %}
+
+{% block scripts %}
+	<script src="{% static 'js/copytoclipboard.js' %}"></script>
+{% endblock %}

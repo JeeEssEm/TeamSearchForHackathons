@@ -3,12 +3,12 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DB_HOST: str = "localhost"
-    DB_PORT: int = 0
-    DB_NAME: str = "db"
-    DB_USER: str = "pguser"
-    DB_PASSWORD: str = "password"
+    DB_PORT: int = 5432
+    DB_NAME: str = "tsfh_db"
+    DB_USER: str = "jes"
+    DB_PASSWORD: str = "pwd123qwe"
 
-    DEBUG: bool = True
+    DEBUG: bool = False
     TRUST_FACTOR: bool = False
     INIT_MODELS: bool = True
 
@@ -16,9 +16,13 @@ class Settings(BaseSettings):
     S3_SECRET_ACCESS_KEY: str = "secret key"
     S3_ENDPOINT: str = "endpoint url"
 
+    MODERATOR_FORM_ROTATION_DAYS: int = 2
+
 
 settings = Settings()
 
 
 def get_database_url():
-    return "sqlite+aiosqlite:///./db.sqlite"
+    if settings.DEBUG:
+        return "sqlite+aiosqlite:///./db.sqlite"
+    return f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
