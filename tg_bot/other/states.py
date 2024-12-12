@@ -14,6 +14,20 @@ class UserForm(StatesGroup):
     course = State()
     group = State()
     roles = State()
+    technologies = State()
+
+
+class RoleForm(StatesGroup):
+    roles = State()
+    reroute = State()
+
+
+class HacksForm(StatesGroup):
+    user_hacks = State()
+
+
+class TechnologyForm(StatesGroup):
+    selected_technologies = State()
 
 
 class UserEditForm(StatesGroup):
@@ -38,6 +52,15 @@ class TeamForm(StatesGroup):
     current_hackathon = State()
 
 
+class TeamEditForm(StatesGroup):
+    role = State()
+    avatar = State()
+    team_name = State()
+    team_description = State()
+    team_achievements = State()
+    current_hackathon = State()
+
+
 class VacancyForm(StatesGroup):
     roles = State()
     description = State()
@@ -46,3 +69,8 @@ class VacancyForm(StatesGroup):
 
 class LeaveFeedbackForm(StatesGroup):
     feedback = State()
+
+
+class FiltersForm(StatesGroup):
+    role = State()
+    techs = State()

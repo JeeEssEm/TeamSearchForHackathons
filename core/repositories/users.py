@@ -1,5 +1,5 @@
 from typing import NamedTuple
-from datetime import timedelta, timezone, datetime
+from datetime import timedelta, timezone, datetime, date
 
 from sqlalchemy import insert, delete, update, select, or_, and_, func
 
@@ -65,6 +65,7 @@ class UsersRepository(Repository):
         if not settings.TRUST_FACTOR:
             user.moderator_id = None
             user.form_status = models.FormStatus.in_review
+            user.moderator_set_at = datetime.now(timezone.utc).date()
 
         await self.session.commit()
         await self.session.refresh(user)
@@ -91,7 +92,7 @@ class UsersRepository(Repository):
     async def set_moderator(self, moderator_id: int, user_id: int):
         user = await self._get_by_id(user_id)
         user.moderator_id = moderator_id
-
+        user.moderator_set_at = datetime.now(timezone.utc).date()
         await self.session.commit()
 
     async def get_form(self, moderator_id: int) -> User | None:
@@ -102,7 +103,7 @@ class UsersRepository(Repository):
         stmt = select(models.User).where(or_(
             and_(
                 models.User.moderator_id.is_not(None),
-                models.User.updated_at < today
+                models.User.moderator_set_at < today
             ),
             models.User.moderator_id.is_(None)
         )).where(models.User.form_status == models.FormStatus.in_review)
@@ -158,3 +159,58 @@ class UsersRepository(Repository):
             },
             await user.awaitable_attrs.teams)
         )
+
+    async def set_technologies(self, user_id: int, tech_ids: list[int]) -> None:
+        q = insert(models.users_technologies).values(
+            [{'user_id': user_id, 'technology_id': t_id} for t_id in tech_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def delete_technology(self, user_id: int, tech_id: int):
+        q = delete(models.users_technologies).where(
+            models.users_technologies.c.user_id == user_id,
+            models.users_technologies.c.technology_id == tech_id
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def set_roles(self, user_id: int, role_ids: list[int]):
+        q = insert(models.users_roles).values(
+            [{'user_id': user_id, 'role_id': r_id} for r_id in role_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def delete_all_roles(self, user_id: int):
+        q = delete(models.users_roles).where(
+            models.users_roles.c.user_id == user_id,
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def delete_all_hacks(self, user_id: int):
+        q = delete(models.users_hackathons).where(
+            models.users_hackathons.c.user_id == user_id,
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def set_hacks(self, user_id: int, hack_ids: list[int]):
+        q = insert(models.users_hackathons).values(
+            [{'user_id': user_id, 'hackathon_id': h_id} for h_id in hack_ids]
+        )
+        await self.session.execute(q)
+        await self.session.commit()
+
+    async def remove_old_hacks(self, user_id: int):
+        today = date.today()
+        sub_q = select(models.Hackathon.id).where(
+            models.Hackathon.end_date < today
+        )
+        stmt = delete(models.users_hackathons).where(
+            models.users_hackathons.c.user_id == user_id,
+            models.users_hackathons.c.hackathon_id.in_(sub_q)
+        )
+        await self.session.execute(stmt)
+        await self.session.commit()

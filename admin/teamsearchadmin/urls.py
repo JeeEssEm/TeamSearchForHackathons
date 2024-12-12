@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
 
 import users.urls
 import home.urls
@@ -33,4 +35,4 @@ urlpatterns = [
     path("questionary/", include(questionary.urls)),
     path("hackathons/", include(hackathons.urls)),
     path("wishes/", include(wishes.urls)),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

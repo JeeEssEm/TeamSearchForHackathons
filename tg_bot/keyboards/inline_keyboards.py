@@ -1,3 +1,5 @@
+from math import ceil
+
 from aiogram import F
 from aiogram.types import CallbackQuery
 from aiogram import Bot, Dispatcher
@@ -42,11 +44,20 @@ keyboard_2 = InlineKeyboardMarkup(
 )
 
 
-def alphabet_kb() -> InlineKeyboardMarkup:
+def alphabet_kb(pos) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for i in range(65, 91):
-        kb.button(text=chr(i), callback_data=f'technologies_{chr(i)}')
+        kb.button(text=chr(i), callback_data=f'technologies_{pos}_{chr(i)}')
     kb.adjust(5)
+    kb.button(text='Назад', callback_data='back')
+    return kb.as_markup()
+
+
+def edit_technology_keyboard(pos, techs) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for t in techs:
+        kb.button(text=t.title, callback_data=f'technologies_{pos}_{t}')
+
     return kb.as_markup()
 
 
@@ -110,23 +121,29 @@ async def my_team_keyboard(user_id: int, team_id: int, db=Provide[Container.db])
 
 
 @inject
-async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, dtos.BaseUser]:
+async def team_users_keyboard(user_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, dtos.TeamMember]:
     kb = InlineKeyboardBuilder()
     async with db.session() as Session:
         team_repo = TeamsRepository(Session)
         team = await team_repo.get_by_id(team_id)
     members = team.members
-
+    adjustment = []
     if offset < 0:
         offset = len(members) - 1
     if team.captain_id == user_id and members[offset].id != team.captain_id:
         kb.button(text='Исключить участника', callback_data=f'kick_{team_id}_{members[offset].id}')
         kb.button(text='Сделать капитаном', callback_data=f'make_captain_{team_id}_{members[offset].id}')
+        adjustment.append(2)
+
+    if team.captain_id == user_id:
+        kb.button(text='Поменять роль', callback_data=f'change_team_role_{team_id}_{members[offset].id}')
+        adjustment.append(1)
 
     kb.button(text='<<', callback_data=f'members_{team.id}_{offset - 1}')
     kb.button(text='>>', callback_data=f'members_{team.id}_{(offset + 1) % len(members)}')
     kb.button(text='Назад', callback_data=f'team_{team_id}')
-    kb.adjust(2)
+
+    kb.adjust(*(adjustment + [2, 1]))
     return kb.as_markup(), members[offset]
 
 
@@ -139,8 +156,9 @@ def my_form_keyboard() -> InlineKeyboardMarkup:
     kb.button(text='Редактировать курс', callback_data='my_form_edit_course')
     kb.button(text='Редактировать учебную группу', callback_data='my_form_edit_group')
     kb.button(text='Редактировать информацию себе', callback_data='my_form_edit_about_me')
-    kb.button(text='Редактировать стек технологий', callback_data='my_form')
-    kb.button(text='Редактировать роли', callback_data='my_form')
+    kb.button(text='Редактировать стек технологий', callback_data='my_technologies')
+    kb.button(text='Редактировать желаемые хакатоны', callback_data='hacks')
+    kb.button(text='Редактировать роли', callback_data='edit_roles')
 
     kb.button(text='Назад', callback_data='start')
     kb.adjust(2)
@@ -177,7 +195,7 @@ def my_form_edit_field_keyboard(back: str, delete: str = None) -> InlineKeyboard
 #     return kb.as_markup()
 
 @inject
-async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db = Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
+async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
     kb = InlineKeyboardBuilder()
     async with db.session() as session:
         team_repo = TeamsRepository(session)
@@ -193,10 +211,60 @@ async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: in
     return kb.as_markup(), vacancies[offset]
 
 
-async def edit_team(team_id: int) -> InlineKeyboardMarkup:
+def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='Название', callback_data=f'edit_team_name_{team_id}')
-    kb.button(text='Аватар', callback_data=f'edit_team_avatar_{team_id}')
-    kb.button(text='Описание', callback_data=f'edit_team_description_{team_id}')
-    kb.adjust(2)
+    kb.button(text='Назад', callback_data=cb)
+    kb.button(text='Добавить автоматически', callback_data='add_technology_auto')
+    kb.button(text='Добавить вручную (пока не работает)', callback_data='add_technology_manually')
+
+    for i, t in enumerate(techs):
+        kb.button(text=f'удалить {i + 1})',
+                  callback_data=f'delete_technology_{t.id}')
+
+    kb.adjust(1, 1, 1, *[2 for _ in range(len(techs))])
+    return kb.as_markup()
+
+
+def hacks_keyboard(hacks: list, user_hacks: list[int], total: int, page: int,
+                   back: str, done: str, delete_old_hacks: str, limit: int = 5) -> InlineKeyboardMarkup:
+    # 1 <= len(hacks) <= 5
+    kb = InlineKeyboardBuilder()
+
+    for h in hacks:
+        txt = h.title
+        if h.id in user_hacks:
+            txt += '✅'
+        kb.button(text=txt, callback_data=f'edit_hack_{page}_{h.id}')
+
+    next_page = page + 1 if page * limit < total else 1
+    prev_page = page - 1 if page != 1 else ceil(total / limit)
+
+    kb.button(text='<<', callback_data=f'hacks_pages_{prev_page}')
+    kb.button(text='>>', callback_data=f'hacks_pages_{next_page}')
+    kb.button(text='Назад', callback_data=back)
+    kb.button(text='Готово', callback_data=done)
+
+    if delete_old_hacks:
+        kb.button(text='Удалить прошедшие хакатоны',
+                  callback_data=delete_old_hacks)
+
+    kb.adjust(*[1 for _ in range(len(hacks))], 2, 2, 2)
+    return kb.as_markup()
+
+
+def edit_team_keyboard(team_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.button(text='Редактировать название', callback_data=f'title_team_edit_{team_id}')
+    # kb.button(text='Редактировать аватарку', callback_data=f'avatar_team_edit_{team_id}')
+    kb.button(text='Редактировать описание', callback_data=f'description_team_edit_{team_id}')
+    kb.button(text='Редактировать желаемые хакатоны', callback_data=f'hacks_team_edit_{team_id}')
+    kb.button(text='Назад', callback_data=f'team_{team_id}')
+    kb.adjust(2, 2, 2, 1)
+    return kb.as_markup()
+
+
+def go_back(back):
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Назад', callback_data=back)
     return kb.as_markup()

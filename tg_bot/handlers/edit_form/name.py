@@ -1,3 +1,5 @@
+from datetime import date
+
 from aiogram import Router, F
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.context import FSMContext
@@ -11,6 +13,7 @@ from other.states import UserEditForm
 from core.dependencies.container import Container
 from core.services import UsersService
 from core import dtos
+from core.models import FormStatus
 
 router = Router()
 
@@ -22,6 +25,15 @@ def make_msg_list(collection: list) -> str:
     return '\n'.join(col)
 
 
+def make_hacks_list(lst: list[dtos.Hackathon]) -> list[str]:
+    today = date.today()
+    for i, h in enumerate(lst):
+        lst[i] = h.title
+        if h.end_date < today:
+            lst[i] += ' (<i>уже прошёл</i>)'
+    return lst
+
+
 @router.callback_query(F.data == 'my_forms')
 @inject
 async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
@@ -30,7 +42,13 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
         user = await service.get_user(cb.from_user.id)
         stack = make_msg_list(list(map(lambda t: t.title, user.technologies)))
         roles = make_msg_list(list(map(lambda r: r.title, user.roles)))
+        hacks = make_msg_list(make_hacks_list(user.hackathons))
         fullname = f'{user.name} {user.middle_name} {user.surname}'
+        status = 'в рассмотрении'
+        if user.form_status == FormStatus.approved:
+            status = 'одобрено'
+        elif user.form_status == FormStatus.rejected:
+            status = f'отклонено по причине: {user.moderator_feedback or '<i>не указано</i>'}'
         msg = f'''
 Вот твоя анкета
 <i><b>ФИО</b></i>
@@ -47,6 +65,10 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 {stack or '<i>не указано</i>'}
 <i><b>Роли</b></i>
 {roles or '<i>не указано</i>'}
+<i><b>Желаемые хакатоны</b></i>
+{hacks or '<i>не указано</i>'}
+\n
+Статус анкеты: {status}
 '''
         await cb.message.answer(msg, parse_mode=ParseMode.HTML,
                                 reply_markup=my_form_keyboard())
@@ -55,7 +77,7 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 
 @router.callback_query(F.data == 'my_form_edit_name')
 async def my_form_edit_name(cb: CallbackQuery, state: FSMContext):
-    await cb.message.reply('Окей, введи своё <b>имя</b>',
+    await cb.message.reply('Окей введи своё <b>имя</b>',
                            reply_markup=my_form_edit_field_keyboard(
                                'my_forms', 'my_form_delete_name'
                            ),

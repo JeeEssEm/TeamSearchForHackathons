@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -6,8 +6,17 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 
 from dependency_injector.wiring import Provide, inject
 
-from handlers.edit_form.name import my_forms_handler
-from keyboards.inline_keyboards import (create_main_keyboard, my_teams_keyboard, my_team_keyboard,
+from core.dependencies.container import Container
+from core.services import TeamsService, UsersService
+from core.repositories import WishesRepository
+from core import dtos
+
+from handlers.edit_form.name import (
+    my_forms_handler, make_hacks_list, make_msg_list
+)
+from handlers.filters import set_filters
+from keyboards.inline_keyboards import (
+    create_main_keyboard, my_teams_keyboard, my_team_keyboard,
     team_users_keyboard
 )
 from other.states import LeaveFeedbackForm
@@ -32,6 +41,17 @@ async def start_callback(cb: CallbackQuery, state: FSMContext):
     await cb.message.answer(text ='Вы в главном меню' ,reply_markup=create_main_keyboard())
 
 
+@router.callback_query(F.data == 'start')
+async def cb_start(cb: CallbackQuery, state: FSMContext, bot: Bot):
+    await cb.message.delete()
+    await state.clear()
+    await bot.send_message(
+        text='Приветствую тебя в <b>главном меню</b> выбери, что ты хочешь сделать',
+        reply_markup=create_main_keyboard(),
+        chat_id=cb.message.chat.id
+    )
+
+
 @router.callback_query(F.data == 'my_teams')
 @inject
 async def my_teams(cb: CallbackQuery, state: FSMContext,
@@ -45,29 +65,31 @@ async def my_teams(cb: CallbackQuery, state: FSMContext,
 @router.callback_query(F.data.startswith('team_'))
 @inject
 async def teams(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    await cb.message.delete()
     team_id = int(cb.data.split('_')[1])
     async with db.session() as session:
         team_service = TeamsService(session)
         team = await team_service.get_team_by_id(team_id)
-        # TODO: добавление хакатонов с fuzzy search по базе
-        team_members = ''.join(
-            list(map(lambda m: f'\t - _{m.name} {m.surname}_ \n', team.members))
-        )
+
+        team_members = make_msg_list(list([f'{m.name} {m.surname}'
+                                           for m in team.members]))
+        hacks = make_msg_list(make_hacks_list(team.hacks))
         await cb.message.answer(
             text=f'''Вот твоя команда:
-Название команды: {team.title}
-Описание: {team.description}
-Состав:\n {team_members}''',
+Название команды: {team.title}\n
+Описание: {team.description}\n
+Состав:\n{team_members}\n
+Желаемые хакатоны:\n{hacks}\n
+''',
             reply_markup=await my_team_keyboard(cb.from_user.id, team.id),
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.HTML
         )
-        await cb.message.delete()
 
 
 @router.callback_query(F.data.startswith('members_'))
 @inject
 async def members(cb: CallbackQuery, state: FSMContext):
-    team_id, offset = cb.data.split('_')[1], int(cb.data.split('_')[2]) if len(
+    team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
         cb.data.split('_')) > 2 else 0
 
     kb, user = await team_users_keyboard(cb.from_user.id, team_id, offset)
@@ -110,6 +132,7 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
     )
     await my_forms_handler(fake_callback, state)
 
+
 @router.callback_query(F.data.startswith('vacancies_'))
 async def view_vacancies(cb: CallbackQuery, state: FSMContext):
     team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
@@ -123,3 +146,10 @@ async def view_vacancies(cb: CallbackQuery, state: FSMContext):
                             reply_markup=kb
                             )
     await cb.message.delete()
+
+    
+@router.callback_query(F.data == 'search_form')
+async def search_forms(cb: CallbackQuery, state: FSMContext):
+    await state.update_data(return_back='start', find='CHANGEME')
+    await set_filters(cb, state)
+

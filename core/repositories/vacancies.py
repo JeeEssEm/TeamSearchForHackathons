@@ -1,4 +1,4 @@
-from sqlalchemy import insert, delete
+from sqlalchemy import insert, delete, select
 
 from .base import Repository
 from core import models
@@ -33,17 +33,16 @@ class VacanciesRepository(Repository):
         await self.session.execute(stmt)
         await self.session.commit()
 
-    async def create_vacancy(self, data: CreateVacancy) -> Vacancy:
-        vacancy = models.Vacancy(
+    async def create_vacancy(self, data: CreateVacancy) -> VacancyView:
+        vac = models.Vacancy(
             role_id=data.role_id,
             team_id=data.team_id,
             description=data.description,
             is_private=False,
         )
-        self.session.add(vacancy)
+        self.session.add(vac)
         await self.session.commit()
-        await self.session.refresh(vacancy)
-        return await vacancy.convert_to_dto_view()
+        return await vac.convert_to_dto_view()
 
     async def get_by_id(self, vacancy_id: int) -> VacancyView:
         vac = await self._get_by_id(vacancy_id)

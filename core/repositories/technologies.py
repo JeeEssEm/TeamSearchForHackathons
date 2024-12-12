@@ -55,8 +55,17 @@ class TechnologiesRepository(Repository):
         await self.session.execute(stmt)
         await self.session.commit()
 
-    async def check_if_same_exists(self, title: str) -> bool:
-        return False
+    async def search_technologies(self, title: str) -> list[Technology]:
+        q = (select(models.Technology)
+             .where(func.similarity(models.Technology.title, title) > 0.5)
+             .order_by(func.similarity(models.Technology.title, title).desc())
+             )
+        res = await self.session.scalars(q)
+        return list(map(lambda t: t.convert_to_dto(), res))
 
-    async def get_same_technologies(self, title: str) -> list[Technology]:
-        return [...]
+    async def get_technologies_startswith(self, letter: str) -> list[Technology]:
+        q = select(models.Technology).where(
+            func.lower(models.Technology.title).startswith(letter)
+        )
+        res = await self.session.scalars(q)
+        return list(map(lambda t: t.convert_to_dto(), res))

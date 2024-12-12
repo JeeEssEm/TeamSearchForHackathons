@@ -32,7 +32,6 @@ class RolesRepository(Repository):
             RoleView(
                 id=role.id,
                 title=role.title,
-                users=[user.id for user in role.users],
             )
             for role in roles
         ]
@@ -49,3 +48,9 @@ class RolesRepository(Repository):
         role = await self._get_by_id(role_id)
         await self.session.delete(role)
         await self.session.commit()
+
+    async def get_roles_ids(self, roles: list[str]) -> list[int]:
+        q = select(Role.id).where(
+            Role.title.in_(roles)
+        )
+        return list(await self.session.scalars(q))

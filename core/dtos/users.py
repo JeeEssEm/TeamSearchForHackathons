@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from core.models import FormStatus
+    from core.dtos.technologies import Technology
+    from core.dtos import Hackathon
 
 
 @dataclass
@@ -76,9 +78,9 @@ class User:
     form_status: 'FormStatus' = None
     moderator_feedback: str = None
     is_form_private: bool = False
-    technologies: list[str] = None
+    technologies: list['Technology'] = None
     roles: list[str] = None
-    hackathons: list[str] = None
+    hackathons: list['Hackathon'] = None
     sent_feedbacks: list[str] = None
     received_feedbacks: list[str] = None
 

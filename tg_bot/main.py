@@ -12,7 +12,10 @@ from config.config import Config, load_config
 
 from core.dependencies.container import Container
 
-from handlers import create_team, create_vacancy, start, reg
+from handlers import (
+    create_team, create_vacancy, start, reg, technologies, roles,
+    hackathons, edit_team, filters
+)
 from handlers.edit_form import (
     name, surname, middlename, uni, group, course, about_me
 )
@@ -62,6 +65,12 @@ async def main():
     dp.include_router(course.router)
     dp.include_router(about_me.router)
 
+    dp.include_router(technologies.router)
+    dp.include_router(roles.router)
+    dp.include_router(hackathons.router)
+    dp.include_router(edit_team.router)
+    dp.include_router(filters.router)
+
     container = Container()
     container.wire(modules=[
         __name__,
@@ -78,7 +87,11 @@ async def main():
         'handlers.edit_form.course',
         'handlers.edit_form.about_me',
         'handlers.create_vacancy',
-        __name__
+        'handlers.technologies',
+        'handlers.roles',
+        'handlers.hackathons',
+        'handlers.edit_team',
+        'handlers.filters'
     ])
 
     # await init_db()

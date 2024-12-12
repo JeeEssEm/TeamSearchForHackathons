@@ -11,30 +11,32 @@ if TYPE_CHECKING:
     from .hackathon import Hackathon
     from .vacancy import Vacancy
 
+
 class Team(Base):
     __tablename__ = "teams"
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(300), nullable=False)
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
     members: Mapped[list["User"]] = relationship("User", secondary="users_teams")
-    vacancies: Mapped[list["Vacancy"]] = relationship("Vacancy", secondary="vacancies_teams")
     hackathons: Mapped[list["Hackathon"]] = relationship(
         "Hackathon", secondary="teams_hackathons"
     )
     captain_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
     )
-    # поле для получения капитана
+
     captain: Mapped["User"] = relationship(back_populates="my_teams")
+    vacancies: Mapped[list["Vacancy"]] = relationship(back_populates="team")
 
     async def convert_to_dto(self) -> dtos.Team:
         members = [
             await user.convert_to_dto_member()
             for user in await self.awaitable_attrs.members
         ]
-        # members.append(
-        #     (await self.awaitable_attrs.captain).convert_to_dto_member()
-        # )
+        vacancies = [
+            await vac.convert_to_dto_view()
+            for vac in await self.awaitable_attrs.vacancies
+        ]
         return dtos.Team(
             id=self.id,
             title=self.title,
@@ -42,7 +44,8 @@ class Team(Base):
             members=members,
             captain_id=self.captain_id,
             hacks=[
-                hack.convert_to_dto_basehack()
+                hack.convert_to_dto()
                 for hack in await self.awaitable_attrs.hackathons
             ],
+            vacancies=vacancies,
         )
