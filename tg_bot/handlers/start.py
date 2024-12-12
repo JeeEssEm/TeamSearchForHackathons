@@ -20,11 +20,14 @@ from keyboards.inline_keyboards import (
     team_users_keyboard
 )
 from other.states import LeaveFeedbackForm
+from other.search_delegates import (
+    get_vacancies_delegate, retrieve_page_delegate)
 
 from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
 from core import dtos
+
 from tg_bot.keyboards.inline_keyboards import check_vacancies
 
 router = Router()
@@ -150,6 +153,10 @@ async def view_vacancies(cb: CallbackQuery, state: FSMContext):
     
 @router.callback_query(F.data == 'search_form')
 async def search_forms(cb: CallbackQuery, state: FSMContext):
-    await state.update_data(return_back='start', find='CHANGEME')
+    await state.update_data(
+        return_back='start',
+        find='init_search',
+        delegate=get_vacancies_delegate,
+        retrieve_delegate=retrieve_page_delegate
+    )
     await set_filters(cb, state)
-

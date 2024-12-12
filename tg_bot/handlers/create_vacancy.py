@@ -51,10 +51,10 @@ async def process_roles(poll_answer: PollAnswer, state: FSMContext, bot: Bot):
 @router.message(Command(commands='create_vacancy'))
 async def create_vacancy(message: Message, state: FSMContext):
     await message.reply('Введите искомую роль:')
-    await state.set_state(VacancyForm.role)
+    await state.set_state(VacancyForm.roles)
 
 
-@router.message(F.text, VacancyForm.role)
+@router.message(F.text, VacancyForm.roles)
 async def process_role(message: Message, state: FSMContext):
     await state.update_data(role=message.text)
     await message.reply(text='Введите описание роли:')

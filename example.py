@@ -43,8 +43,8 @@ async def test(db=Provide[Container.db]):
 @inject
 async def get_teams_test(db=Provide[Container.db]):
     async with db.session() as session:
-        team_repo = UsersRepository(session)
-        print(await team_repo.get_teams(1))
+        team_repo = TeamsRepository(session)
+        print(await team_repo.get_by_id(4))
 
 
 @inject
