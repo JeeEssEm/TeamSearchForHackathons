@@ -43,7 +43,6 @@ async def search(cb: CallbackQuery, state: FSMContext, bot: Bot, new_msg: bool =
 
     res = await retriever(state, page)
     if not res:
-        # await cb.message.delete()
         await bot.send_message(
             text='Ничего не найдено',
             chat_id=cb.message.chat.id,

@@ -195,8 +195,9 @@ def my_form_edit_field_keyboard(back: str, delete: str = None) -> InlineKeyboard
 #     return kb.as_markup()
 
 @inject
-async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
+async def check_vacancies(user_id: int, vacancy_id: int, team_id: int, offset: int = 0, db=Provide[Container.db]) -> tuple[InlineKeyboardMarkup, str]:
     kb = InlineKeyboardBuilder()
+
     async with db.session() as session:
         team_repo = TeamsRepository(session)
         team = await team_repo.get_by_id(team_id)
@@ -209,6 +210,32 @@ async def check_vacancies(user_id: int, vacancy_id: int, team_id:int, offset: in
     kb.button(text='Назад', callback_data=f'team_{team_id}')
     kb.adjust(2)
     return kb.as_markup(), vacancies[offset]
+
+
+def vacancies_keyboard(user_id: int, team: dtos.Team, page: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    total = len(team.members)
+    vac = team.vacancies[page - 1]
+
+    next_page = page + 1 if page <= total else 1
+    prev_page = page - 1 if page > 1 else total
+    adjust = []
+    if user_id == team.captain_id:
+        kb.button(text='Изменить роль', callback_data=f'|change_vac_role_{vac.id}')
+        kb.button(text='Изменить стек технологий',
+                  callback_data=f'|change_vac_techs_{vac.id}')
+
+        kb.button(text='Изменить описание',
+                  callback_data=f'|change_vac_description_{vac.id}')
+        kb.button(text='Удалить', callback_data=f'|delete_vac_{vac.id}')
+        adjust += [1, 1, 1, 1]
+
+    kb.button(text='<<', callback_data=f'|team_vacancies_{prev_page}')
+    kb.button(text='>>', callback_data=f'|team_vacancies_{next_page}')
+    kb.button(text='Назад', callback_data=f'team_{team.id}')
+    adjust += [2, 1]
+    kb.adjust(*adjust)
+    return kb.as_markup()
 
 
 def technologies_keyboard(techs, cb) -> InlineKeyboardMarkup:

@@ -30,7 +30,7 @@ from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
 from core import dtos
 
-from tg_bot.keyboards.inline_keyboards import check_vacancies
+from tg_bot.keyboards.inline_keyboards import vacancies_keyboard
 
 router = Router()
 
@@ -139,20 +139,37 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
 
 
 @router.callback_query(F.data.startswith('vacancies_'))
-async def view_vacancies(cb: CallbackQuery, state: FSMContext):
-    team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
-        cb.data.split('_')) > 2 else 0
-    # FIXME сделать текст
-    kb, vacancy = await check_vacancies(cb.from_user.id, team_id, offset)
+@inject
+async def get_vacancies(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    team_id = int(cb.data.split('_')[-1])
+    async with db.session() as session:
+        team_service = TeamsService(session)
+        team = await team_service.get_team_by_id(team_id)
+    await state.update_data(team=team)
+    await team_vacancies(cb, state)
 
-    await cb.message.answer(text=f'''--------''',
 
-                            parse_mode=ParseMode.MARKDOWN,
-                            reply_markup=kb
-                            )
+@router.callback_query(F.data.startswith('|team_vacancies_'))
+async def team_vacancies(cb: CallbackQuery, state: FSMContext):
+    page = int(cb.data.split('_')[-1]) if 'team' in cb.data else 1
+    team = (await state.get_data()).get('team')
+    if not team.vacancies:
+        await cb.message.answer(
+            text='В команде ещё нет вакансий'
+        )
+        return
+
+    await cb.message.answer(
+        text=f'{team.vacancies[page - 1]}',
+        reply_markup=vacancies_keyboard(
+            user_id=cb.from_user.id,
+            team=team,
+            page=page,
+        )
+    )
     await cb.message.delete()
 
-    
+
 @router.callback_query(F.data == 'search_team')
 async def search_team(cb: CallbackQuery, state: FSMContext):
     await state.update_data(

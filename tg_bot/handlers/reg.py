@@ -1,4 +1,5 @@
 from aiogram import F, Router, Bot
+from aiogram import F, Router, Bot
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, PollAnswer, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -25,7 +26,7 @@ import logging
 
 from other.filters import IsReg
 from other.states import UserForm, TechnologyForm
-import emoji
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ async def cmd_start(message: Message, state: FSMContext):
     user_id = str(message.from_user.id)
     await state.update_data(user_id=user_id)
     await message.reply(
-        "Привет!" + emoji.emojize(":wave:") + "Давай заполним данные для пользователя. Введи свою фамилию"
+        "Привет! Давай заполним данные для пользователя. Введи свою фамилию"
     )
     await state.set_state(UserForm.last_name)
 
@@ -60,7 +61,7 @@ async def process_first_name(message: Message, state: FSMContext):
 @router.message(F.text, UserForm.middle_name)
 async def process_middle_name(message: Message, state: FSMContext):
     await state.update_data(middle_name=message.text)
-    await message.reply("Введи название своего университета:" + emoji.emojize(":school:"))
+    await message.reply("Введи название своего университета:")
     await state.set_state(UserForm.university)
 
 
@@ -78,7 +79,7 @@ async def process_course(message: Message, state: FSMContext):
         await message.reply("Введи свою группу:")
         await state.set_state(UserForm.group)
         return
-    await message.reply('❗️ Введите натуральное число' + emoji.emojize(":x:"))
+    await message.reply('❗️ Введите натуральное число')
 
 
 @router.message(F.text, UserForm.group)
@@ -118,7 +119,7 @@ async def process_role_poll(poll_answer: PollAnswer, state: FSMContext,
         await state.update_data(roles=roles)
         logger.info(f"Roles selected: {roles}")
     await bot.send_message(
-        text='Отлично!' + emoji.emojize(":white_check_mark:") + 'Теперь введите ваш стек технологий'
+        text='Отлично! Теперь введите ваш стек технологий'
              ' (каждую технологию через запятую)',
         chat_id=poll_answer.user.id)
     logger.info("User data sent")
@@ -154,7 +155,7 @@ async def process_technologies(message: Message, state: FSMContext,
     await message.reply(
         f'{resp_text}\n\n'
         f'Вы сможете изменить этот список после окончания регистрации\n'
-        f'Теперь отправьте вашу аватарку:' + emoji.emojize(":camera:")
+        f'Теперь отправьте вашу аватарку:'
     )
     await state.update_data(technologies=seen)
     await state.set_state(UserForm.avatar)
@@ -162,7 +163,7 @@ async def process_technologies(message: Message, state: FSMContext,
 
 @router.callback_query(F.data == 'continue_avatar')
 async def continue_avatar(cb: CallbackQuery, state: FSMContext, bot: Bot):
-    await bot.send_message(text='Отлично! Теперь отправьте аватар:' + emoji.emojize(":camera:"),
+    await bot.send_message(text='Отлично! Теперь отправьте аватар:',
                            chat_id=cb.message.chat.id)
     await state.set_state(UserForm.avatar)
 

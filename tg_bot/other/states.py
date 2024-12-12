@@ -67,6 +67,12 @@ class VacancyForm(StatesGroup):
     stack = State()
 
 
+class VacancyEditForm(StatesGroup):
+    roles = State()
+    description = State()
+    stack = State()
+
+
 class LeaveFeedbackForm(StatesGroup):
     feedback = State()
 

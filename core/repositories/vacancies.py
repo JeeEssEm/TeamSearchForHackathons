@@ -18,7 +18,7 @@ class VacanciesRepository(Repository):
             [
                 {
                     "technology_id": tech,
-                    "vacancy_id": vacancy_id,
+                    "vacancy": vacancy_id,
                 }
                 for tech in techs
             ]
@@ -28,7 +28,7 @@ class VacanciesRepository(Repository):
 
     async def remove_all_technologies(self, vacancy_id: int):
         stmt = delete(models.vacancies_technologies).where(
-            models.vacancies_technologies.c.vacancy_id == vacancy_id
+            models.vacancies_technologies.c.vacancy == vacancy_id
         )
         await self.session.execute(stmt)
         await self.session.commit()
