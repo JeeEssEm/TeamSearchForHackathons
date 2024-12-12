@@ -112,7 +112,7 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
 
 @router.callback_query(F.data.startswith('vacancies_'))
 async def view_vacancies(cb: CallbackQuery, state: FSMContext):
-    team_id, offset = cb.data.split('_')[1], int(cb.data.split('_')[2]) if len(
+    team_id, offset = int(cb.data.split('_')[1]), int(cb.data.split('_')[2]) if len(
         cb.data.split('_')) > 2 else 0
     # FIXME сделать текст
     kb, vacancy = await check_vacancies(cb.from_user.id, team_id, offset)
