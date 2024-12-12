@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  tg_bot:
+    build:
+      context: .
+      dockerfile: tg_bot/Dockerfile
+    volumes:
+      - ./tg_bot:/app
+      - ./core:/app/core
+    env_file:
+      - ./tg_bot/.env
+    networks:
+      - teamsearch_network
+    depends_on:
+      - postgres
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin/Dockerfile
+    volumes:
+      - ./admin:/app
+      - ./core:/app/core
+    networks:
+      - teamsearch_network
+    depends_on:
+      - postgres
+    # ports:
+      # - "8000:8000"
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: "tsfh_db"
+      POSTGRES_USER: "jes"
+      POSTGRES_PASSWORD: "pwd123qwe"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../2. Init Database:/docker-entrypoint-initdb.d
+      - tsfh_db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - teamsearch_network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./admin/static_dev:/app/admin/static:ro
+    ports:
+      - "80:80"
+    networks:
+      - teamsearch_network
+    depends_on:
+      - admin
+      - tg_bot
+
+networks:
+  teamsearch_network:
+    driver: bridge
+
+volumes:
+  tsfh_db-data:
