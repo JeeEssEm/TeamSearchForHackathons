@@ -16,3 +16,9 @@ def get_filters(back: str, find: str, feel_lucky: str = None) -> InlineKeyboardM
     kb.button(text='Назад', callback_data=back)
     kb.adjust(*adjust)
     return kb.as_markup()
+
+
+def drop_techs_keyboard():
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Сбросить технологии', callback_data='drop_techs')
+    return kb.as_markup()

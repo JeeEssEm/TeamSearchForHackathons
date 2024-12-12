@@ -19,7 +19,7 @@ from core import dtos
 from handlers.edit_form.name import make_msg_list, make_hacks_list
 from handlers.hackathons import hacks_pages
 from other.states import FiltersForm
-from keyboards.filters_keyboard import get_filters
+from keyboards.filters_keyboard import get_filters, drop_techs_keyboard
 
 router = Router()
 
@@ -111,9 +111,25 @@ async def set_techs(cb: CallbackQuery, state: FSMContext, bot: Bot):
 
     await bot.send_message(
         text='Введите технологии через запятую:',
+        reply_markup=drop_techs_keyboard(),
         chat_id=cb.message.chat.id,
     )
     await state.set_state(FiltersForm.techs)
+
+
+@router.callback_query(F.data == 'drop_techs')
+async def drop_techs(cb: CallbackQuery, state: FSMContext, bot: Bot):
+    await cb.message.delete()
+    await state.update_data(techs=[])
+    data = await state.get_data()
+    back = data.get('return_back')
+    find = data.get('find')
+
+    await bot.send_message(
+        text=await build_message_with_filters(data),
+        reply_markup=get_filters(back, find),
+        chat_id=cb.message.chat.id
+    )
 
 
 @router.message(F.text, FiltersForm.techs)
