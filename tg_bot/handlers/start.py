@@ -16,7 +16,7 @@ from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
 from core.repositories import WishesRepository
 from core import dtos
-
+from tg_bot.keyboards.inline_keyboards import check_vacancies
 
 router = Router()
 
@@ -109,3 +109,17 @@ async def leave_feedback_message(message: Message, state: FSMContext, db=Provide
         chat_instance=str(message.chat.id)
     )
     await my_forms_handler(fake_callback, state)
+
+@router.callback_query(F.data.startswith('vacancies_'))
+async def view_vacancies(cb: CallbackQuery, state: FSMContext):
+    team_id, offset = cb.data.split('_')[1], int(cb.data.split('_')[2]) if len(
+        cb.data.split('_')) > 2 else 0
+    # FIXME сделать текст
+    kb, vacancy = await check_vacancies(cb.from_user.id, team_id, offset)
+
+    await cb.message.answer(text=f'''--------''',
+
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=kb
+                            )
+    await cb.message.delete()

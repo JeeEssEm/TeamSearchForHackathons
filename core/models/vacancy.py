@@ -8,7 +8,7 @@ from core import dtos
 
 if TYPE_CHECKING:
     from .technology import Technology
-
+    from . import Role
 
 class Vacancy(Base):
     __tablename__ = "vacancies"
@@ -24,16 +24,20 @@ class Vacancy(Base):
     technologies: Mapped[list["Technology"]] = relationship(
         secondary="vacancies_technologies"
     )
+    role: Mapped['Role'] = relationship()
+
 
     async def convert_to_dto_view(self):
         techs = [
             tech.convert_to_dto()
             for tech in await self.awaitable_attrs.technologies
         ]
+        role = await self.awaitable_attrs.role
         return dtos.VacancyView(
             id=self.id,
             team_id=self.team_id,
             description=self.description,
             technologies=techs,
-            role=await self.awaitable_attrs.role.title,
+            role=role.title if role else None,
         )
+

@@ -42,6 +42,7 @@ class VacanciesRepository(Repository):
         )
         self.session.add(vacancy)
         await self.session.commit()
+        await self.session.refresh(vacancy)
         return await vacancy.convert_to_dto_view()
 
     async def get_by_id(self, vacancy_id: int) -> VacancyView:

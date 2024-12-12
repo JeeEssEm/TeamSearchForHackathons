@@ -9,7 +9,7 @@ from core import dtos
 if TYPE_CHECKING:
     from .user import User
     from .hackathon import Hackathon
-
+    from .vacancy import Vacancy
 
 class Team(Base):
     __tablename__ = "teams"
@@ -17,6 +17,7 @@ class Team(Base):
     description: Mapped[str] = mapped_column(String(300), nullable=False)
     is_private: Mapped[bool] = mapped_column(Boolean, nullable=False)
     members: Mapped[list["User"]] = relationship("User", secondary="users_teams")
+    vacancies: Mapped[list["Vacancy"]] = relationship("Vacancy", secondary="vacancies_teams")
     hackathons: Mapped[list["Hackathon"]] = relationship(
         "Hackathon", secondary="teams_hackathons"
     )

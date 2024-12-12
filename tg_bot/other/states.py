@@ -39,7 +39,7 @@ class TeamForm(StatesGroup):
 
 
 class VacancyForm(StatesGroup):
-    role = State()
+    roles = State()
     description = State()
     stack = State()
 
