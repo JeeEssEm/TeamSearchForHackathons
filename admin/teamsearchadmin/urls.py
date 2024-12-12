@@ -17,12 +17,22 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
 
 import users.urls
 import home.urls
+import technologies.urls
+import questionary.urls
+import hackathons.urls
+import wishes.urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include(home.urls)),
     path("auth/", include(users.urls)),
-]
+    path("technologies/", include(technologies.urls)),
+    path("questionary/", include(questionary.urls)),
+    path("hackathons/", include(hackathons.urls)),
+    path("wishes/", include(wishes.urls)),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

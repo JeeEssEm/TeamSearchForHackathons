@@ -24,7 +24,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "token",
-                    models.CharField(max_length=100, verbose_name="Activation key"),
+                    models.CharField(
+                        max_length=100, verbose_name="Activation key"
+                    ),
                 ),
                 ("is_used", models.BooleanField(default=False)),
                 ("is_superuser", models.BooleanField(default=False)),
