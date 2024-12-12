@@ -6,11 +6,6 @@ from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 
 from dependency_injector.wiring import Provide, inject
 
-from core.dependencies.container import Container
-from core.services import TeamsService, UsersService
-from core.repositories import WishesRepository
-from core import dtos
-
 from handlers.edit_form.name import (
     my_forms_handler, make_hacks_list, make_msg_list
 )
@@ -31,7 +26,7 @@ from core.repositories import WishesRepository
 from core.models import FormStatus, team
 from core import dtos
 
-from tg_bot.keyboards.inline_keyboards import vacancies_keyboard
+from keyboards.inline_keyboards import vacancies_keyboard
 
 router = Router()
 
