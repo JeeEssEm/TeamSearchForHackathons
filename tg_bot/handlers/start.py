@@ -21,7 +21,9 @@ from keyboards.inline_keyboards import (
 )
 from other.states import LeaveFeedbackForm
 from other.search_delegates import (
-    get_vacancies_delegate, retrieve_page_delegate)
+    get_vacancies_delegate, retrieve_vacancies_delegate,
+    get_forms_delegate, retrieve_forms_delegate
+)
 
 from core.dependencies.container import Container
 from core.services import TeamsService, UsersService
@@ -151,12 +153,23 @@ async def view_vacancies(cb: CallbackQuery, state: FSMContext):
     await cb.message.delete()
 
     
+@router.callback_query(F.data == 'search_team')
+async def search_team(cb: CallbackQuery, state: FSMContext):
+    await state.update_data(
+        return_back='start',
+        find='init_search',
+        delegate=get_vacancies_delegate,
+        retrieve_delegate=retrieve_vacancies_delegate
+    )
+    await set_filters(cb, state)
+
+
 @router.callback_query(F.data == 'search_form')
 async def search_forms(cb: CallbackQuery, state: FSMContext):
     await state.update_data(
         return_back='start',
         find='init_search',
-        delegate=get_vacancies_delegate,
-        retrieve_delegate=retrieve_page_delegate
+        delegate=get_forms_delegate,
+        retrieve_delegate=retrieve_forms_delegate
     )
     await set_filters(cb, state)

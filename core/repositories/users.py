@@ -214,3 +214,28 @@ class UsersRepository(Repository):
         )
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def search_users(self, hacks: list[int], techs: list[int],
+                           roles: list[int], user_id: int):
+        q = select(models.User).where(
+            models.User.form_status == models.FormStatus.approved,
+            models.User.id != user_id
+        )
+        hack_q = select(models.users_hackathons.c.user_id)
+        tech_q = select(models.users_technologies.c.user_id)
+        role_q = select(models.users_roles.c.user_id)
+        if roles:
+            role_q = role_q.where(models.users_roles.c.role_id.in_(roles))
+            q = q.where(models.User.id.in_(role_q))
+        if hacks:
+            hack_q = hack_q.where(
+                models.users_hackathons.c.hackathon_id.in_(hacks)
+            )
+            q = q.where(models.User.id.in_(hack_q))
+        if techs:
+            tech_q = tech_q.where(
+                models.users_hackathons.c.technology_id.in_(techs)
+            )
+            q = q.where(models.User.id.in_(tech_q))
+        res = await self.session.scalars(q)
+        return [await u.convert_to_dto_user() for u in res]
