@@ -4,7 +4,8 @@ LEXICON_COMMANDS_RU: dict[str, str] = {
 }
 
 LEXICON_RU: dict[str, str] = {
-    '/start': '<b>Привет!</b>Ищешь команду на хакатон? Если что, пиши сюда: /help',
+    '/start':
+        '<b>Привет!</b>Ищешь команду на хакатон? Если что, пиши сюда: /help',
     '/help': 'пиши сюда: ...',
     'yes_button': 'Да',
     'send_appl': 'Отправить свою'

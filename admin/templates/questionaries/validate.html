@@ -45,9 +45,8 @@
 					<h5 class="text-muted">{{ q.uni|default_if_none:'' }}, {{ q.year_of_study|default_if_none:'' }}
 						курс, {{ q.group|default_if_none:'' }}</h5>
 					<!--			user.contacts: tg link?-->
-					<h5 class="text-muted"><a href="#">t.me/DohnJoe</a></h5>
+					<h5 class="text-muted"><a href="tg://user?id={{ q.id }}">t.me/</a></h5>
 				</div>
-				<a href="#" class="btn btn-dark my-auto ms-auto p-3">Скачать резюме</a>
 			</section>
 			<section>
 				<p>{{ q.about_me|default_if_none:'Тут ничего нет...' }}</p>

@@ -111,9 +111,12 @@ async def members(cb: CallbackQuery, state: FSMContext):
 
     kb, user = await team_users_keyboard(cb.from_user.id, team_id, offset)
     techs = make_msg_list([h.title for h in user.technologies])
+
     await cb.message.answer(text=f'''
 <i><b>ФИО</b></i>
 ╰{user.name} {user.surname}
+<i><b>Контакт</b></i>
+<a href="{cb.from_user.url}">t.me/</a>
 <i><b>Роль</b></i>
 ╰{user.role}
 <i><b>Стек технологий</b></i>

@@ -13,7 +13,8 @@ from core.repositories import (
 
 
 @inject
-async def get_vacancies_delegate(state: FSMContext, user_id: int, db=Provide[Container.db]):
+async def get_vacancies_delegate(state: FSMContext, user_id: int,
+                                 db=Provide[Container.db]):
     data = await state.get_data()
     techs = [t.id for t in data.get('techs', [])]
     hacks = data.get('user_hacks', [])
@@ -32,7 +33,8 @@ async def get_vacancies_delegate(state: FSMContext, user_id: int, db=Provide[Con
     await state.update_data(vacancies=vacs)
 
 
-async def retrieve_vacancies_delegate(state: FSMContext, page: int) -> (str, InlineKeyboardMarkup):
+async def retrieve_vacancies_delegate(state: FSMContext, page: int) -> (
+        str, InlineKeyboardMarkup):
     data = await state.get_data()
     vacs = data.get('vacancies')
 
@@ -45,7 +47,8 @@ async def retrieve_vacancies_delegate(state: FSMContext, page: int) -> (str, Inl
 
 
 @inject
-async def get_forms_delegate(state: FSMContext, user_id: int, db=Provide[Container.db]):
+async def get_forms_delegate(state: FSMContext, user_id: int,
+                             db=Provide[Container.db]):
     data = await state.get_data()
     techs = [t.id for t in data.get('techs', [])]
     hacks = data.get('user_hacks', [])
@@ -63,7 +66,8 @@ async def get_forms_delegate(state: FSMContext, user_id: int, db=Provide[Contain
     await state.update_data(forms=forms)
 
 
-async def retrieve_forms_delegate(state: FSMContext, page: int) -> (str, InlineKeyboardMarkup):
+async def retrieve_forms_delegate(state: FSMContext, page: int) -> (
+        str, InlineKeyboardMarkup):
     data = await state.get_data()
     vacs = data.get('forms')
 
