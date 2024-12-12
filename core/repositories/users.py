@@ -26,7 +26,10 @@ class UsersRepository(Repository):
         return await user.convert_to_dto_user()
 
     async def create_user(self, data: CreateUser) -> User:
-        user = models.User(**data.__dict__)
+        dct = data.__dict__
+        email = dct.pop('email')
+        user = models.User(**dct)
+        user.resume = email
         user.id = data.telegram_id
 
         self.session.add(user)
@@ -234,7 +237,7 @@ class UsersRepository(Repository):
             q = q.where(models.User.id.in_(hack_q))
         if techs:
             tech_q = tech_q.where(
-                models.users_hackathons.c.technology_id.in_(techs)
+                models.users_technologies.c.technology_id.in_(techs)
             )
             q = q.where(models.User.id.in_(tech_q))
         res = await self.session.scalars(q)

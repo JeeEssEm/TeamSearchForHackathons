@@ -93,14 +93,14 @@ class QuestionaryListView(AsyncLoginRequiredMixin, View):
         async with db.session() as session:
             user_service = UsersService(session)
             filters = {}
-            status = request.GET.get('status')
+            status = request.GET.get('status', '')
             mine = request.GET.get('mine', 'False') == 'True'
             if status:
                 filters['status'] = status
             if mine:
                 filters['moderator_id'] = request.user.id
 
-            limit = 10
+            limit = 5
             total, questionaries = await user_service.get_all_short_forms(
                 page, filters, limit
             )

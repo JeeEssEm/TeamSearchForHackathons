@@ -5,7 +5,7 @@ from dependency_injector.wiring import Provide, inject
 
 from keyboards.search_keyboards import (
     search_vacancy_keyboard, search_form_keyboard)
-
+from handlers.edit_form.name import make_msg_list
 from core.dependencies.container import Container
 from core.repositories import (
     VacanciesRepository, RolesRepository, UsersRepository
@@ -40,10 +40,19 @@ async def retrieve_vacancies_delegate(state: FSMContext, page: int) -> (
 
     if not vacs:
         return
-    current = vacs[page - 1]
+    vac = vacs[page - 1]
+    stack = make_msg_list([v.title for v in vac.technologies])
+    msg = f'''
+<i><b>Вакансия</b></i>
 
-    msg = f'{current}'
-    return msg, search_vacancy_keyboard(len(vacs), page, current.id)
+<i><b>Роль</b></i>
+{vac.role}
+<i><b>Стек технологий</b></i>
+{stack}
+<i><b>Описание</b></i>
+<i>{vac.description}</i>
+'''
+    return msg, search_vacancy_keyboard(len(vacs), page, vac.id)
 
 
 @inject
@@ -73,6 +82,39 @@ async def retrieve_forms_delegate(state: FSMContext, page: int) -> (
 
     if not vacs:
         return
-    current = vacs[page - 1]
-    msg = f'{current.name}'
-    return msg, search_form_keyboard(len(vacs), page, current.id)
+    u = vacs[page - 1]
+    roles = make_msg_list(list(map(lambda r: r.title, u.roles)))
+    hacks = make_msg_list(list(map(lambda h: h.title, u.hackathons)))
+    stack = make_msg_list(list(map(lambda t: t.title, u.technologies)))
+    fullname = f'{u.name} {u.middle_name} {u.surname}'
+    msg = f'''
+
+<i><b>Анкета</b></i>
+
+<i><b>ФИО</b></i>
+{fullname}
+
+<i><b>Университет</b></i>
+{u.uni or '<i>Не указано</i>'}
+
+
+<i><b>Университет</b></i>
+{u.year_of_study or '<i>Не указано</i>'}
+
+<i><b>Университет</b></i>
+{u.about_me or '<i>Не указано</i>'}
+
+<i><b>Стек технологий</b></i>
+{stack}
+
+<i><b>Роли</b></i>
+{roles or '<i>Не указано</i>'}
+
+
+<i><b>Желаемые хакатоны</b></i>
+{hacks or '<i>Не указано</i>'}
+
+<i><b>Описание</b></i>
+<i>{u.about_me or '<i>Не указано</i>'}</i>
+'''
+    return msg, search_form_keyboard(len(vacs), page, u.id)

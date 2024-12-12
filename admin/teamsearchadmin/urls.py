@@ -28,7 +28,7 @@ import hackathons.urls
 import wishes.urls
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("", include(home.urls)),
     path("auth/", include(users.urls)),
     path("technologies/", include(technologies.urls)),

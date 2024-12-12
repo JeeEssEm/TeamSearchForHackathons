@@ -38,9 +38,9 @@ def send_activation_email(user_id: int, email: str, request: HttpRequest):
 
     link = f'<a href="{link}">ссылке</a>'
     send_mail(
-        "Активация аккаунта",
-        # settings.DEFAULT_FROM_EMAIL,
-        f"Для активации аккаунта перейдите по {link}",
-        "test",
-        [email],
+        subject="Активация аккаунта",
+        message=f"Для активации аккаунта перейдите по {link}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email]
     )
+

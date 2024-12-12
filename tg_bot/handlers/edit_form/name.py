@@ -68,6 +68,9 @@ async def my_forms_handler(cb: CallbackQuery, state: FSMContext, db=Provide[Cont
 <i><b>Желаемые хакатоны</b></i>
 {hacks or '<i>не указано</i>'}
 \n
+
+Как с вами связаться: 
+<i>{user.resume or 'Не указано'}</i>
 Статус анкеты: {status}
 '''
         await cb.message.answer(msg, parse_mode=ParseMode.HTML,

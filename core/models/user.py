@@ -90,6 +90,7 @@ class User(Base):
             middle_name=self.middlename or "",
             surname=self.surname,
             role='',
+            contact=self.resume or '',
             technologies=[
                 tech.convert_to_dto()
                 for tech in await self.awaitable_attrs.technologies],

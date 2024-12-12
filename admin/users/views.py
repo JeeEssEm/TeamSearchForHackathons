@@ -56,6 +56,7 @@ class SignUpView(FormView):
 
         user.is_active = settings.DEFAULT_USER_ACTIVITY
         user.is_staff = self.token.is_superuser
+        user.is_superuser = self.token.is_superuser
         user.save()
 
         self.token.is_used = True

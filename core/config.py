@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    DB_HOST: str = "localhost"
+    DB_HOST: str = "84.252.135.33"
     DB_PORT: int = 5432
     DB_NAME: str = "tsfh_db"
     DB_USER: str = "jes"

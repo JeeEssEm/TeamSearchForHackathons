@@ -54,13 +54,20 @@ async def process_last_name(message: Message, state: FSMContext):
 @router.message(F.text, UserForm.first_name)
 async def process_first_name(message: Message, state: FSMContext):
     await state.update_data(first_name=message.text)
-    await message.reply("Введи свое отчество:")
+    await message.reply("Введи свой отчество")
     await state.set_state(UserForm.middle_name)
 
 
 @router.message(F.text, UserForm.middle_name)
-async def process_middle_name(message: Message, state: FSMContext):
+async def process_last_name(message: Message, state: FSMContext):
     await state.update_data(middle_name=message.text)
+    await message.reply("Введи свой контакт")
+    await state.set_state(UserForm.email)
+
+
+@router.message(F.text, UserForm.email)
+async def process_middle_name(message: Message, state: FSMContext):
+    await state.update_data(email=message.text)
     await message.reply("Введи название своего университета:")
     await state.set_state(UserForm.university)
 
@@ -163,6 +170,9 @@ async def process_technologies(message: Message, state: FSMContext,
 
 @router.message(F.text, UserForm.about_me)
 async def process_about(message: Message, state: FSMContext, bot: Bot):
+    if len(message.text) > 299:
+        await bot.send_message(text='Не более 300 символов. Повторите ввод', chat_id=message.chat.id)
+        return
     await state.update_data(about_me=message.text, back='complete_hacks',
                             done='complete_hacks', new_message=True)
     await bot.send_message(
@@ -205,7 +215,8 @@ async def complete_hacks(cb: CallbackQuery, state: FSMContext, bot: Bot,
             year_of_study=user_data.get('course'),
             group=user_data.get('group'),
             about_me=user_data.get('about_me'),
-        )
+            email=user_data.get('email')
+      )
         user = await user_service.create_user(user)
         if techs:
             await user_service.set_user_technologies(
@@ -220,7 +231,7 @@ async def complete_hacks(cb: CallbackQuery, state: FSMContext, bot: Bot,
     await bot.send_message(
         text='Вы в главном меню',
         chat_id=cb.message.chat.id,
-        reply_markup=create_main_keyboard()
+        reply_markup=create_main_keyboard(False)
     )
 
 

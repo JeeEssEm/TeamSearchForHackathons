@@ -36,12 +36,12 @@ async def cmd_create_team(cb: CallbackQuery, state: FSMContext):
 async def process_team_name(message: Message, state: FSMContext):
     await state.update_data(team_name=message.text)
     await message.reply("Отлично! Расскажите немного о команде:")
-    await state.set_state(TeamForm.team_achievements)
+    await state.set_state(TeamForm.team_description)
 
 
-@router.message(F.text, TeamForm.team_achievements)
+@router.message(F.text, TeamForm.team_description)
 async def process_team_achievements(message: Message, state: FSMContext):
-    await state.update_data(team_achievements=message.text)
+    await state.update_data(team_description=message.text)
     await message.reply("В каком актуальном хакатоне вы участвуете?")
 
     await state.update_data(back='start', done='current_hackathon',
@@ -111,8 +111,9 @@ async def process_current_hackathon(poll_answer: PollAnswer, state: FSMContext,
         msg = f'''
 Вот твоя команда:\n
 <i><b>Название команды:</b></i>\n
-<i>{user_data['team_name']}</i>
-{user_data['team_description']}
+<i>{team.title}</i>
+<i><b>Описание</b></i>
+{team.description}
 <i><b>Желаемые хакатоны:</b></i>
 {hacks}
 Состав:

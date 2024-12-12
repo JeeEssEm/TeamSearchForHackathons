@@ -69,3 +69,61 @@ async def process_edit_about_me(message: Message, state: FSMContext, db=Provide[
         chat_instance=str(message.chat.id)
     )
     await my_forms_handler(fake_callback, state)
+
+
+
+@router.callback_query(F.data == 'my_form_edit_contact')
+async def my_form_edit_contact(cb: CallbackQuery, state: FSMContext):
+    await cb.message.reply('Окей, введи свой <b>контакт</b>',
+                           reply_markup=my_form_edit_field_keyboard(
+                               'my_forms', 'my_form_delete_contact'
+                           ),
+                           parse_mode=ParseMode.HTML)
+    await state.set_state(UserEditForm.contact)
+    await cb.message.delete()
+
+
+@router.callback_query(F.data == 'my_form_delete_contact')
+@inject
+async def my_form_delete_about_me(cb: CallbackQuery, state: FSMContext, db=Provide[Container.db]):
+    async with db.session() as session:
+        service = UsersService(session)
+        await service.update_user(
+            cb.from_user.id,
+            dtos.UpdateUser(resume='')
+        )
+    await cb.message.answer('Информация о контакте успешно изменена!')
+    fake_callback = CallbackQuery(
+        id='fake',
+        from_user=cb.from_user,
+        message=cb.message,
+        data='my_forms',
+        chat_instance=cb.chat_instance
+    )
+    await my_forms_handler(fake_callback, state)
+
+
+@router.message(F.text, UserEditForm.contact)
+@inject
+async def process_edit_about_me(message: Message, state: FSMContext, db=Provide[Container.db]):
+    if len(message.text) > 300:
+        await message.reply('Текст не более 300 символов.')
+        return
+
+    async with db.session() as session:
+        service = UsersService(session)
+        await service.update_user(
+            message.from_user.id,
+            dtos.UpdateUser(resume=message.text)
+        )
+    await message.answer('Информация о контакте успешно изменена!')
+    fake_callback = CallbackQuery(
+        id='fake',
+        from_user=message.from_user,
+        message=message,
+        data='my_forms',
+        chat_instance=str(message.chat.id)
+    )
+    await my_forms_handler(fake_callback, state)
+
+

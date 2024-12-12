@@ -41,6 +41,7 @@ class UserEditForm(StatesGroup):
     course = State()
     group = State()
     roles = State()
+    contact = State()
 
 
 class TeamForm(StatesGroup):

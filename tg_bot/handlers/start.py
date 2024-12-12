@@ -31,7 +31,7 @@ from core.repositories import WishesRepository
 from core.models import FormStatus, team
 from core import dtos
 
-from tg_bot.keyboards.inline_keyboards import vacancies_keyboard
+from keyboards.inline_keyboards import vacancies_keyboard
 
 router = Router()
 
@@ -116,7 +116,7 @@ async def members(cb: CallbackQuery, state: FSMContext):
 <i><b>ФИО</b></i>
 ╰{user.name} {user.surname}
 <i><b>Контакт</b></i>
-<a href="{cb.from_user.url}">t.me/</a>
+{user.contact}
 <i><b>Роль</b></i>
 ╰{user.role}
 <i><b>Стек технологий</b></i>

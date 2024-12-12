@@ -19,6 +19,7 @@ class CreateUser:
     year_of_study: int = None
     group: str = None  # Указываем значение по умолчанию
     about_me: str = None
+    email: str = None
     # resume: str = None
     # avatar: str = None
 
@@ -57,6 +58,7 @@ class TeamMember(BaseUser):
     role: str
     technologies: list[str]
     about_me: str
+    contact: str = None
     # avatar: str  # потом S3 прикрутим и сделаем это
     # feedbacks:  #
 

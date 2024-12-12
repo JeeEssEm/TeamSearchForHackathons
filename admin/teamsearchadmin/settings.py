@@ -23,13 +23,15 @@ sys.path.append(PROJECT_ROOT)
 
 SECRET_KEY = "django-insecure-0rdm^6^0mi=@sbmsx-q=yg&yr#&my^krp^u17isdn0r=nnx$@"
 
-DEBUG = True
+DEBUG = False
 DEFAULT_USER_ACTIVITY = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_DELTA_DAYS = 3
+
+ADMIN_URL = "django_admin"
 
 INSTALLED_APPS = [
     "wishes.apps.WishesConfig",
@@ -118,6 +120,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
+    BASE_DIR / "static",
     BASE_DIR / "static_dev",
 ]
 
@@ -129,4 +132,14 @@ if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
     EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
 else:
-    ...
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = 'smtp.yandex.ru'
+    EMAIL_PORT = 465
+    EMAIL_USE_SSL = True
+
+    EMAIL_HOST_USER = 'greendiesel2006@yandex.ru'
+    EMAIL_HOST_PASSWORD = 'kpwhhwojwybttujj'
+
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+    SERVER_EMAIL = EMAIL_HOST_USER
+    EMAIL_ADMIN = EMAIL_HOST_USER
